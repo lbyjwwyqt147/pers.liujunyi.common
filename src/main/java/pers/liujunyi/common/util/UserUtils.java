@@ -26,11 +26,11 @@ public class UserUtils {
     @Autowired
     private RedisUtil redisUtil;
 
-    @Value("${jwt.header}")
+   /* @Value("${jwt.header}")
     private String tokenHeader;
 
     @Value("${jwt.tokenHead}")
-    private String tokenHead;
+    private String tokenHead;*/
 
     /**
      * 根据token 获取用户信息
@@ -55,7 +55,7 @@ public class UserUtils {
         String token = TokenUtils.getToken();
         String userKey =  RedisKeys.USER_KEY;
         Object object = redisUtil.hget(userKey, token);
-        if ( object != null){
+        if (object != null){
             UserDetail userDetail = JSON.parseObject(object.toString(), UserDetail.class);
             return userDetail;
         }
@@ -68,7 +68,7 @@ public class UserUtils {
      */
     public Long getUserId(){
         UserDetail userDetail = this.getUserDetail();
-        if ( userDetail != null){
+        if (userDetail != null){
             return userDetail.getAccountId();
         }
         return null;
@@ -79,9 +79,9 @@ public class UserUtils {
      * @param request
      * @return
      */
-    public String getUserToken(HttpServletRequest request){
+    /*public String getUserToken(HttpServletRequest request){
         String token = request.getHeader(tokenHeader);
         final String authToken = token.substring(tokenHead.length());
         return authToken;
-    }
+    }*/
 }
