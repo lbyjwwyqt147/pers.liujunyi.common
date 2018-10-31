@@ -16,5 +16,7 @@ public final class RedisKeys {
     // 用户帐号id 字段key
     public static final String USER_TOKEN_FIELD = "account:id:";
     // 用户信息  key
-    public static final String USER_KEY = "user:info";
+    public static final String USER_KEY = "cloud:user:info";
+    // 用户ID信息  key
+    public static final String USER_ID_KEY = "cloud:user:ids";
 }

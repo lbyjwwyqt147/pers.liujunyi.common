@@ -48,6 +48,17 @@ public class UserUtils {
     }
 
     /**
+     * 根据token　获取用户id
+     * @param token
+     * @return
+     */
+    public Long getUserId(String token) {
+        String userIdKey =  RedisKeys.USER_ID_KEY;
+        Object object = redisUtil.hget(userIdKey, token);
+        return object != null ? Long.valueOf(object.toString()) : null;
+    }
+
+    /**
      * 根据token 获取用户信息
      * @return
      */

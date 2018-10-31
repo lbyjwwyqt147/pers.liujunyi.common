@@ -124,7 +124,7 @@
     <repositories>
         <repository>
             <id>pers.liujunyi.common-mvn-repo</id>
-            <url>https://raw.github.com/lbyjwwyqt147/mvn-repo/</url>
+            <url>https://raw.github.com/lbyjwwyqt147/mvn-repo/master</url>
             <snapshots>
                 <enabled>true</enabled>
                 <updatePolicy>always</updatePolicy>

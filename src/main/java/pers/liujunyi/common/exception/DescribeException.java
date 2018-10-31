@@ -1,7 +1,7 @@
 package pers.liujunyi.common.exception;
 
 /***
- *
+ * 异常
  */
 public class DescribeException extends RuntimeException {
 
