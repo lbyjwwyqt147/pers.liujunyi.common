@@ -16,7 +16,9 @@ import java.security.NoSuchAlgorithmException;
  *
  *
  */
-public class MD5Utils {
+public final class MD5Utils {
+
+    private MD5Utils() {}
 
     /**
      * 16进制字符集

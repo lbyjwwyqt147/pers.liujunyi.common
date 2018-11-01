@@ -12,7 +12,9 @@ import java.util.Map;
 /***
  *  对返回给前端的数据进行格式封装处理
  */
-public class ResultUtil {
+public final class ResultUtil {
+
+    private ResultUtil() {}
 
     /**
      * 返回信息 传入返回具体出参

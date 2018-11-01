@@ -11,6 +11,7 @@ package pers.liujunyi.common.redis;
  *
  */
 public final class RedisKeys {
+    private RedisKeys() {}
     // 用户token   key
     public static final String USER_TOKEN_KEY = "security:jwt:user:token";
     // 用户帐号id 字段key

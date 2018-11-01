@@ -8,7 +8,9 @@ import java.util.List;
 /***
  * 工具类
  */
-public class SystemUtils {
+public final class SystemUtils {
+
+    private SystemUtils() {}
 
     /**
      * 将id字符串转　　List<Long>

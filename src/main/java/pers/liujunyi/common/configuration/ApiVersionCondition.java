@@ -28,11 +28,21 @@ public class ApiVersionCondition implements RequestCondition<ApiVersionCondition
         this.apiVersion = apiVersion;
     }
 
+    /**
+     *
+     * @param other
+     * @return
+     */
     public ApiVersionCondition combine(ApiVersionCondition other) {
         // 采用最后定义优先原则，则方法上的定义覆盖类上面的定义
         return new ApiVersionCondition(other.getApiVersion());
     }
 
+    /**
+     *
+     * @param request
+     * @return
+     */
     public ApiVersionCondition getMatchingCondition(HttpServletRequest request) {
         Matcher m = VERSION_PREFIX_PATTERN.matcher(request.getRequestURI());
         if (m.find()) {
@@ -43,6 +53,12 @@ public class ApiVersionCondition implements RequestCondition<ApiVersionCondition
         return null;
     }
 
+    /**
+     *
+     * @param other
+     * @param request
+     * @return
+     */
     public int compareTo(ApiVersionCondition other, HttpServletRequest request) {
         // 优先匹配最新的版本号
         return other.getApiVersion() - this.apiVersion;

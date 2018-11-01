@@ -41,6 +41,10 @@ public class ThreadPoolExecutorFactory {
     private ThreadPoolExecutorFactory(){
     }
 
+    /**
+     *
+     * @return
+     */
     public static ThreadPoolExecutor getThreadPoolExecutor() {
         if (null == threadPoolExecutor) {
             ThreadPoolExecutor t;

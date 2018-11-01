@@ -18,7 +18,9 @@ import java.util.*;
  *
  *
  */
-public abstract class DozerBeanMapperUtil {
+public final class DozerBeanMapperUtil {
+
+    private DozerBeanMapperUtil() {}
 
     /**
      *  通过spring BeanUtils 进行对象转换拷贝 DozerBeanMapperUtil.copyProperties(A,B.Class) 将A对象值拷贝到B对象

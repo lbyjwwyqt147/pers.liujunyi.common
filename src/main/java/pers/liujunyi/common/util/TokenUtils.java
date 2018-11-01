@@ -3,7 +3,9 @@ package pers.liujunyi.common.util;
 /***
  * token 工具类
  */
-public class TokenUtils {
+public final class TokenUtils {
+
+    private TokenUtils() {}
 
     private static final ThreadLocal<String> LOCAL_TOKEN = new ThreadLocal<>();
 
@@ -11,7 +13,7 @@ public class TokenUtils {
      * 设置token
      * @param token
      */
-    public static final void setToken(String token){
+    public static  void setToken(String token){
         LOCAL_TOKEN.set(token);
     }
 
@@ -19,7 +21,7 @@ public class TokenUtils {
      * 获取token
      * @return
      */
-    public static final String getToken(){
+    public static  String getToken(){
         String token = LOCAL_TOKEN.get();
         LOCAL_TOKEN.remove();
         return token;

@@ -62,4 +62,4 @@ public class LogicalExpression implements ICriterion {
     public Object getExp2() {  
         return exp2;  
     }    
-}  
+}
