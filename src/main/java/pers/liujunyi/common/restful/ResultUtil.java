@@ -2,6 +2,7 @@ package pers.liujunyi.common.restful;
 
 import com.alibaba.fastjson.JSON;
 import pers.liujunyi.common.exception.ErrorCodeEnum;
+import pers.liujunyi.common.util.DateTimeUtils;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -48,6 +49,7 @@ public final class ResultUtil {
      */
     public static RestfulVo success(Object data){
         RestfulVo result = new RestfulVo(ErrorCodeEnum.SUCCESS, data);
+        result.setTimestamp(DateTimeUtils.getCurrentDateTimeAsString());
         return result;
     }
 
@@ -59,6 +61,7 @@ public final class ResultUtil {
      */
     public static RestfulVo success(Object data, Object extend){
         RestfulVo result = new RestfulVo(ErrorCodeEnum.SUCCESS, data, extend);
+        result.setTimestamp(DateTimeUtils.getCurrentDateTimeAsString());
         return result;
     }
 
@@ -68,6 +71,7 @@ public final class ResultUtil {
      */
     public static RestfulVo success(){
         RestfulVo result = new RestfulVo(ErrorCodeEnum.SUCCESS);
+        result.setTimestamp(DateTimeUtils.getCurrentDateTimeAsString());
         return result;
     }
 
@@ -78,6 +82,7 @@ public final class ResultUtil {
      */
     public static RestfulVo fail(Object data){
         RestfulVo result = new RestfulVo(ErrorCodeEnum.FAIL, data);
+        result.setTimestamp(DateTimeUtils.getCurrentDateTimeAsString());
         return result;
     }
 
@@ -89,6 +94,7 @@ public final class ResultUtil {
      */
     public static RestfulVo fail(Object data,Object extend){
         RestfulVo result = new RestfulVo(ErrorCodeEnum.FAIL, data, extend);
+        result.setTimestamp(DateTimeUtils.getCurrentDateTimeAsString());
         return result;
     }
 
@@ -98,6 +104,7 @@ public final class ResultUtil {
      */
     public static RestfulVo fail(){
         RestfulVo result = new RestfulVo(ErrorCodeEnum.FAIL);
+        result.setTimestamp(DateTimeUtils.getCurrentDateTimeAsString());
         return result;
     }
 
@@ -113,6 +120,7 @@ public final class ResultUtil {
         result.setStatus(status);
         result.setMessage(message);
         result.setData(data);
+        result.setTimestamp(DateTimeUtils.getCurrentDateTimeAsString());
         return result;
     }
 
@@ -124,6 +132,7 @@ public final class ResultUtil {
      */
     public static RestfulVo resultInfo(ErrorCodeEnum errorCodeEnum, Object data){
         RestfulVo result = new RestfulVo(errorCodeEnum, data);
+        result.setTimestamp(DateTimeUtils.getCurrentDateTimeAsString());
         return result;
     }
 
@@ -137,6 +146,7 @@ public final class ResultUtil {
         RestfulVo result = new RestfulVo();
         result.setStatus(code);
         result.setMessage(message);
+        result.setTimestamp(DateTimeUtils.getCurrentDateTimeAsString());
         return result;
     }
 
@@ -146,6 +156,7 @@ public final class ResultUtil {
      */
     public static RestfulVo error(){
         RestfulVo result = new RestfulVo(ErrorCodeEnum.ERROR);
+        result.setTimestamp(DateTimeUtils.getCurrentDateTimeAsString());
         return result;
     }
 
@@ -186,6 +197,7 @@ public final class ResultUtil {
         Map<String, Object> map = new HashMap<>();
         map.put("message", obj);
         RestfulVo restfulVo = ResultUtil.resultInfo(errorCodeEnum, map);
+        restfulVo.setTimestamp(DateTimeUtils.getCurrentDateTimeAsString());
         writeJavaScript(response, restfulVo);
     }
 
@@ -197,6 +209,7 @@ public final class ResultUtil {
     public static void writeJavaScript(HttpServletResponse response, ErrorCodeEnum errorCodeEnum){
         //自定义的信息方便自己查看
         RestfulVo restfulVo = ResultUtil.resultInfo(errorCodeEnum, null);
+        restfulVo.setTimestamp(DateTimeUtils.getCurrentDateTimeAsString());
         writeJavaScript(response, restfulVo);
     }
 

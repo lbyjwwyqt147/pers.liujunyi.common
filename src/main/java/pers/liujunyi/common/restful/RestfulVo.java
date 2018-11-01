@@ -21,7 +21,7 @@ public class RestfulVo  implements Serializable {
     private String message; // 描述信息
     private Object data;   // 数据
     private Object extend; //扩展数据
-    private Long totalElements; //分页数据的　总记录条数
+    private String timestamp; //　时间
     @JSONField(serialize = false)
     @JsonIgnore
     private ErrorCodeEnum errorCodeEnum;
