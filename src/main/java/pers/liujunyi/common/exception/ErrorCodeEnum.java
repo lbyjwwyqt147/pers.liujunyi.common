@@ -16,6 +16,7 @@ public enum ErrorCodeEnum {
     LOGIN_WITHOUT("登录超时,请重新登录.","504"),
     LOGIN_FAIL("登录失败.","-2"),
     LOGIN_INCORRECT("登录账户或者密码错误.","-3"),
+    USER_LOCK("你登陆的用户已被锁定,请联系管理员.","-5"),
     TOKEN_INVALID("无效的用户token.","530"),
     NO_TOKEN("要访问此资源，需要完全身份验证,缺少请求头参数,Authorization传递是token值所以参数是必须的.","401");
 
