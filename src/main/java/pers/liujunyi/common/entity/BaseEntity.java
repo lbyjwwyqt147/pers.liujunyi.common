@@ -24,11 +24,6 @@ public class BaseEntity implements Serializable {
 
     private static final long serialVersionUID = -10498490916283309L;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    /** ID */
-    private Long id;
-
 
     /** 创建时间 */
     @Temporal(TemporalType.TIMESTAMP)

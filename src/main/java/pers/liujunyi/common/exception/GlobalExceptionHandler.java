@@ -23,12 +23,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(value = DescribeException.class)
     @ResponseBody
     public RestfulVo handlerDescribeException(DescribeException e) {
-        if (e instanceof DescribeException){
-            DescribeException myException = (DescribeException) e;
-            return ResultUtil.error(ErrorCodeEnum.ERROR.getCode(), myException.getMessage());
-        }
         log.error("【系统异常】： ", e);
-        return ResultUtil.error();
+        return ResultUtil.error(ErrorCodeEnum.ERROR.getCode(), e.getMessage());
     }
 
     /**
