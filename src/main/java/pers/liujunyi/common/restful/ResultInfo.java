@@ -13,7 +13,7 @@ import java.io.Serializable;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class RestfulVo  implements Serializable {
+public class ResultInfo implements Serializable {
 
     private static final long serialVersionUID = -4450312255234324795L;
 
@@ -22,27 +22,28 @@ public class RestfulVo  implements Serializable {
     private Object data;   // 数据
     private Object extend; //扩展数据
     private String timestamp; //　时间
+    private Boolean success = true; // 是否处理成功
     @JSONField(serialize = false)
     @JsonIgnore
     private ErrorCodeEnum errorCodeEnum;
 
-    public RestfulVo(){
+    public ResultInfo(){
 
     }
 
-    public RestfulVo(ErrorCodeEnum  errorCodeEnum){
+    public ResultInfo(ErrorCodeEnum  errorCodeEnum){
         this.status = errorCodeEnum.getCode();
         this.message = errorCodeEnum.getMessage();
     }
 
-    public RestfulVo(ErrorCodeEnum  errorCodeEnum, Object data, Object extend){
+    public ResultInfo(ErrorCodeEnum  errorCodeEnum, Object data, Object extend){
         this.status = errorCodeEnum.getCode();
         this.message = errorCodeEnum.getMessage();
         this.data = data;
         this.extend = extend;
     }
 
-    public RestfulVo(ErrorCodeEnum  errorCodeEnum, Object data){
+    public ResultInfo(ErrorCodeEnum  errorCodeEnum, Object data){
         this.status = errorCodeEnum.getCode();
         this.message = errorCodeEnum.getMessage();
         this.data = data;
