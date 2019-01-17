@@ -15,7 +15,7 @@ import java.util.Map;
  */
 public final class ResultUtil {
 
-    private ResultUtil() {}
+    private ResultUtil() { }
 
     /**
      * 返回信息 传入返回具体出参
@@ -23,8 +23,8 @@ public final class ResultUtil {
      * @param data
      * @return
      */
-    public static RestfulVo restfulInfo(boolean success, Object data){
-       if (success){
+    public static ResultInfo restfulInfo(boolean success, Object data) {
+       if (success) {
            return success(data);
        }
        return fail(data);
@@ -35,8 +35,8 @@ public final class ResultUtil {
      * @param  success
      * @return
      */
-    public static RestfulVo restfulInfo(boolean success){
-        if (success){
+    public static ResultInfo restfulInfo(boolean success) {
+        if (success) {
             return success();
         }
         return fail();
@@ -47,9 +47,10 @@ public final class ResultUtil {
      * @param data
      * @return
      */
-    public static RestfulVo success(Object data){
-        RestfulVo result = new RestfulVo(ErrorCodeEnum.SUCCESS, data);
+    public static ResultInfo success(Object data) {
+        ResultInfo result = new ResultInfo(ErrorCodeEnum.SUCCESS, data);
         result.setTimestamp(DateTimeUtils.getCurrentDateTimeAsString());
+        result.setSuccess(true);
         return result;
     }
 
@@ -59,9 +60,10 @@ public final class ResultUtil {
      * @param extend 扩展数据
      * @return
      */
-    public static RestfulVo success(Object data, Object extend){
-        RestfulVo result = new RestfulVo(ErrorCodeEnum.SUCCESS, data, extend);
+    public static ResultInfo success(Object data, Object extend) {
+        ResultInfo result = new ResultInfo(ErrorCodeEnum.SUCCESS, data, extend);
         result.setTimestamp(DateTimeUtils.getCurrentDateTimeAsString());
+        result.setSuccess(true);
         return result;
     }
 
@@ -69,9 +71,10 @@ public final class ResultUtil {
      * 返回成功，不需要返回具体参数
      * @return
      */
-    public static RestfulVo success(){
-        RestfulVo result = new RestfulVo(ErrorCodeEnum.SUCCESS);
+    public static ResultInfo success() {
+        ResultInfo result = new ResultInfo(ErrorCodeEnum.SUCCESS);
         result.setTimestamp(DateTimeUtils.getCurrentDateTimeAsString());
+        result.setSuccess(true);
         return result;
     }
 
@@ -80,9 +83,10 @@ public final class ResultUtil {
      * @param data
      * @return
      */
-    public static RestfulVo fail(Object data){
-        RestfulVo result = new RestfulVo(ErrorCodeEnum.FAIL, data);
+    public static ResultInfo fail(Object data) {
+        ResultInfo result = new ResultInfo(ErrorCodeEnum.FAIL, data);
         result.setTimestamp(DateTimeUtils.getCurrentDateTimeAsString());
+        result.setSuccess(false);
         return result;
     }
 
@@ -92,9 +96,10 @@ public final class ResultUtil {
      * @param extend
      * @return
      */
-    public static RestfulVo fail(Object data,Object extend){
-        RestfulVo result = new RestfulVo(ErrorCodeEnum.FAIL, data, extend);
+    public static ResultInfo fail(Object data, Object extend) {
+        ResultInfo result = new ResultInfo(ErrorCodeEnum.FAIL, data, extend);
         result.setTimestamp(DateTimeUtils.getCurrentDateTimeAsString());
+        result.setSuccess(false);
         return result;
     }
 
@@ -102,9 +107,10 @@ public final class ResultUtil {
      * 返回失败，不需要返回具体参数
      * @return
      */
-    public static RestfulVo fail(){
-        RestfulVo result = new RestfulVo(ErrorCodeEnum.FAIL);
+    public static ResultInfo fail() {
+        ResultInfo result = new ResultInfo(ErrorCodeEnum.FAIL);
         result.setTimestamp(DateTimeUtils.getCurrentDateTimeAsString());
+        result.setSuccess(false);
         return result;
     }
 
@@ -113,14 +119,16 @@ public final class ResultUtil {
      * @param status  状态码
      * @param  message 消息
      * @param data 数据
+     * @param success 是否处理成功
      * @return
      */
-    public static RestfulVo resultInfo(String status, String message, Object data){
-        RestfulVo result = new RestfulVo();
+    public static ResultInfo resultInfo(String status, String message, Object data, Boolean success) {
+        ResultInfo result = new ResultInfo();
         result.setStatus(status);
         result.setMessage(message);
         result.setData(data);
         result.setTimestamp(DateTimeUtils.getCurrentDateTimeAsString());
+        result.setSuccess(success);
         return result;
     }
 
@@ -130,8 +138,21 @@ public final class ResultUtil {
      * @param data 数据
      * @return
      */
-    public static RestfulVo resultInfo(ErrorCodeEnum errorCodeEnum, Object data){
-        RestfulVo result = new RestfulVo(errorCodeEnum, data);
+    public static ResultInfo resultInfo(ErrorCodeEnum errorCodeEnum, Object data, Boolean success) {
+        ResultInfo result = new ResultInfo(errorCodeEnum, data);
+        result.setTimestamp(DateTimeUtils.getCurrentDateTimeAsString());
+        result.setSuccess(success);
+        return result;
+    }
+
+    /**
+     * 自定义返回信息
+     * @param errorCodeEnum
+     * @param data 数据
+     * @return
+     */
+    public static ResultInfo resultInfo(ErrorCodeEnum errorCodeEnum, Object data) {
+        ResultInfo result = new ResultInfo(errorCodeEnum, data);
         result.setTimestamp(DateTimeUtils.getCurrentDateTimeAsString());
         return result;
     }
@@ -142,10 +163,11 @@ public final class ResultUtil {
      * @param message
      * @return
      */
-    public static RestfulVo error(String code, String message){
-        RestfulVo result = new RestfulVo();
+    public static ResultInfo error(String code, String message) {
+        ResultInfo result = new ResultInfo();
         result.setStatus(code);
         result.setMessage(message);
+        result.setSuccess(false);
         result.setTimestamp(DateTimeUtils.getCurrentDateTimeAsString());
         return result;
     }
@@ -154,9 +176,10 @@ public final class ResultUtil {
      * 返回异常信息，在已知的范围内
      * @return
      */
-    public static RestfulVo error(){
-        RestfulVo result = new RestfulVo(ErrorCodeEnum.ERROR);
+    public static ResultInfo error() {
+        ResultInfo result = new ResultInfo(ErrorCodeEnum.ERROR);
         result.setTimestamp(DateTimeUtils.getCurrentDateTimeAsString());
+        result.setSuccess(false);
         return result;
     }
 
@@ -165,7 +188,7 @@ public final class ResultUtil {
      * @param response
      * @param obj  任意类型
      */
-    public static void writeJavaScript(HttpServletResponse response, Object obj){
+    public static void writeJavaScript(HttpServletResponse response, Object obj) {
         response.setContentType("application/json;charset=UTF-8");
         response.setHeader("Cache-Control", "no-store, max-age=0, no-cache, must-revalidate");
         response.addHeader("Cache-Control", "post-check=0, pre-check=0");
@@ -192,11 +215,11 @@ public final class ResultUtil {
      * @param errorCodeEnum
      * @param obj
      */
-    public static void writeJavaScript(HttpServletResponse response, ErrorCodeEnum errorCodeEnum, Object obj){
+    public static void writeJavaScript(HttpServletResponse response, ErrorCodeEnum errorCodeEnum, Object obj) {
         //自定义的信息方便自己查看
         Map<String, Object> map = new HashMap<>();
         map.put("message", obj);
-        RestfulVo restfulVo = ResultUtil.resultInfo(errorCodeEnum, map);
+        ResultInfo restfulVo = ResultUtil.resultInfo(errorCodeEnum, map);
         restfulVo.setTimestamp(DateTimeUtils.getCurrentDateTimeAsString());
         writeJavaScript(response, restfulVo);
     }
@@ -206,9 +229,9 @@ public final class ResultUtil {
      * @param response
      * @param errorCodeEnum
      */
-    public static void writeJavaScript(HttpServletResponse response, ErrorCodeEnum errorCodeEnum){
+    public static void writeJavaScript(HttpServletResponse response, ErrorCodeEnum errorCodeEnum) {
         //自定义的信息方便自己查看
-        RestfulVo restfulVo = ResultUtil.resultInfo(errorCodeEnum, null);
+        ResultInfo restfulVo = ResultUtil.resultInfo(errorCodeEnum, null);
         restfulVo.setTimestamp(DateTimeUtils.getCurrentDateTimeAsString());
         writeJavaScript(response, restfulVo);
     }

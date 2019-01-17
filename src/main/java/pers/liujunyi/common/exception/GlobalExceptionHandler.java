@@ -5,7 +5,7 @@ import org.springframework.validation.BindException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
-import pers.liujunyi.common.restful.RestfulVo;
+import pers.liujunyi.common.restful.ResultInfo;
 import pers.liujunyi.common.restful.ResultUtil;
 
 /***
@@ -22,7 +22,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(value = DescribeException.class)
     @ResponseBody
-    public RestfulVo handlerDescribeException(DescribeException e) {
+    public ResultInfo handlerDescribeException(DescribeException e) {
         log.error("【系统异常】： ", e);
         return ResultUtil.error(ErrorCodeEnum.ERROR.getCode(), e.getMessage());
     }
@@ -34,7 +34,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(value = Exception.class)
     @ResponseBody
-    public RestfulVo handlerException(Exception e) {
+    public ResultInfo handlerException(Exception e) {
         if (e instanceof DescribeException){
             DescribeException myException = (DescribeException) e;
             return ResultUtil.error(ErrorCodeEnum.ERROR.getCode(), myException.getMessage());
@@ -51,7 +51,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(value = BindException.class)
     @ResponseBody
-    public RestfulVo handlerBindException(BindException e) {
+    public ResultInfo handlerBindException(BindException e) {
         StringBuffer errorMsg = new StringBuffer();
         e.getAllErrors().forEach(item -> errorMsg.append(item.getDefaultMessage()).append("."));
         log.error("【validation 参数校验异常】： ", e);
