@@ -21,7 +21,7 @@ public class ThreadPoolExecutorFactory {
     /**
      * maximumPoolSize - 池中允许的最大线程数(采用LinkedBlockingQueue时没有作用)。
      */
-    private static final int  maximumPoolSize  = corePoolSize * 2;
+    private static final int  maximumPoolSize  = corePoolSize;
     /**
      * keepAliveTime -当线程数大于核心时，此为终止前多余的空闲线程等待新任务的最长时间，线程池维护线程所允许的空闲时间
      */
