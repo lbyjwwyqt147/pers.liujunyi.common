@@ -1,7 +1,5 @@
 package pers.liujunyi.common.vo.tree;
 
-import pers.liujunyi.common.vo.tree.AbstractEasyuiTreeComponent;
-
 import java.util.LinkedList;
 
 /***

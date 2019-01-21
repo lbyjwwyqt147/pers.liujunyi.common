@@ -2,13 +2,10 @@ package pers.liujunyi.common.util;
 
 import com.alibaba.fastjson.JSON;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import pers.liujunyi.common.redis.RedisKeys;
 import pers.liujunyi.common.redis.RedisUtil;
 import pers.liujunyi.common.vo.user.UserDetail;
-
-import javax.servlet.http.HttpServletRequest;
 
 /***
  *

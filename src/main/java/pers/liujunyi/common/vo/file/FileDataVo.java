@@ -38,6 +38,4 @@ public class FileDataVo implements Serializable {
     /** 文件大小（kb） */
     private Double fileSize;
 
-    /** 描述 */
-    private String description;
 }

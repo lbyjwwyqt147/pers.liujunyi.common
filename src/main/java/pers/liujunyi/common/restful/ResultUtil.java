@@ -122,7 +122,7 @@ public final class ResultUtil {
      * @param success 是否处理成功
      * @return
      */
-    public static ResultInfo resultInfo(String status, String message, Object data, Boolean success) {
+    public static ResultInfo resultInfo(Integer status, String message, Object data, Boolean success) {
         ResultInfo result = new ResultInfo();
         result.setStatus(status);
         result.setMessage(message);
@@ -163,7 +163,7 @@ public final class ResultUtil {
      * @param message
      * @return
      */
-    public static ResultInfo error(String code, String message) {
+    public static ResultInfo error(Integer code, String message) {
         ResultInfo result = new ResultInfo();
         result.setStatus(code);
         result.setMessage(message);
