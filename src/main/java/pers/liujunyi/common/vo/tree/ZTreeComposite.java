@@ -38,6 +38,7 @@ public class ZTreeComposite extends AbstractZTreeComponent {
         return (AbstractZTreeComponent) children.get(i);
     }
 
+    @Override
     public void operation() {
         //容器构件具体业务方法的实现
         //递归调用成员构件的业务方法

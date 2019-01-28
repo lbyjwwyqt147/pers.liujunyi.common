@@ -18,4 +18,10 @@ public class BaseDto implements Serializable {
 
     /** ID */
     private Long id;
+
+    /** 凭证 */
+    private String credential;
+
+    /** 标记 1：代表新增 2：代表修改 */
+    private Byte mark;
 }

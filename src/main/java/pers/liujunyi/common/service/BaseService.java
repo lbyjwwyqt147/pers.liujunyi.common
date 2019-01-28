@@ -1,5 +1,7 @@
 package pers.liujunyi.common.service;
 
+import pers.liujunyi.common.restful.ResultInfo;
+
 import java.io.Serializable;
 import java.util.List;
 

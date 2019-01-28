@@ -1,7 +1,10 @@
 package pers.liujunyi.common.util;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 
 /***
  *　DateTimeUtils
@@ -20,5 +23,19 @@ public final class DateTimeUtils {
     public static String getCurrentDateTimeAsString() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(YMDHMS);
         return LocalDateTime.now().format(formatter);
+    }
+
+
+    /**
+     * 当前时间基础上追加年份
+     * @param year
+     * @return
+     */
+    public static Date additionalYear(long year) {
+        LocalDateTime localDateTime = LocalDateTime.now().plusYears(year);
+        ZoneId zoneId = ZoneId.systemDefault();
+        ZonedDateTime zdt = localDateTime.atZone(zoneId);
+        Date date = Date.from(zdt.toInstant());
+        return  date;
     }
 }
