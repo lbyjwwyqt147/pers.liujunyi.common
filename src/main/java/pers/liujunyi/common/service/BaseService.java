@@ -1,7 +1,5 @@
 package pers.liujunyi.common.service;
 
-import pers.liujunyi.common.restful.ResultInfo;
-
 import java.io.Serializable;
 import java.util.List;
 
@@ -16,27 +14,59 @@ import java.util.List;
  * @version 1.0
  * @author ljy
  */
-public interface BaseService<T, ID extends Serializable> {
+public interface BaseService<T, PK extends Serializable> {
 
     /**
-     * 根据一组ID 批量删除
-     * @param ids
+     * 查询所有数据
      * @return
      */
-    Boolean  deleteAllByIdIn(List<ID> ids);
+    List<T> findAll();
 
     /**
-     * 根据ID单条删除
+     * 根据主键ID 获取数据
+     * @param var1
+     * @return
+     */
+    T getOne(PK var1);
+
+    /**
+     * 根据主键ID 检查数据是否存在
      * @param id
      * @return
      */
-    Boolean  deleteById(ID id);
+    boolean existsById(PK id);
+
+    /**
+     * 根据一组主键ID 批量删除
+     * @param ids
+     * @return
+     */
+    Boolean  deleteAllByIdIn(List<PK> ids);
+
+    /**
+     * 根据主键ID 单条删除
+     * @param id
+     * @return
+     */
+    Boolean  deleteById(PK id);
+
+    /**
+     * 单条删除数据  （实体对象作为参数）
+     * @param t
+     */
+    void delete(T t);
+
+    /**
+     *  批量删除 (实体对象作为参数)
+     * @param var1
+     */
+    void deleteInBatch(Iterable<T> var1);
 
     /**
      * 根据一组ID获取数据
      * @param ids
      * @return
      */
-    List<T> findByIdIn(List<ID> ids);
+    List<T> findByIdIn(List<PK> ids);
 
 }

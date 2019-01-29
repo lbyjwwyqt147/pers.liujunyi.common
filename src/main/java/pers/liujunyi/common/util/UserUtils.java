@@ -1,9 +1,7 @@
 package pers.liujunyi.common.util;
 
-import com.alibaba.fastjson.JSON;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import pers.liujunyi.common.redis.RedisKeys;
 import pers.liujunyi.common.redis.RedisUtil;
 import pers.liujunyi.common.vo.user.UserDetail;
 
@@ -35,12 +33,12 @@ public class UserUtils {
      * @return
      */
     public UserDetail getUser(String token){
-        String userKey =  RedisKeys.USER_KEY;
+       /* String userKey =  RedisKeys.USER_KEY;
         Object object = redisUtil.hget(userKey, token);
         if (object != null){
             UserDetail userDetail = JSON.parseObject(object.toString(), UserDetail.class);
             return userDetail;
-        }
+        }*/
         return null;
     }
 
@@ -50,9 +48,10 @@ public class UserUtils {
      * @return
      */
     public Long getUserId(String token) {
-        String userIdKey =  RedisKeys.USER_ID_KEY;
+       /* String userIdKey =  RedisKeys.USER_ID_KEY;
         Object object = redisUtil.hget(userIdKey, token);
-        return object != null ? Long.valueOf(object.toString()) : null;
+        return object != null ? Long.valueOf(object.toString()) : null;*/
+       return null;
     }
 
     /**
@@ -60,13 +59,13 @@ public class UserUtils {
      * @return
      */
     public UserDetail getUserDetail(){
-        String token = TokenUtils.getToken();
+      /*  String token = TokenUtils.getToken();
         String userKey =  RedisKeys.USER_KEY;
         Object object = redisUtil.hget(userKey, token);
         if (object != null){
             UserDetail userDetail = JSON.parseObject(object.toString(), UserDetail.class);
             return userDetail;
-        }
+        }*/
         return null;
     }
 

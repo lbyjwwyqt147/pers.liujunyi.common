@@ -23,7 +23,7 @@ public final class ResultUtil {
      * @param data
      * @return
      */
-    public static ResultInfo restfulInfo(boolean success, Object data) {
+    public static ResultInfo info(boolean success, Object data) {
        if (success) {
            return success(data);
        }
@@ -35,7 +35,7 @@ public final class ResultUtil {
      * @param  success
      * @return
      */
-    public static ResultInfo restfulInfo(boolean success) {
+    public static ResultInfo info(boolean success) {
         if (success) {
             return success();
         }
@@ -75,6 +75,33 @@ public final class ResultUtil {
         ResultInfo result = new ResultInfo(ErrorCodeEnum.SUCCESS);
         result.setTimestamp(DateTimeUtils.getCurrentDateTimeAsString());
         result.setSuccess(true);
+        return result;
+    }
+
+    /**
+     * 返回参数认证消息，传入返回体具体出參
+     * @param message
+     * @return
+     */
+    public static ResultInfo params(String message) {
+        ResultInfo result = new ResultInfo();
+        result.setStatus(ErrorCodeEnum.PARAMS.getCode());
+        result.setMessage(message);
+        result.setTimestamp(DateTimeUtils.getCurrentDateTimeAsString());
+        result.setSuccess(false);
+        return result;
+    }
+
+    /**
+     * 返回参数认证消息，传入返回体具体出參(包含扩展数据)
+     * @param data
+     * @param extend
+     * @return
+     */
+    public static ResultInfo params(String message, Object data, Object extend) {
+        ResultInfo result = params(message);
+        result.setData(data);
+        result.setExtend(extend);
         return result;
     }
 
@@ -122,7 +149,7 @@ public final class ResultUtil {
      * @param success 是否处理成功
      * @return
      */
-    public static ResultInfo resultInfo(Integer status, String message, Object data, Boolean success) {
+    public static ResultInfo info(Integer status, String message, Object data, Boolean success) {
         ResultInfo result = new ResultInfo();
         result.setStatus(status);
         result.setMessage(message);
@@ -138,7 +165,7 @@ public final class ResultUtil {
      * @param data 数据
      * @return
      */
-    public static ResultInfo resultInfo(ErrorCodeEnum errorCodeEnum, Object data, Boolean success) {
+    public static ResultInfo info(ErrorCodeEnum errorCodeEnum, Object data, Boolean success) {
         ResultInfo result = new ResultInfo(errorCodeEnum, data);
         result.setTimestamp(DateTimeUtils.getCurrentDateTimeAsString());
         result.setSuccess(success);
@@ -151,7 +178,7 @@ public final class ResultUtil {
      * @param data 数据
      * @return
      */
-    public static ResultInfo resultInfo(ErrorCodeEnum errorCodeEnum, Object data) {
+    public static ResultInfo info(ErrorCodeEnum errorCodeEnum, Object data) {
         ResultInfo result = new ResultInfo(errorCodeEnum, data);
         result.setTimestamp(DateTimeUtils.getCurrentDateTimeAsString());
         return result;
@@ -219,7 +246,7 @@ public final class ResultUtil {
         //自定义的信息方便自己查看
         Map<String, Object> map = new HashMap<>();
         map.put("message", obj);
-        ResultInfo restfulVo = ResultUtil.resultInfo(errorCodeEnum, map);
+        ResultInfo restfulVo = info(errorCodeEnum, map);
         restfulVo.setTimestamp(DateTimeUtils.getCurrentDateTimeAsString());
         writeJavaScript(response, restfulVo);
     }
@@ -231,7 +258,7 @@ public final class ResultUtil {
      */
     public static void writeJavaScript(HttpServletResponse response, ErrorCodeEnum errorCodeEnum) {
         //自定义的信息方便自己查看
-        ResultInfo restfulVo = ResultUtil.resultInfo(errorCodeEnum, null);
+        ResultInfo restfulVo = info(errorCodeEnum, null);
         restfulVo.setTimestamp(DateTimeUtils.getCurrentDateTimeAsString());
         writeJavaScript(response, restfulVo);
     }

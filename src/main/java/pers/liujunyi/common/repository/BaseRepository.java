@@ -19,12 +19,12 @@ import java.util.List;
  * @author ljy
  */
 @NoRepositoryBean
-public interface  BaseRepository<T, ID extends Serializable> extends JpaRepository<T, ID>, JpaSpecificationExecutor<T> {
+public interface  BaseRepository<T, PK extends Serializable> extends JpaRepository<T, PK>, JpaSpecificationExecutor<T> {
 
     /**
      * 根据一组ID获取数据
      * @param ids
      * @return
      */
-     List<T> findByIdIn(List<ID> ids);
+     List<T> findByIdIn(List<PK> ids);
 }
