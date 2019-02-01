@@ -1,7 +1,7 @@
 package pers.liujunyi.common.configuration;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.stereotype.Component;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -14,7 +14,6 @@ import java.util.List;
  * @author ljy
  * @date
  */
-@Component
 public class DateConverterConfig implements Converter<String, Date> {
 
     private static final List<String> FORMARTS  = new ArrayList<>(4);
@@ -27,10 +26,10 @@ public class DateConverterConfig implements Converter<String, Date> {
 
     @Override
     public Date convert(String source) {
-        String value = source.trim();
-        if ("".equals(value)) {
+        if (StringUtils.isBlank(source)) {
             return null;
         }
+        source = source.trim();
         if (source.matches("^\\d{4}-\\d{1,2}$")) {
             return parseDate(source, FORMARTS.get(0));
         } else if (source.matches("^\\d{4}-\\d{1,2}-\\d{1,2}$")) {
