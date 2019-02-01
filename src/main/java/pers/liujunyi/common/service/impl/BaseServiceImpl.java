@@ -1,6 +1,7 @@
 package pers.liujunyi.common.service.impl;
 
-import pers.liujunyi.common.repository.BaseRepository;
+import org.springframework.transaction.annotation.Transactional;
+import pers.liujunyi.common.repository.jpa.BaseRepository;
 import pers.liujunyi.common.service.BaseService;
 
 import java.io.Serializable;
@@ -45,17 +46,20 @@ public class BaseServiceImpl<T, PK extends Serializable> implements BaseService<
         return true;
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public Boolean deleteById(PK id) {
         this.baseRepository.deleteById(id);
         return true;
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public void delete(T t) {
         this.baseRepository.delete(t);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public void deleteInBatch(Iterable<T> var1) {
         this.baseRepository.deleteInBatch(var1);
