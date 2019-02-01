@@ -33,10 +33,9 @@ public class GlobalExceptionHandler {
      * @return
      */
     @ExceptionHandler(value = DescribeException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
     public ResultInfo handlerDescribeException(DescribeException e) {
-        log.error("【系统异常】： ", e);
+        log.error("【系统逻辑异常】： ", e);
         return ResultUtil.error(ErrorCodeEnum.ERROR.getCode(), e.getMessage());
     }
 
@@ -46,14 +45,13 @@ public class GlobalExceptionHandler {
      * @return
      */
     @ExceptionHandler(value = Exception.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
     public ResultInfo handlerException(Exception e) {
         if (e instanceof DescribeException){
             DescribeException myException = (DescribeException) e;
             return ResultUtil.error(ErrorCodeEnum.ERROR.getCode(), myException.getMessage());
         }
-        log.error("【系统异常】： ", e);
+        log.error("【系统逻辑异常】： ", e);
         return ResultUtil.error();
     }
 
@@ -64,7 +62,6 @@ public class GlobalExceptionHandler {
      * @return
      */
     @ExceptionHandler(value = BindException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
     public ResultInfo handlerBindException(BindException e) {
         StringBuffer errorMsg = new StringBuffer();
@@ -80,7 +77,6 @@ public class GlobalExceptionHandler {
      * @return
      */
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
     public ResultInfo handlerMethodArgumentNotValidException(MethodArgumentNotValidException e) {
         StringBuffer errorMsg = new StringBuffer();
@@ -95,7 +91,6 @@ public class GlobalExceptionHandler {
      * 405 - Method Not Allowed
      */
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
     @ResponseBody
     public ResultInfo handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
         log.error("【不支持当前请求方法】：", e);
@@ -106,7 +101,6 @@ public class GlobalExceptionHandler {
      * 400 - Bad Request
      */
     @ExceptionHandler(ValidationException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
     public ResultInfo handleValidationException(ValidationException e) {
         log.error("【参数验证失败】", e);
@@ -117,7 +111,6 @@ public class GlobalExceptionHandler {
      * 400 - Bad Request
      */
     @ExceptionHandler(MissingServletRequestParameterException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
     public ResultInfo handleMissingServletRequestParameterException(MissingServletRequestParameterException e) {
         log.error("【参数验证失败】", e);
@@ -128,7 +121,6 @@ public class GlobalExceptionHandler {
      * 400 - Bad Request
      */
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
     public ResultInfo handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
         log.error("【参数解析失败】", e);
