@@ -24,4 +24,7 @@ public class BaseDto implements Serializable {
 
     /** 标记 1：代表新增 2：代表修改 */
     private Byte mark;
+
+    /** 历史数据 */
+    private String history;
 }
