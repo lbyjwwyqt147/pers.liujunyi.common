@@ -27,4 +27,7 @@ public class BaseDto implements Serializable {
 
     /** 历史数据 */
     private String history;
+
+    /** 0: 启动 1：禁用  */
+    private Byte status = 0;
 }
