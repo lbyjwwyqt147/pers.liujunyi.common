@@ -4,14 +4,16 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
 /***
  * zTree 树结构
+ * @author Administrator
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class ZTreeVo implements Serializable {
+public class ZTreeNode implements Serializable {
 
     private static final long serialVersionUID = -2059747305690452341L;
 
@@ -64,10 +66,19 @@ public class ZTreeVo implements Serializable {
 
     //节点id
     private Long id;
+    private Long pid;
 
     //节点显示的名称字符串
     private String name;
 
-    //子节点
-    private Vector<ZTreeVo> children = new Vector<>();
+    // 附加属性
+    private Object attributes;
+
+    private List<ZTreeNode> children = new ArrayList<>();
+
+    public ZTreeNode(Long id, Long pid, String name){
+        this.id =  id;
+        this.pid = pid;
+        this.name = name;
+    }
 }
