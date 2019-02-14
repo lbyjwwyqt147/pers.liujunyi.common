@@ -33,5 +33,5 @@ public interface  BaseRepository<T, PK extends Serializable> extends JpaReposito
      * @param ids
      * @return
      */
-    long deleteByIdIn(List<Long> ids);
+    long deleteByIdIn(List<PK> ids);
 }

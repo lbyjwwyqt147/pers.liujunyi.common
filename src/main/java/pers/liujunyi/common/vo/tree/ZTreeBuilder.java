@@ -16,7 +16,11 @@ public class ZTreeBuilder {
         List<ZTreeNode> notRoots = (List<ZTreeNode>) CollectionUtils
                 .subtract(dirs, roots);
         for (ZTreeNode root : roots) {
-            root.setChildren(findChildren(root, notRoots));
+            List<ZTreeNode> children = findChildren(root, notRoots);
+            if (!CollectionUtils.isEmpty(children)) {
+                root.setIsParent(true);
+            }
+            root.setChildren(children);
         }
         return roots;
     }
@@ -26,13 +30,14 @@ public class ZTreeBuilder {
         for (ZTreeNode node : allNodes) {
             boolean isRoot = true;
             for (ZTreeNode comparedOne : allNodes) {
-                if (node.getPid() == comparedOne.getId()) {
+                if (node.getPid().longValue() == comparedOne.getId().longValue()) {
                     isRoot = false;
                     break;
                 }
             }
             if (isRoot) {
                 results.add(node);
+                // pid = 0 表示根节点
                 if (node.getPid() == 0) {
                     node.setPid(0L);
                 } else {
@@ -45,21 +50,23 @@ public class ZTreeBuilder {
 
     private static List<ZTreeNode> findChildren(ZTreeNode root, List<ZTreeNode> allNodes) {
         List<ZTreeNode> children = new ArrayList<>();
-
         for (ZTreeNode comparedOne : allNodes) {
-            if (comparedOne.getPid() == root.getId()) {
+            if (comparedOne.getPid().longValue() == root.getId().longValue()) {
                 children.add(comparedOne);
             }
         }
         List<ZTreeNode> notChildren = (List<ZTreeNode>) CollectionUtils.subtract(allNodes, children);
         for (ZTreeNode child : children) {
             List<ZTreeNode> tmpChildren = findChildren(child, notChildren);
-            if (tmpChildren == null || tmpChildren.size() < 1) {
-                child.setParent(false);
+            if (CollectionUtils.isEmpty(tmpChildren)) {
+                child.setIsLeaf(true);
             } else {
-                child.setParent(true);
+                child.setIsLeaf(true);
             }
             child.setChildren(tmpChildren);
+        }
+        if (CollectionUtils.isEmpty(children)) {
+            return null;
         }
         return children;
     }

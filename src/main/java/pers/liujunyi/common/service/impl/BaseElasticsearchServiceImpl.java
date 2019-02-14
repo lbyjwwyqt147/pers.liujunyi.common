@@ -43,8 +43,12 @@ public class BaseElasticsearchServiceImpl<T, PK extends Serializable> implements
     }
 
     @Override
-    public Boolean deleteAllByIdIn(List<PK> ids) {
-        return true;
+    public Boolean deleteAllByIdIn(List<PK> ids){
+        long count = this.baseElasticsearchRepository.deleteByIdIn(ids);
+        if (count > 0) {
+            return true;
+        }
+        return false;
     }
 
     @Override

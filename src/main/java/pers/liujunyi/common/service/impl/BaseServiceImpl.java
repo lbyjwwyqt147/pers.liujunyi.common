@@ -43,7 +43,11 @@ public class BaseServiceImpl<T, PK extends Serializable> implements BaseService<
 
     @Override
     public Boolean deleteAllByIdIn(List<PK> ids) {
-        return true;
+        long count = this.baseRepository.deleteByIdIn(ids);
+        if (count > 0) {
+            return true;
+        }
+        return false;
     }
 
     @Transactional(rollbackFor = Exception.class)

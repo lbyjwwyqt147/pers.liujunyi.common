@@ -32,5 +32,5 @@ public interface BaseElasticsearchRepository<T, PK extends Serializable> extends
      * @param ids
      * @return
      */
-    long deleteByIdIn(List<Long> ids);
+    long deleteByIdIn(List<PK> ids);
 }
