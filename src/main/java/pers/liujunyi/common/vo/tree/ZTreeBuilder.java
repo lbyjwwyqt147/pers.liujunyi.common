@@ -33,7 +33,11 @@ public class ZTreeBuilder {
             }
             if (isRoot) {
                 results.add(node);
-                node.setPid(node.getId());
+                if (node.getPid() == 0) {
+                    node.setPid(0L);
+                } else {
+                    node.setPid(node.getId());
+                }
             }
         }
         return results;
@@ -51,9 +55,9 @@ public class ZTreeBuilder {
         for (ZTreeNode child : children) {
             List<ZTreeNode> tmpChildren = findChildren(child, notChildren);
             if (tmpChildren == null || tmpChildren.size() < 1) {
-                child.setParent(true);
-            } else {
                 child.setParent(false);
+            } else {
+                child.setParent(true);
             }
             child.setChildren(tmpChildren);
         }

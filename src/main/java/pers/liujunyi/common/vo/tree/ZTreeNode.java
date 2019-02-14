@@ -1,5 +1,6 @@
 package pers.liujunyi.common.vo.tree;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -42,11 +43,13 @@ public class ZTreeNode implements Serializable {
 
     //true 表示被隐藏
     //false 表示被显示
-    private  boolean isHidden;
+    @JSONField(name = "isHidden")  // 指定序列化之后的字段名，序列化时区分大小写；反序列化时不区分大小写
+    private  boolean isHidden = false;
 
     //true 表示是父节点
     //false 表示不是父节点
-    private boolean isParent;
+    @JSONField(name = "isParent")
+    private boolean isParent = false;
 
 
     // true 表示此节点不显示 checkbox / radio，不影响勾选的关联关系，不影响父节点的半选状态。
@@ -55,7 +58,7 @@ public class ZTreeNode implements Serializable {
 
     //true 表示节点为 展开 状态
     //false 表示节点为 折叠 状态
-    private boolean open;
+    private boolean open = false;
 
     //同超链接 target 属性: "_blank", "_self" 或 其他指定窗口名称
     //省略此属性，则默认为 "_blank"

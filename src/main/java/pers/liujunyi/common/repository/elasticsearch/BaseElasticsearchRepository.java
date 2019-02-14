@@ -1,8 +1,6 @@
 package pers.liujunyi.common.repository.elasticsearch;
 
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.NoRepositoryBean;
 
 import java.io.Serializable;
@@ -28,4 +26,11 @@ public interface BaseElasticsearchRepository<T, PK extends Serializable> extends
      * @return
      */
      List<T> findByIdIn(List<PK> ids);
+
+    /**
+     * 根据ID 批量删除
+     * @param ids
+     * @return
+     */
+    long deleteByIdIn(List<Long> ids);
 }

@@ -27,4 +27,11 @@ public interface  BaseRepository<T, PK extends Serializable> extends JpaReposito
      * @return
      */
      List<T> findByIdIn(List<PK> ids);
+
+    /**
+     * 根据ID 批量删除
+     * @param ids
+     * @return
+     */
+    long deleteByIdIn(List<Long> ids);
 }
