@@ -141,6 +141,8 @@ public abstract class BaseQuery<T>  {
                         case lessThanOrEqualTo:
                             predicates.add(cb.lessThanOrEqualTo(path, (Comparable) value));
                             break;
+                        default:
+                            break;
                     }
                 } catch (Exception e) {
                     continue;

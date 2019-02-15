@@ -212,6 +212,8 @@ public abstract class BaseEsQuery<T>  {
                     case lessThanOrEqualTo:
                         queryFilter.must(new RangeQueryBuilder(column).lte(value));
                         break;
+                    default:
+                        break;
                 }
             } catch (Exception e) {
                 continue;
