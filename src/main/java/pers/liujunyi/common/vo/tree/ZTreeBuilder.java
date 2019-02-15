@@ -19,6 +19,7 @@ public class ZTreeBuilder {
             List<ZTreeNode> children = findChildren(root, notRoots);
             if (!CollectionUtils.isEmpty(children)) {
                 root.setIsParent(true);
+                root.setIsLeaf(false);
             }
             root.setChildren(children);
         }
@@ -61,7 +62,7 @@ public class ZTreeBuilder {
             if (CollectionUtils.isEmpty(tmpChildren)) {
                 child.setIsLeaf(true);
             } else {
-                child.setIsLeaf(true);
+                child.setIsLeaf(false);
             }
             child.setChildren(tmpChildren);
         }

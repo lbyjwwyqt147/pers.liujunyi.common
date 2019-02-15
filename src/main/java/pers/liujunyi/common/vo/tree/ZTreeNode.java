@@ -5,7 +5,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
 /***
@@ -63,7 +62,7 @@ public class ZTreeNode implements Serializable {
 
     /** 是否是叶子节点  **/
     @JSONField(name = "isLeaf")
-    private Boolean isLeaf;
+    private Boolean isLeaf = true;
 
     /**
      * true 表示此节点不显示 checkbox / radio，不影响勾选的关联关系，不影响父节点的半选状态。

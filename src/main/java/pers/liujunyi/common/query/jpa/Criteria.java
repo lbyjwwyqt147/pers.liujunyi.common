@@ -1,4 +1,4 @@
-package pers.liujunyi.common.paging;
+package pers.liujunyi.common.query.jpa;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.jpa.domain.Specification;
@@ -13,44 +13,51 @@ import java.util.List;
 /**  
  * 定义一个查询条件容器  
  *  
- * @param <T>  
+ * @author ljy
+ * @param <T>
  */    
-public class Criteria<T> implements Specification<T>{  
-    //查询条件容器  
+public class Criteria<T> implements Specification<T> {
+    /** 查询条件容器  */
     private List<ICriterion> criterions = new ArrayList<>();
-    //倒序查询条件  
+    /** 倒序查询条件  */
     private String orderByDESC;  
-    //升序查询条件  
+    /** 升序查询条件 */
     private String orderByASC;  
-    //group查询条件  
+    /** group查询条件  */
     private String groupBy;  
         
-    public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query,    
-            CriteriaBuilder builder) {    
-        if (StringUtils.isNotBlank(orderByASC))
-            query.orderBy(builder.desc(root.get(getOrderByASC())));  
-        if (StringUtils.isNotBlank(orderByDESC))
-            query.orderBy(builder.desc(root.get(getOrderByDESC())));  
-        if (StringUtils.isNotBlank(groupBy))
-            query.groupBy(root.get(getGroupBy()));  
+    @Override
+    public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query,
+                                 CriteriaBuilder builder) {
+        if (StringUtils.isNotBlank(orderByASC)) {
+            query.orderBy(builder.asc(root.get(getOrderByASC())));
+        }
+        if (StringUtils.isNotBlank(orderByDESC)) {
+            query.orderBy(builder.desc(root.get(getOrderByDESC())));
+        }
+        if (StringUtils.isNotBlank(groupBy)) {
+            query.groupBy(root.get(getGroupBy()));
+        }
         if (!criterions.isEmpty()) {    
             List<Predicate> predicates = new ArrayList<Predicate>();    
             for (ICriterion c : criterions){
                 predicates.add(c.toPredicate(root, query, builder));
             }  
             // 将所有条件用 and 联合起来    
-            if (predicates.size() > 0) {    
-                return builder.and(predicates.toArray(new Predicate[predicates.size()]));    
+            if (predicates.size() > 0) {
+                int size = predicates.size();
+                return builder.and(predicates.toArray(new Predicate[size]));
             }    
         }    
         return builder.conjunction();    
-    }    
+    }
+
     /**  
      * 增加简单条件表达式  
      * @Methods Name add  
      *  
      */    
-    public void add(ICriterion criterion){    
+    public void add(ICriterion criterion){
         if (criterion != null){
             criterions.add(criterion);    
         }    
