@@ -1,5 +1,7 @@
 package pers.liujunyi.common.service.impl;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import pers.liujunyi.common.repository.elasticsearch.BaseElasticsearchRepository;
 import pers.liujunyi.common.service.BaseElasticsearchService;
 
@@ -11,6 +13,8 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 public class BaseElasticsearchServiceImpl<T, PK extends Serializable> implements BaseElasticsearchService<T, PK> {
+
+    protected Pageable page = PageRequest.of(0, 100000);
 
     protected BaseElasticsearchRepository<T, PK> baseElasticsearchRepository;
 

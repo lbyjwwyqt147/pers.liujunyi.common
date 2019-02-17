@@ -21,19 +21,13 @@ import java.util.List;
 /***
  *  公共查询实体类，其中在toSpecWithLogicType方法中利用反射机制，将所有的属性按照注解的规则加入到动态查询条件中
  * @author ljy
- * @param <T>
+ * @param
  */
-public abstract class BaseEsQuery<T>  {
+public abstract class BaseEsQuery  {
     /** 当前页码 */
     private Integer pageNumber = 1;
     /** 每页显示记录条数 */
     private Integer pageSize = 10;
-
-    /**
-     * 将查询转换成abstract
-     * @return
-     */
-    public abstract SearchQuery toSpec();
 
     public AbstractAggregationBuilder aggregationBuilders(String fieldName, AggregationType type) {
         AbstractAggregationBuilder termQueryBuilder = null;
@@ -80,7 +74,7 @@ public abstract class BaseEsQuery<T>  {
      * 动态查询and连接
      * @return
      */
-    protected SearchQuery toSpecPageable(Pageable pageable) {
+    public SearchQuery toSpecPageable(Pageable pageable) {
         return this.toSpec(pageable, null);
     }
 
@@ -88,7 +82,7 @@ public abstract class BaseEsQuery<T>  {
      * 聚合函数
      * @return
      */
-    protected SearchQuery toAggregationBuilders(String fieldName, AggregationType type) {
+    public SearchQuery toAggregationBuilders(String fieldName, AggregationType type) {
         return this.toSpec(null, aggregationBuilders(fieldName, type));
     }
 

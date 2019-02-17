@@ -1,10 +1,17 @@
 package pers.liujunyi.common.service.impl;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.jdbc.core.namedparam.SqlParameterSourceUtils;
 import org.springframework.transaction.annotation.Transactional;
 import pers.liujunyi.common.repository.jpa.BaseRepository;
 import pers.liujunyi.common.service.BaseService;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
 
 /***
@@ -20,10 +27,22 @@ import java.util.List;
  */
 public class BaseServiceImpl<T, PK extends Serializable> implements BaseService<T, PK> {
 
+    protected Pageable page = PageRequest.of(0, 100000);
+
     protected BaseRepository<T, PK> baseRepository;
+    @Autowired
+    private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     public BaseServiceImpl(final BaseRepository<T, PK> baseRepository) {
         this.baseRepository = baseRepository;
+    }
+
+    @Override
+    public int insertBatch(String sql, Collection<T> collection) {
+        //批量转数组
+        SqlParameterSource[] beanSources  = SqlParameterSourceUtils.createBatch(collection.toArray());
+        int[] result = this.namedParameterJdbcTemplate.batchUpdate(sql, beanSources);
+        return result.length;
     }
 
     @Override

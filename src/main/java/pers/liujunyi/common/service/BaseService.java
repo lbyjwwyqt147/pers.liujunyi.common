@@ -1,6 +1,7 @@
 package pers.liujunyi.common.service;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
 
 /***
@@ -15,6 +16,14 @@ import java.util.List;
  * @author ljy
  */
 public interface BaseService<T, PK extends Serializable> {
+
+    /**
+     * 批量插入
+     * @param sql sql
+     * @param collection  参数数据
+     * @return
+     */
+    int insertBatch(String sql, Collection<T> collection);
 
     /**
      * 查询所有数据
