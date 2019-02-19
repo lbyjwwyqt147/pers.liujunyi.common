@@ -12,13 +12,11 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.CharArrayBuffer;
 import org.apache.http.util.EntityUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.*;
 
 /***
@@ -115,7 +113,7 @@ public final class HttpClientUtils {
      * @return
      */
     public static String httpGet(String url, Map<String, Object> paramMap) {
-        return httpPost(url, paramMap, null);
+        return httpGet(url, paramMap, null);
     }
 
     /**
