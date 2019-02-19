@@ -200,10 +200,22 @@ public final class HttpClientUtils {
      * @return
      */
     public static String postJson(String url, String jsonParam) {
+        return postJson(url, jsonParam, null);
+    }
+
+    /**
+     * post请求，参数为json字符串
+     *
+     * @param url  请求url
+     * @param jsonParam 请求参数  json字符串
+     * @return
+     */
+    public static String postJson(String url, String jsonParam, Map<String, String> headMap) {
         String responseContent = null;
         CloseableHttpClient httpclient = HttpClients.createDefault();
         try {
             HttpPost httpPost = new HttpPost(url);
+            setPostHead(httpPost, headMap);
             if (StringUtils.isNotBlank(jsonParam)) {
                 //解决中文乱码问题
                 StringEntity entity = new StringEntity(jsonParam, "utf-8");
