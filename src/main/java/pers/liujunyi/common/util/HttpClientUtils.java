@@ -1,5 +1,6 @@
 package pers.liujunyi.common.util;
 
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
@@ -31,6 +32,7 @@ import java.util.*;
  *
  *
  */
+@Log4j2
 public final class HttpClientUtils {
 
     private static final  Integer STATUS = 200;
@@ -327,13 +329,17 @@ public final class HttpClientUtils {
     private static String getResult(CloseableHttpResponse response) {
         String result = null;
         try {
-            if (response != null && response.getStatusLine().getStatusCode() == STATUS) {
-                try {
-                    HttpEntity entity = response.getEntity();
-                    result = entityToString(entity);
-                    EntityUtils.consume(entity);
-                } catch (Exception e) {
-                    e.printStackTrace();
+            if (response != null ) {
+                int currentStatus = response.getStatusLine().getStatusCode();
+                log.info("远程调用接口返回状态码：" + currentStatus);
+                if (currentStatus == STATUS.intValue()) {
+                    try {
+                        HttpEntity entity = response.getEntity();
+                        result = entityToString(entity);
+                        EntityUtils.consume(entity);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         } finally {
