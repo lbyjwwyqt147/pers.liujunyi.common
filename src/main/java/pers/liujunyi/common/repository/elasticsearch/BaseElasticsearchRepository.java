@@ -1,5 +1,6 @@
 package pers.liujunyi.common.repository.elasticsearch;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 import org.springframework.data.repository.NoRepositoryBean;
 
@@ -25,7 +26,7 @@ public interface BaseElasticsearchRepository<T, PK extends Serializable> extends
      * @param ids
      * @return
      */
-     List<T> findByIdIn(List<PK> ids);
+     List<T> findByIdIn(List<PK> ids, Pageable pageable);
 
     /**
      * 根据ID 批量删除

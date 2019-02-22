@@ -3,6 +3,7 @@ package pers.liujunyi.common.service.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSourceUtils;
@@ -48,6 +49,11 @@ public class BaseServiceImpl<T, PK extends Serializable> implements BaseService<
     @Override
     public List<T> findAll() {
         return this.baseRepository.findAll();
+    }
+
+    @Override
+    public List<T> findAll(Sort sort) {
+        return this.baseRepository.findAll(sort);
     }
 
     @Override

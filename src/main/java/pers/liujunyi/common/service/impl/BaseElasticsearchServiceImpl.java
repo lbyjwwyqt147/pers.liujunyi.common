@@ -2,6 +2,7 @@ package pers.liujunyi.common.service.impl;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import pers.liujunyi.common.repository.elasticsearch.BaseElasticsearchRepository;
 import pers.liujunyi.common.service.BaseElasticsearchService;
 
@@ -26,6 +27,16 @@ public class BaseElasticsearchServiceImpl<T, PK extends Serializable> implements
     public List<T> findAll() {
         List<T> list = new LinkedList<>();
         Iterable<T> iterable = this.baseElasticsearchRepository.findAll();
+        if (iterable != null) {
+            list = StreamSupport.stream(iterable.spliterator(), false).collect(Collectors.toList());
+        }
+        return list;
+    }
+
+    @Override
+    public List<T> findAll(Sort sort) {
+        List<T> list = new LinkedList<>();
+        Iterable<T> iterable = this.baseElasticsearchRepository.findAll(sort);
         if (iterable != null) {
             list = StreamSupport.stream(iterable.spliterator(), false).collect(Collectors.toList());
         }
@@ -73,6 +84,6 @@ public class BaseElasticsearchServiceImpl<T, PK extends Serializable> implements
 
     @Override
     public List<T> findByIdIn(List<PK> ids) {
-        return this.baseElasticsearchRepository.findByIdIn(ids);
+        return this.baseElasticsearchRepository.findByIdIn(ids, page);
     }
 }

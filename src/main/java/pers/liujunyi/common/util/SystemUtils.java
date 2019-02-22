@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 
 /***
  * 工具类
@@ -28,6 +29,16 @@ public final class SystemUtils {
             }
         }
         return  idsList;
+    }
+
+    /**
+     * 32 位 UUID 值
+     * @return
+     */
+    public static String uuid() {
+        String uuid = UUID.randomUUID().toString();
+        uuid = uuid.replace("-", "");
+        return uuid;
     }
 
 }

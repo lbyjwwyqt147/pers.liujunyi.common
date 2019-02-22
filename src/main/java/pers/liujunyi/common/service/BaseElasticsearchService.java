@@ -1,5 +1,7 @@
 package pers.liujunyi.common.service;
 
+import org.springframework.data.domain.Sort;
+
 import java.io.Serializable;
 import java.util.List;
 
@@ -21,6 +23,13 @@ public interface BaseElasticsearchService<T, PK extends Serializable> {
      * @return
      */
     List<T> findAll();
+
+    /**
+     * 查询所有数据 并排序
+     * @param sort
+     * @return
+     */
+    List<T> findAll(Sort sort);
 
     /**
      * 根据主键ID 获取数据
