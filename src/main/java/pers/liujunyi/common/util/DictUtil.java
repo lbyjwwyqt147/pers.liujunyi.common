@@ -17,22 +17,33 @@ public class DictUtil {
 
     @Value("${data.dictUrl}")
     private String dictUrl;
+    @Value("${data.coreSystemCode}")
+    private String systemCode;
+    @Value("${data.coreAppId}")
+    private String appId;
+    @Value("${data.coreAppKey}")
+    private String appKey;
+    @Value("${data.coreCredential}")
+    private String credential;
+
 
     /**
      * 获取业务字典值
-     * @param systemCode
-     * @param credential
      * @param pidDictCode
      * @param dictCode
      * @return
      */
-    public String getDictName(String systemCode, String credential, String pidDictCode, String dictCode) {
+    public String getDictName(String pidDictCode, String dictCode) {
+        Map<String, String> head = new ConcurrentHashMap<>();
+        head.put("systemCode", systemCode.trim());
+        head.put("credential", credential.trim());
+        head.put("appId", appId.trim());
+        head.put("appKey", appKey.trim());
         Map<String, Object> paramMap = new ConcurrentHashMap<>();
-        paramMap.put("systemCode", systemCode);
-        paramMap.put("credential", credential);
-        paramMap.put("pidDictCode", pidDictCode);
-        paramMap.put("dictCode", dictCode);
-        String name = HttpClientUtils.httpGet(dictUrl, paramMap);
+        paramMap.put("systemCode", systemCode.trim());
+        paramMap.put("pidDictCode", pidDictCode.trim());
+        paramMap.put("dictCode", dictCode.trim());
+        String name = HttpClientUtils.httpGet(dictUrl.trim(), paramMap, head);
         return StringUtils.isNotBlank(name) ? name : "";
     }
 }
