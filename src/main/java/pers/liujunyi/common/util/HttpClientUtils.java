@@ -1,23 +1,34 @@
 package pers.liujunyi.common.util;
 
+import com.alibaba.fastjson.JSON;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.NameValuePair;
+import org.apache.http.*;
+import org.apache.http.client.HttpRequestRetryHandler;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.conn.ConnectTimeoutException;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.protocol.HttpContext;
+import org.apache.http.util.CharArrayBuffer;
 import org.apache.http.util.EntityUtils;
 
+import javax.net.ssl.SSLException;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
 import java.util.*;
 
 /***
@@ -36,6 +47,57 @@ import java.util.*;
 public final class HttpClientUtils {
 
     private static final  Integer STATUS = 200;
+    /** 建立连接的timeout时间 */
+    private static final Integer CONNECT_TIME_OUT = 3000;
+    /** 从连接池中后去连接的timeout时间 */
+    private static final Integer CONNECTIONREQUEST_TIME_OUT = 1000;
+    /** 数据传输处理时间 */
+    private static final Integer SOCKET_TIME_OUT = 4000;
+    /** 连接池最大并发连接数 */
+    private static final Integer MAX_TOTAL = 300;
+    /** 单路由最大并发数 */
+    private static final Integer DEFAULT_MAX_PERROUTE = 50;
+    /** 重试次数 */
+    private static final Integer EXECUTION_COUNT = 5;
+
+    private static RequestConfig requestConfig = null;
+    private static PoolingHttpClientConnectionManager pccm = null;
+    private static HttpRequestRetryHandler retryHandler = null;
+    static {
+        // 初始化线程池
+        requestConfig = RequestConfig.custom().setConnectTimeout(CONNECT_TIME_OUT).setConnectionRequestTimeout(CONNECTIONREQUEST_TIME_OUT).setSocketTimeout(SOCKET_TIME_OUT)
+                .setExpectContinueEnabled(true).build();
+        pccm = new PoolingHttpClientConnectionManager();
+        // 连接池最大并发连接数
+        pccm.setMaxTotal(MAX_TOTAL);
+        // 单路由最大并发数
+        pccm.setDefaultMaxPerRoute(DEFAULT_MAX_PERROUTE);
+        retryHandler = new HttpRequestRetryHandler() {
+            @Override
+            public boolean retryRequest(IOException exception , int executionCount , HttpContext context) {
+                // 重试5次,从1开始
+                if (executionCount > EXECUTION_COUNT) {
+                    return false;
+                }
+                if (exception instanceof UnknownHostException || exception instanceof ConnectTimeoutException || exception instanceof SocketException || exception instanceof SocketTimeoutException
+                        || !(exception instanceof SSLException) || exception instanceof NoHttpResponseException) {
+                    log.info(
+                            "[NoHttpResponseException has retry request:" + context.toString() + "][executionCount:" + executionCount + "]");
+                    log.error("http 请求重试异常信息：" + exception.getMessage());
+                    return true;
+                }
+                HttpClientContext clientContext = HttpClientContext.adapt(context);
+                HttpRequest request = clientContext.getRequest();
+                boolean idempotent = !(request instanceof HttpEntityEnclosingRequest);
+                if (idempotent) {
+                    // 如果请求被认为是幂等的，那么就重试。即重复执行不影响程序其他效果的
+                    return true;
+                }
+                return false;
+            }
+        };
+    }
+
 
     private HttpClientUtils() {}
 
@@ -130,6 +192,10 @@ public final class HttpClientUtils {
         String responseContent = null;
         CloseableHttpClient httpclient = HttpClients.createDefault();
         try {
+            log.info("http get 请求地址: " + url.trim());
+            log.info("http get 请求参数: " + JSON.toJSONString(paramMap));
+            HttpClients.custom().setConnectionManager(pccm).setDefaultRequestConfig(requestConfig).setRetryHandler(retryHandler)
+                    .build();
             List<NameValuePair> pairs = new LinkedList<>();
             for(Map.Entry<String,Object> entry : paramMap.entrySet()) {
                 Object object = entry.getValue();
@@ -137,14 +203,18 @@ public final class HttpClientUtils {
                     pairs.add(new BasicNameValuePair(entry.getKey(), String.valueOf(object).trim()));
                 }
             }
-            URIBuilder builder = new URIBuilder(url);
+            URIBuilder builder = new URIBuilder(url.trim());
             builder.setParameters(pairs);
             HttpGet httpGet = new HttpGet(builder.build());
             setGetHead(httpGet, headMap);
             CloseableHttpResponse response = httpclient.execute(httpGet);
             responseContent = getResult(response);
+        } catch (SocketTimeoutException | ConnectTimeoutException ex) {
+            log.info("http请求连接超时......");
+            log.error("http请求连接超时异常信息:" + ex.getMessage());
         } catch (Exception e) {
-            e.printStackTrace();
+            log.info("http请求异常..... ");
+            log.error("http请求异常信息: " + e.getMessage());
         } finally {
             try {
                 httpclient.close();
@@ -177,13 +247,21 @@ public final class HttpClientUtils {
         String responseContent = null;
         CloseableHttpClient httpclient = HttpClients.createDefault();
         try {
-            HttpPost httpPost = new HttpPost(url);
+            log.info("http post 请求地址: " + url.trim());
+            log.info("http post 请求参数: " + JSON.toJSONString(paramsMap));
+            HttpClients.custom().setConnectionManager(pccm).setDefaultRequestConfig(requestConfig).setRetryHandler(retryHandler)
+                    .build();
+            HttpPost httpPost = new HttpPost(url.trim());
             setPostHead(httpPost, headMap);
             setPostParams(httpPost, paramsMap);
             CloseableHttpResponse response = httpclient.execute(httpPost);
             responseContent = getResult(response);
+        } catch (SocketTimeoutException | ConnectTimeoutException ex) {
+            log.info("http请求连接超时......");
+            log.error("http请求连接超时异常信息:" + ex.getMessage());
         } catch (Exception e) {
-            e.printStackTrace();
+            log.info("http请求异常..... ");
+            log.error("http请求异常信息: " + e.getMessage());
         } finally {
             try {
                 httpclient.close();
@@ -216,20 +294,28 @@ public final class HttpClientUtils {
         String responseContent = null;
         CloseableHttpClient httpclient = HttpClients.createDefault();
         try {
-            HttpPost httpPost = new HttpPost(url);
+            log.info("http post 请求地址: " + url.trim());
+            log.info("http post 请求参数: " + jsonParam);
+            HttpClients.custom().setConnectionManager(pccm).setDefaultRequestConfig(requestConfig).setRetryHandler(retryHandler)
+                    .build();
+            HttpPost httpPost = new HttpPost(url.trim());
             setPostHead(httpPost, headMap);
             if (StringUtils.isNotBlank(jsonParam)) {
                 //解决中文乱码问题
-                StringEntity entity = new StringEntity(jsonParam, "utf-8");
+                StringEntity entity = new StringEntity(jsonParam.trim(), "utf-8");
                 entity.setContentEncoding("UTF-8");
                 entity.setContentType("application/json");
                 httpPost.setEntity(entity);
             }
             CloseableHttpResponse response = httpclient.execute(httpPost);
             responseContent = getResult(response);
+        } catch (SocketTimeoutException | ConnectTimeoutException ex) {
+            log.info("http请求连接超时......");
+            log.error("http请求连接超时异常信息:" + ex.getMessage());
         } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
+            log.info("http请求异常..... ");
+            log.error("http请求异常信息: " + e.getMessage());
+        }  finally {
             try {
                 httpclient.close();
             } catch (IOException e) {
@@ -249,7 +335,7 @@ public final class HttpClientUtils {
         if (headMap != null && headMap.size() > 0) {
             Set<String> keySet = headMap.keySet();
             for (String key : keySet) {
-                httpGet.addHeader(key, headMap.get(key));
+                httpGet.addHeader(key.trim(), headMap.get(key).trim());
             }
         }
     }
@@ -264,7 +350,7 @@ public final class HttpClientUtils {
         if (headMap != null && headMap.size() > 0) {
             Set<String> keySet = headMap.keySet();
             for (String key : keySet) {
-                httpPost.addHeader(key, headMap.get(key));
+                httpPost.addHeader(key.trim(), headMap.get(key).trim());
             }
         }
     }
@@ -283,7 +369,7 @@ public final class HttpClientUtils {
             for (String key : keySet) {
                 Object object = paramsMap.get(key);
                 if (object != null) {
-                    nvps.add(new BasicNameValuePair(key, String.valueOf(object).trim()));
+                    nvps.add(new BasicNameValuePair(key.trim(), String.valueOf(object).trim()));
                 }
 
             }
@@ -303,7 +389,11 @@ public final class HttpClientUtils {
         String responseContent = null;
         CloseableHttpClient httpclient = HttpClients.createDefault();
         try {
-            HttpPost httpPost = new HttpPost(url);
+            log.info("http post 请求地址: " + url.trim());
+            log.info("http post 请求参数: " + JSON.toJSONString(paramsMap));
+            HttpClients.custom().setConnectionManager(pccm).setDefaultRequestConfig(requestConfig).setRetryHandler(retryHandler)
+                    .build();
+            HttpPost httpPost = new HttpPost(url.trim());
             setPostHead(httpPost, headMap);
             setPostParams(httpPost, paramsMap);
             CloseableHttpResponse response = httpclient.execute(httpPost);
@@ -311,6 +401,12 @@ public final class HttpClientUtils {
                 HttpEntity entity = response.getEntity();
                 responseContent = entityToString(entity);
                 EntityUtils.consume(entity);
+            } catch (SocketTimeoutException | ConnectTimeoutException ex) {
+                log.info("http请求连接超时......");
+                log.error("http请求连接超时异常信息:" + ex.getMessage());
+            } catch (Exception e) {
+                log.info("http请求异常..... ");
+                log.error("http请求异常信息: " + e.getMessage());
             } finally {
                 response.close();
             }
@@ -331,7 +427,6 @@ public final class HttpClientUtils {
         try {
             if (response != null ) {
                 int currentStatus = response.getStatusLine().getStatusCode();
-                log.info("远程调用接口返回状态码：" + currentStatus);
                 if (currentStatus == STATUS.intValue()) {
                     try {
                         HttpEntity entity = response.getEntity();
@@ -349,6 +444,7 @@ public final class HttpClientUtils {
                 e.printStackTrace();
             }
         }
+        log.info("http 请求返回结果: " + result);
         return result;
     }
 
@@ -360,16 +456,22 @@ public final class HttpClientUtils {
      * @throws Exception
      */
     private static String entityToString(HttpEntity entity) throws Exception {
-        if (entity == null) {
-            return null;
+        String result = null;
+        if(entity != null) {
+            long lenth = entity.getContentLength();
+            if (lenth != -1 && lenth < 4098) {
+                result = EntityUtils.toString(entity,"UTF-8");
+            } else {
+                InputStreamReader reader1 = new InputStreamReader(entity.getContent(), "UTF-8");
+                CharArrayBuffer buffer = new CharArrayBuffer(4098);
+                char[] tmp = new char[2048];
+                int l;
+                while((l = reader1.read(tmp)) != -1) {
+                    buffer.append(tmp, 0, l);
+                }
+                result = buffer.toString();
+            }
         }
-        InputStream is = entity.getContent();
-        StringBuffer strBuf = new StringBuffer();
-        byte[] buffer = new byte[4096];
-        int r = 0;
-        while ((r = is.read(buffer)) > 0) {
-            strBuf.append(new String(buffer, 0, r, "UTF-8"));
-        }
-        return strBuf.toString();
+        return result;
     }
 }

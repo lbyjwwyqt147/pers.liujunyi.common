@@ -1,5 +1,6 @@
 package pers.liujunyi.common.util;
 
+import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -43,7 +44,8 @@ public class DictUtil {
         paramMap.put("systemCode", systemCode.trim());
         paramMap.put("pidDictCode", pidDictCode.trim());
         paramMap.put("dictCode", dictCode.trim());
-        String name = HttpClientUtils.httpGet(dictUrl.trim(), paramMap, head);
-        return StringUtils.isNotBlank(name) ? name : "";
+        String result = HttpClientUtils.httpGet(dictUrl.trim(), paramMap, head);
+        JSONObject jsonObject = JSONObject.parseObject(result);
+        return StringUtils.isNotBlank(jsonObject.getString("data")) ? jsonObject.getString("data") : "";
     }
 }
