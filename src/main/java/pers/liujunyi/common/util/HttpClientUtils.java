@@ -81,9 +81,8 @@ public final class HttpClientUtils {
                 }
                 if (exception instanceof UnknownHostException || exception instanceof ConnectTimeoutException || exception instanceof SocketException || exception instanceof SocketTimeoutException
                         || !(exception instanceof SSLException) || exception instanceof NoHttpResponseException) {
-                    log.info(
-                            "[NoHttpResponseException has retry request:" + context.toString() + "][executionCount:" + executionCount + "]");
-                    log.error("http 请求重试异常信息：" + exception.getMessage());
+                    log.info("http 请求可能出现如下异常：UnknownHostException | ConnectTimeoutException | SocketException | SocketTimeoutException | SSLException | NoHttpResponseException 需要重新执行请求 .....");
+                    log.info("http 请求重试信息：重试请求 : " + context.toString() + "  重试执行次数: " + executionCount);
                     return true;
                 }
                 HttpClientContext clientContext = HttpClientContext.adapt(context);
