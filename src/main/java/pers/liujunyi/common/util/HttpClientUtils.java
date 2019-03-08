@@ -13,15 +13,19 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.conn.ConnectTimeoutException;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.ssl.SSLContextBuilder;
+import org.apache.http.ssl.TrustStrategy;
 import org.apache.http.util.CharArrayBuffer;
 import org.apache.http.util.EntityUtils;
 
+import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLException;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -29,6 +33,8 @@ import java.io.InputStreamReader;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.*;
 
 /***
@@ -189,7 +195,7 @@ public final class HttpClientUtils {
      */
     public static String httpGet(String url, Map<String, Object> paramMap, Map<String, String> headMap) {
         String responseContent = null;
-        CloseableHttpClient httpclient = HttpClients.createDefault();
+        CloseableHttpClient httpclient = gethttpclient(url);
         try {
             log.info("http get 请求地址: " + url.trim());
             log.info("http get 请求参数: " + JSON.toJSONString(paramMap));
@@ -244,7 +250,7 @@ public final class HttpClientUtils {
      */
     public static String httpPost(String url, Map<String, Object> paramsMap, Map<String, String> headMap) {
         String responseContent = null;
-        CloseableHttpClient httpclient = HttpClients.createDefault();
+        CloseableHttpClient httpclient = gethttpclient(url);
         try {
             log.info("http post 请求地址: " + url.trim());
             log.info("http post 请求参数: " + JSON.toJSONString(paramsMap));
@@ -291,7 +297,7 @@ public final class HttpClientUtils {
      */
     public static String postJson(String url, String jsonParam, Map<String, String> headMap) {
         String responseContent = null;
-        CloseableHttpClient httpclient = HttpClients.createDefault();
+        CloseableHttpClient httpclient = gethttpclient(url);
         try {
             log.info("http post 请求地址: " + url.trim());
             log.info("http post 请求参数: " + jsonParam);
@@ -386,7 +392,7 @@ public final class HttpClientUtils {
      */
     public static String httpPostIgnoreResponseStatus(String url, Map<String, Object> paramsMap, Map<String, String> headMap) {
         String responseContent = null;
-        CloseableHttpClient httpclient = HttpClients.createDefault();
+        CloseableHttpClient httpclient = gethttpclient(url);
         try {
             log.info("http post 请求地址: " + url.trim());
             log.info("http post 请求参数: " + JSON.toJSONString(paramsMap));
@@ -472,5 +478,31 @@ public final class HttpClientUtils {
             }
         }
         return result;
+    }
+
+    /**
+     * 设置  httpclient
+     * @param url
+     * @return
+     */
+    private static CloseableHttpClient gethttpclient(String url) {
+        CloseableHttpClient httpclient = null;
+        try {
+            if (url.trim().indexOf("https") != -1) {
+                SSLContext sslContext =  new SSLContextBuilder().loadTrustMaterial(null, new TrustStrategy() {
+                    @Override
+                    public boolean isTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
+                        return true;
+                    }
+                }).build();
+                SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(sslContext);
+                httpclient = HttpClients.custom().setSSLSocketFactory(sslsf).build();
+            } else {
+                httpclient = HttpClients.createDefault();
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return httpclient;
     }
 }
