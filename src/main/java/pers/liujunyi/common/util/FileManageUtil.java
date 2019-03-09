@@ -12,6 +12,7 @@ import pers.liujunyi.common.restful.ResultUtil;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /***
  * 文件管理 工具类
@@ -21,12 +22,14 @@ import java.util.concurrent.ConcurrentHashMap;
 @Log4j2
 @Component
 public class FileManageUtil {
+    private ThreadPoolExecutor threadPoolExecutor = ThreadPoolExecutorFactory.getThreadPoolExecutor();
 
     @Value("${data.cloudUrl}")
     private String cloudUrl;
     @Autowired
     private CloudHeader cloudHeader;
-
+    private static final Long SLEEP = 1000L;
+    private static final Integer RETRY = 5;
 
 
     /**
@@ -34,12 +37,24 @@ public class FileManageUtil {
      * @param fileId 文件id
      * @return
      */
-    public Boolean singleDeleteById(Long fileId) {
-        log.info(" * 开启请求单条删除服务器上文件数据 ..................... ");
+    public void singleDeleteById(Long fileId) {
+        log.info(" 请求单条删除服务器上文件数据 ..................... ");
         Map<String, String> header = this.cloudHeader.getHeader();
-        String result = HttpClientUtils.httpDelete(cloudUrl.trim() + "/file/delete/" + fileId, header);
-        JSONObject jsonObject = JSONObject.parseObject(result);
-        return jsonObject.getBoolean("success");
+        threadPoolExecutor.execute(() -> {
+            for (int i = 0; i < RETRY; i++) {
+                String result = HttpClientUtils.httpDelete(cloudUrl.trim() + "/file/delete/" + fileId, header);
+                JSONObject jsonObject = JSONObject.parseObject(result);
+                boolean success = jsonObject.getBoolean("success");
+                if (success) {
+                    break;
+                }
+                try {
+                    Thread.sleep(SLEEP);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     /**
@@ -47,12 +62,24 @@ public class FileManageUtil {
      * @param fileId 文件id 多个文件用,隔开
      * @return
      */
-    public Boolean batchDeleteById(String fileId) {
-        log.info(" * 开启请求批量删除服务器上文件数据 ..................... ");
+    public void batchDeleteById(String fileId) {
+        log.info(" 请求批量删除服务器上文件数据 ..................... ");
         Map<String, String> header = this.cloudHeader.getHeader();
-        String result = HttpClientUtils.httpDelete(cloudUrl.trim() + "/file/batchDelete/" + fileId, header);
-        JSONObject jsonObject = JSONObject.parseObject(result);
-        return jsonObject.getBoolean("success");
+        threadPoolExecutor.execute(() -> {
+            for (int i = 0; i < RETRY; i++) {
+                String result = HttpClientUtils.httpDelete(cloudUrl.trim() + "/file/batchDelete/" + fileId, header);
+                JSONObject jsonObject = JSONObject.parseObject(result);
+                boolean success = jsonObject.getBoolean("success");
+                if (success) {
+                    break;
+                }
+                try {
+                    Thread.sleep(SLEEP);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
 }

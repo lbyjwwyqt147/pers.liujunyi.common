@@ -32,7 +32,7 @@ public class DictUtil {
      * @return
      */
     public String getDictName(String pidDictCode, String dictCode) {
-        log.info(" * 开启请求获取业务字典值 ..................... ");
+        log.info(" * 开始请求获取业务字典值 ..................... ");
         Map<String, String> header = this.cloudHeader.getHeader();
         Map<String, Object> paramMap = new ConcurrentHashMap<>();
         paramMap.put("systemCode", header.get("systemCode"));
