@@ -68,7 +68,7 @@ public class GlobalExceptionHandler {
     @ResponseBody
     public ResultInfo handlerBindException(BindException e) {
         StringBuffer errorMsg = new StringBuffer();
-        e.getAllErrors().forEach(item -> errorMsg.append(item.getDefaultMessage()).append("."));
+        e.getAllErrors().stream().forEach(item -> errorMsg.append(item.getDefaultMessage()).append("."));
         log.error("【参数绑定失败】： ", e);
         log.info(errorMsg.toString());
         return ResultUtil.error(ErrorCodeEnum.PARAMS.getCode(), errorMsg.toString());
