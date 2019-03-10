@@ -98,4 +98,9 @@ public class BaseServiceImpl<T, PK extends Serializable> implements BaseService<
     public List<T> findByIdIn(List<PK> ids) {
         return this.baseRepository.findByIdIn(ids);
     }
+
+    @Override
+    public List<T> findAllByIdIn(List<PK> ids) {
+        return this.baseRepository.findAllByIdIn(ids);
+    }
 }

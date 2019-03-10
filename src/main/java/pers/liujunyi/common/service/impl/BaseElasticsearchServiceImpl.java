@@ -86,4 +86,9 @@ public class BaseElasticsearchServiceImpl<T, PK extends Serializable> implements
     public List<T> findByIdIn(List<PK> ids) {
         return this.baseElasticsearchRepository.findByIdIn(ids, page);
     }
+
+    @Override
+    public List<T> findAllByIdIn(List<PK> ids) {
+        return this.baseElasticsearchRepository.findAllByIdIn(ids);
+    }
 }

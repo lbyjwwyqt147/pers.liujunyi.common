@@ -78,4 +78,10 @@ public interface BaseElasticsearchService<T, PK extends Serializable> {
      */
     List<T> findByIdIn(List<PK> ids);
 
+    /**
+     * 根据一组ID获取数据
+     * @param ids
+     * @return
+     */
+    List<T> findAllByIdIn(List<PK> ids);
 }

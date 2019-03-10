@@ -23,7 +23,8 @@ public class DictUtil {
     private String dictUrl;
     @Autowired
     private CloudHeader cloudHeader;
-
+    @Value("${data.cloudUrl}")
+    private String cloudUrl;
 
     /**
      * 获取业务字典值
@@ -40,6 +41,24 @@ public class DictUtil {
         paramMap.put("dictCode", dictCode.trim());
         String result = HttpClientUtils.httpGet(dictUrl.trim(), paramMap, header);
         JSONObject jsonObject = JSONObject.parseObject(result);
-        return StringUtils.isNotBlank(jsonObject.getString("data")) ? jsonObject.getString("data") : "";
+        String data = jsonObject.getString("data");
+        return StringUtils.isNotBlank(data) ? data.trim() : "";
+    }
+
+
+    /**
+     * 获取行政区划名称
+     * @param id
+     * @return
+     */
+    public String getAreaName(Long id) {
+        log.info(" * 开始请求获取行政区划名称 ..................... ");
+        Map<String, String> header = this.cloudHeader.getHeader();
+        Map<String, Object> paramMap = new ConcurrentHashMap<>();
+        paramMap.put("id", id);
+        String result = HttpClientUtils.httpGet(cloudUrl + "/area/name", paramMap, header);
+        JSONObject jsonObject = JSONObject.parseObject(result);
+        String data = jsonObject.getString("data");
+        return StringUtils.isNotBlank(data) ? data.trim() : "";
     }
 }

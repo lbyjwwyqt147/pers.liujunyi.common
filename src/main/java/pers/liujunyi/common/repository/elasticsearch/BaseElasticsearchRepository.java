@@ -24,9 +24,17 @@ public interface BaseElasticsearchRepository<T, PK extends Serializable> extends
     /**
      * 根据一组ID获取数据
      * @param ids
+     * @param pageable
      * @return
      */
      List<T> findByIdIn(List<PK> ids, Pageable pageable);
+
+    /**
+     * 根据一组ID获取数据
+     * @param ids
+     * @return
+     */
+     List<T> findAllByIdIn(List<PK> ids);
 
     /**
      * 根据ID 批量删除
