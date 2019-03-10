@@ -111,7 +111,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ValidationException.class)
     @ResponseBody
     public ResultInfo handleValidationException(ValidationException exception) {
-        log.error("【参数验证失败】",exception);
+        log.error("【参数验证失败】：",exception);
         if (exception instanceof ConstraintViolationException){
             StringBuffer errorMsg = new StringBuffer();
             ConstraintViolationException exs = (ConstraintViolationException) exception;
@@ -131,7 +131,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MissingServletRequestParameterException.class)
     @ResponseBody
     public ResultInfo handleMissingServletRequestParameterException(MissingServletRequestParameterException e) {
-        log.error("【参数验证失败】", e);
+        log.error("【参数验证失败】：", e);
         return  ResultUtil.error(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.getReasonPhrase());
     }
 
@@ -143,7 +143,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(HttpMessageNotReadableException.class)
     @ResponseBody
     public ResultInfo handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
-        log.error("【参数解析失败】", e);
+        log.error("【参数解析失败】：", e);
         return  ResultUtil.error(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.getReasonPhrase());
     }
 
