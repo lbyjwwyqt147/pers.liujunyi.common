@@ -15,7 +15,8 @@ import java.util.stream.StreamSupport;
 
 public class BaseElasticsearchServiceImpl<T, PK extends Serializable> implements BaseElasticsearchService<T, PK> {
 
-    protected Pageable page = PageRequest.of(0, 9999999);
+    protected  Pageable pageable;
+    protected Pageable allPageable  = PageRequest.of(0, 9999999);
 
     protected BaseElasticsearchRepository<T, PK> baseElasticsearchRepository;
 
@@ -84,11 +85,21 @@ public class BaseElasticsearchServiceImpl<T, PK extends Serializable> implements
 
     @Override
     public List<T> findByIdIn(List<PK> ids) {
-        return this.baseElasticsearchRepository.findByIdIn(ids, page);
+        return this.baseElasticsearchRepository.findByIdIn(ids, this.getPageable(ids.size()));
     }
 
     @Override
     public List<T> findAllByIdIn(List<PK> ids) {
         return this.baseElasticsearchRepository.findAllByIdIn(ids);
     }
+
+    /**
+     * 返回分页数据
+     * @param pageSize
+     * @return
+     */
+    public Pageable getPageable(int pageSize) {
+        return PageRequest.of(0, pageSize);
+    }
+
 }

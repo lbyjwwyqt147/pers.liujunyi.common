@@ -28,7 +28,8 @@ import java.util.List;
  */
 public class BaseServiceImpl<T, PK extends Serializable> implements BaseService<T, PK> {
 
-    protected Pageable page = PageRequest.of(0, 9999999);
+    protected  Pageable pageable;
+    protected Pageable allPageable  = PageRequest.of(0, 9999999);
 
     protected BaseRepository<T, PK> baseRepository;
     @Autowired
@@ -102,5 +103,14 @@ public class BaseServiceImpl<T, PK extends Serializable> implements BaseService<
     @Override
     public List<T> findAllByIdIn(List<PK> ids) {
         return this.baseRepository.findAllByIdIn(ids);
+    }
+
+    /**
+     * 返回分页数据
+     * @param pageSize
+     * @return
+     */
+    public Pageable getPageable(int pageSize) {
+        return PageRequest.of(0, pageSize);
     }
 }
