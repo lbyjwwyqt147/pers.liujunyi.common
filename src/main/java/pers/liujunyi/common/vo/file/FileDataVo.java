@@ -38,4 +38,9 @@ public class FileDataVo implements Serializable {
     /** 文件大小（kb） */
     private Double fileSize;
 
+    /**
+     * 文件分类 0：图片 1：文档  2：视频  5：其他
+     */
+    private Byte fileCategory;
+
 }
