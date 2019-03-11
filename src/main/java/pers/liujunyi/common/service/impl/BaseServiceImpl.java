@@ -28,7 +28,9 @@ import java.util.List;
  */
 public class BaseServiceImpl<T, PK extends Serializable> implements BaseService<T, PK> {
 
+    /** 自定义分页数据  */
     protected  Pageable pageable;
+    /** 全部所有数据  */
     protected Pageable allPageable  = PageRequest.of(0, 9999999);
 
     protected BaseRepository<T, PK> baseRepository;

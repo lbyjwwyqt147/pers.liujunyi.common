@@ -15,7 +15,9 @@ import java.util.stream.StreamSupport;
 
 public class BaseElasticsearchServiceImpl<T, PK extends Serializable> implements BaseElasticsearchService<T, PK> {
 
+    /** 自定义分页数据  */
     protected  Pageable pageable;
+    /** 全部所有数据  */
     protected Pageable allPageable  = PageRequest.of(0, 9999999);
 
     protected BaseElasticsearchRepository<T, PK> baseElasticsearchRepository;
