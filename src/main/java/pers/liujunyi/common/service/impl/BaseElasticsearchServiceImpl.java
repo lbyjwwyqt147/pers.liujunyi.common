@@ -15,7 +15,7 @@ import java.util.stream.StreamSupport;
 
 public class BaseElasticsearchServiceImpl<T, PK extends Serializable> implements BaseElasticsearchService<T, PK> {
 
-    protected Pageable page = PageRequest.of(0, 100000);
+    protected Pageable page = PageRequest.of(0, 9999999);
 
     protected BaseElasticsearchRepository<T, PK> baseElasticsearchRepository;
 

@@ -28,7 +28,7 @@ import java.util.List;
  */
 public class BaseServiceImpl<T, PK extends Serializable> implements BaseService<T, PK> {
 
-    protected Pageable page = PageRequest.of(0, 100000);
+    protected Pageable page = PageRequest.of(0, 9999999);
 
     protected BaseRepository<T, PK> baseRepository;
     @Autowired
