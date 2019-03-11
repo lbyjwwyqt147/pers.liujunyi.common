@@ -13,6 +13,7 @@ import org.springframework.data.elasticsearch.core.query.SearchQuery;
 import pers.liujunyi.common.query.jpa.annotation.AggregationType;
 import pers.liujunyi.common.query.jpa.annotation.QueryCondition;
 
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,7 +24,8 @@ import java.util.List;
  * @author ljy
  * @param
  */
-public abstract class BaseEsQuery  {
+public abstract class BaseEsQuery implements Serializable {
+    private static final long serialVersionUID = -741728191209491619L;
     /** 当前页码 */
     private Integer pageNumber = 1;
     /** 每页显示记录条数 */

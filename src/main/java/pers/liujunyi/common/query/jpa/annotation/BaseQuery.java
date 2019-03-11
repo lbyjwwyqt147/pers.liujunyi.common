@@ -7,6 +7,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,7 +18,8 @@ import java.util.List;
  * @author ljy
  * @param <T>
  */
-public abstract class BaseQuery<T>  {
+public abstract class BaseQuery<T>  implements Serializable {
+    private static final long serialVersionUID = -5350796097312586226L;
     /** 当前页码 */
     private Integer pageNumber = 1;
     /** 每页显示记录条数 */
