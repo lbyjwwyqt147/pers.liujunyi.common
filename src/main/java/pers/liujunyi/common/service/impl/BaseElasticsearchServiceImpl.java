@@ -1,15 +1,21 @@
 package pers.liujunyi.common.service.impl;
 
+import com.alibaba.fastjson.JSONArray;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.search.SearchHits;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
+import org.springframework.data.elasticsearch.core.query.SearchQuery;
 import pers.liujunyi.common.repository.elasticsearch.BaseElasticsearchRepository;
 import pers.liujunyi.common.service.BaseElasticsearchService;
 
+import javax.annotation.Resource;
 import java.io.Serializable;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -19,6 +25,8 @@ public class BaseElasticsearchServiceImpl<T, PK extends Serializable> implements
     protected  Pageable pageable;
     /** 全部所有数据  */
     protected Pageable allPageable  = PageRequest.of(0, 9999999);
+    @Resource
+    private ElasticsearchTemplate elasticsearchTemplate;
 
     protected BaseElasticsearchRepository<T, PK> baseElasticsearchRepository;
 
@@ -93,6 +101,25 @@ public class BaseElasticsearchServiceImpl<T, PK extends Serializable> implements
     @Override
     public List<T> findAllByIdIn(List<PK> ids) {
         return this.baseElasticsearchRepository.findAllByIdIn(ids);
+    }
+
+    @Override
+    public List<String> prepareSearch(BoolQueryBuilder queryFilter, Pageable pageable, String...indexNames) {
+        SearchQuery searchQuery = new NativeSearchQueryBuilder()
+                .withIndices(indexNames)
+                .withQuery(queryFilter)
+                .withPageable(pageable)
+                .build();
+        List<String> queryList = elasticsearchTemplate.query(searchQuery, response -> {
+            SearchHits hits = response.getHits();
+            List<String> list = new CopyOnWriteArrayList<>();
+            Arrays.stream(hits.getHits()).forEach(h -> {
+                String source = h.getSourceAsString();
+                list.add(source);
+            });
+            return list;
+        });
+        return queryList;
     }
 
     /**

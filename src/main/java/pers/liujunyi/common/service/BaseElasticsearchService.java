@@ -1,9 +1,12 @@
 package pers.liujunyi.common.service;
 
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 /***
  * 文件名称: BaseElasticsearchService.java
@@ -84,4 +87,13 @@ public interface BaseElasticsearchService<T, PK extends Serializable> {
      * @return
      */
     List<T> findAllByIdIn(List<PK> ids);
+
+    /**
+     * 多索引查询
+     * @param indexNames  多个索引名称
+     * @param pageable    分页参数
+     * @param queryFilter 过滤条件
+     * @return
+     */
+    List<String> prepareSearch(BoolQueryBuilder queryFilter, Pageable pageable, String...indexNames);
 }

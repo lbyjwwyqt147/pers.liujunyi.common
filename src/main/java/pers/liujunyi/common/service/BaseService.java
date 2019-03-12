@@ -101,13 +101,13 @@ public interface BaseService<T, PK extends Serializable> {
      * @param sourceMap  资源   key = 需要更新的字段  value = 字段值
      * @return true 成功   false  失败
      */
-    Boolean singleUpdateElasticsearchData(Long id, Map<String, Object> sourceMap);
+    Boolean updateSingleElasticsearchData(Long id, Map<String, Object> sourceMap);
 
     /**
      * 批量更新 Elasticsearch 里面的字段数据  参数为Map<String,Object>
      * @param sourceMap  key = id  value = Map<String, Object> key = 需要更新的字段  value = 字段值
      */
-    void batchUpdateElasticsearchData(Map<String, Map<String, Object>> sourceMap);
+    void updateBatchElasticsearchData(Map<String, Map<String, Object>> sourceMap);
 
     /**
      * 保存索引数据到 Elasticsearch 中  参数为Map<String,Object>
@@ -129,7 +129,7 @@ public interface BaseService<T, PK extends Serializable> {
      * 批量报错索引数据到 Elasticsearch 中   参数为javaBean
      * @param source  参数为Map<String,Object>
      */
-    void batchSaveElasticsearchIndexBeanData(Map<String, T> source);
+    void saveBatchElasticsearchIndexBeanData(Map<String, T> source);
 
     /**
      * 保存索引数据到 Elasticsearch 中  资源  为 json 字符串
@@ -145,12 +145,12 @@ public interface BaseService<T, PK extends Serializable> {
       * @param id 索引id
      * @return
      */
-    Boolean singleDeleteElasticsearchIndex(Long id);
+    Boolean deleteSingleElasticsearchIndex(Long id);
 
     /**
      * 批量删除 Elasticsearch 中  索引数据
      * @param ids  一组 索引id
      */
-    void  batchElasticsearchIndex(List<Long> ids);
+    void  deleteBatchElasticsearchIndex(List<Long> ids);
 
 }
