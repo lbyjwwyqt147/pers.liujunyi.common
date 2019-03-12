@@ -6,8 +6,10 @@ import org.springframework.core.convert.converter.Converter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * 全局handler前日期统一处理
@@ -22,6 +24,7 @@ public class DateConverterConfig implements Converter<String, Date> {
         FORMARTS.add("yyyy-MM-dd");
         FORMARTS.add("yyyy-MM-dd hh:mm");
         FORMARTS.add("yyyy-MM-dd hh:mm:ss");
+        FORMARTS.add("^[-\\+]?[\\d]*$");
     }
 
     @Override
@@ -30,6 +33,7 @@ public class DateConverterConfig implements Converter<String, Date> {
             return null;
         }
         source = source.trim();
+        Pattern pattern = Pattern.compile(FORMARTS.get(4));
         if (source.matches("^\\d{4}-\\d{1,2}$")) {
             return parseDate(source, FORMARTS.get(0));
         } else if (source.matches("^\\d{4}-\\d{1,2}-\\d{1,2}$")) {
@@ -38,6 +42,10 @@ public class DateConverterConfig implements Converter<String, Date> {
             return parseDate(source, FORMARTS.get(2));
         } else if (source.matches("^\\d{4}-\\d{1,2}-\\d{1,2} {1}\\d{1,2}:\\d{1,2}:\\d{1,2}$")) {
             return parseDate(source, FORMARTS.get(3));
+        } else if (pattern.matcher(source).matches()) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTimeInMillis(Long.valueOf(source));
+            return calendar.getTime();
         } else {
             throw new IllegalArgumentException("Invalid boolean value '" + source + "'");
         }

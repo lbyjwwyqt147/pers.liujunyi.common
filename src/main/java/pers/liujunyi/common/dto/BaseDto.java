@@ -43,6 +43,7 @@ public class BaseDto implements Serializable {
     private Byte status = 0;
 
     /** 创建时间 */
+    @Temporal(TemporalType.TIMESTAMP)
     private Date createTime;
 
     /** 创建人ID */
