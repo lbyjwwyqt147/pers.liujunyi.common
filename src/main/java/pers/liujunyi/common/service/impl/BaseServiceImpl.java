@@ -138,7 +138,8 @@ public class BaseServiceImpl<T, PK extends Serializable> implements BaseService<
             StringBuffer msg = new StringBuffer();
             msg.append("indexName:").append(indexName).append(" type:").append(type);
             log.info(" 开始 更新 Elasticsearch   " + msg.toString() +"   里面的字段数据 ........... ");
-            UpdateRequestBuilder updateRequestBuilder = this.elasticsearchTemplate.getClient().prepareUpdate(annotation.indexName(), annotation.type(), String.valueOf(id));
+            Client elasticsearchClient = this.elasticsearchTemplate.getClient();
+            UpdateRequestBuilder updateRequestBuilder = elasticsearchClient.prepareUpdate(annotation.indexName(), annotation.type(), String.valueOf(id));
             updateRequestBuilder.setDoc(sourceMap);
             if (updateRequestBuilder.execute().actionGet() != null) {
                 success = true;
@@ -146,6 +147,7 @@ public class BaseServiceImpl<T, PK extends Serializable> implements BaseService<
             } else {
                 log.info("  更新 Elasticsearch " + msg.toString() + " 里面的字段数据 失败! ");
             }
+            elasticsearchClient.close();
         }
         return success;
     }
@@ -178,6 +180,7 @@ public class BaseServiceImpl<T, PK extends Serializable> implements BaseService<
             } else {
                 log.info(" 更新 Elasticsearch " + msg.toString() + " 里面的字段数据 全部执行成功！");
             }
+            elasticsearchClient.close();
         }
     }
 
@@ -220,6 +223,7 @@ public class BaseServiceImpl<T, PK extends Serializable> implements BaseService<
             } else {
                 log.info(" 添加 Elasticsearch " + msg.toString() + " 数据 全部执行成功！");
             }
+            elasticsearchClient.close();
         }
     }
 
@@ -238,13 +242,15 @@ public class BaseServiceImpl<T, PK extends Serializable> implements BaseService<
             StringBuffer msg = new StringBuffer();
             msg.append("indexName:").append(indexName).append(" type:").append(type).append(" index:").append(id);
             log.info(" 开始 删除 Elasticsearch   " + msg.toString() +"   数据 ........... ");
-            DeleteRequestBuilder deleteRequestBuilder  = this.elasticsearchTemplate.getClient().prepareDelete(annotation.indexName(), annotation.type(), String.valueOf(id));
+            Client elasticsearchClient = this.elasticsearchTemplate.getClient();
+            DeleteRequestBuilder deleteRequestBuilder  = elasticsearchClient.prepareDelete(annotation.indexName(), annotation.type(), String.valueOf(id));
             if (deleteRequestBuilder.execute().actionGet() != null) {
                 success = true;
                 log.info("  删除 Elasticsearch " + msg.toString() + " 数据 成功! ");
             } else {
                 log.info("  删除 Elasticsearch " + msg.toString() + " 数据 失败! ");
             }
+            elasticsearchClient.close();
         }
         return success;
     }
@@ -273,6 +279,7 @@ public class BaseServiceImpl<T, PK extends Serializable> implements BaseService<
             } else {
                 log.info(" 删除 Elasticsearch " + msg.toString() + " 数据 全部执行成功！");
             }
+            elasticsearchClient.close();
         }
     }
 
@@ -291,7 +298,8 @@ public class BaseServiceImpl<T, PK extends Serializable> implements BaseService<
             StringBuffer msg = new StringBuffer();
             msg.append("indexName:").append(indexName).append(" type:").append(type);
             log.info(" 开始 添加 Elasticsearch   " + msg.toString() +"   数据 ........... ");
-            IndexRequestBuilder indexRequestBuilder  = this.elasticsearchTemplate.getClient().prepareIndex(annotation.indexName(), annotation.type(), String.valueOf(id));
+            Client elasticsearchClient = this.elasticsearchTemplate.getClient();
+            IndexRequestBuilder indexRequestBuilder  = elasticsearchClient.prepareIndex(annotation.indexName(), annotation.type(), String.valueOf(id));
             indexRequestBuilder.setSource(object);
             if (indexRequestBuilder.execute().actionGet() != null) {
                 success = true;
@@ -299,6 +307,7 @@ public class BaseServiceImpl<T, PK extends Serializable> implements BaseService<
             } else {
                 log.info("  添加 Elasticsearch " + msg.toString() + " 数据 失败! ");
             }
+            elasticsearchClient.close();
         }
         return success;
     }
