@@ -3,7 +3,7 @@ package pers.liujunyi.common.util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import pers.liujunyi.common.redis.RedisUtil;
-import pers.liujunyi.common.vo.user.UserDetail;
+import pers.liujunyi.common.vo.user.UserDetails;
 
 /***
  *
@@ -15,7 +15,6 @@ import pers.liujunyi.common.vo.user.UserDetail;
  * @remark:   用户信息操作工具类
  *
  */
-
 @Component
 public class UserUtils {
     @Autowired
@@ -32,7 +31,7 @@ public class UserUtils {
      * @param token
      * @return
      */
-    public UserDetail getUser(String token){
+    public UserDetails getUser(String token){
        /* String userKey =  RedisKeys.USER_KEY;
         Object object = redisUtil.hget(userKey, token);
         if (object != null){
@@ -58,7 +57,7 @@ public class UserUtils {
      * 根据token 获取用户信息
      * @return
      */
-    public UserDetail getUserDetail(){
+    public UserDetails getUserDetail(){
       /*  String token = TokenUtils.getToken();
         String userKey =  RedisKeys.USER_KEY;
         Object object = redisUtil.hget(userKey, token);
@@ -66,17 +65,19 @@ public class UserUtils {
             UserDetail userDetail = JSON.parseObject(object.toString(), UserDetail.class);
             return userDetail;
         }*/
-        return null;
+        UserDetails userDetail = new UserDetails();
+        userDetail.setUserId(1L);
+        return userDetail;
     }
 
     /**
-     * 用户ID
+     * 获取当前登录人userId
      * @return
      */
-    public Long getUserId(){
-        UserDetail userDetail = this.getUserDetail();
+    public Long getPresentLoginUserId(){
+        UserDetails userDetail = this.getUserDetail();
         if (userDetail != null){
-            return userDetail.getAccountId();
+            return userDetail.getUserId();
         }
         return null;
     }
