@@ -147,7 +147,6 @@ public class BaseServiceImpl<T, PK extends Serializable> implements BaseService<
             } else {
                 log.info("  更新 Elasticsearch " + msg.toString() + " 里面的字段数据 失败! ");
             }
-            elasticsearchClient.close();
         }
         return success;
     }
@@ -180,7 +179,6 @@ public class BaseServiceImpl<T, PK extends Serializable> implements BaseService<
             } else {
                 log.info(" 更新 Elasticsearch " + msg.toString() + " 里面的字段数据 全部执行成功！");
             }
-            elasticsearchClient.close();
         }
     }
 
@@ -223,7 +221,6 @@ public class BaseServiceImpl<T, PK extends Serializable> implements BaseService<
             } else {
                 log.info(" 添加 Elasticsearch " + msg.toString() + " 数据 全部执行成功！");
             }
-            elasticsearchClient.close();
         }
     }
 
@@ -250,7 +247,6 @@ public class BaseServiceImpl<T, PK extends Serializable> implements BaseService<
             } else {
                 log.info("  删除 Elasticsearch " + msg.toString() + " 数据 失败! ");
             }
-            elasticsearchClient.close();
         }
         return success;
     }
@@ -279,7 +275,6 @@ public class BaseServiceImpl<T, PK extends Serializable> implements BaseService<
             } else {
                 log.info(" 删除 Elasticsearch " + msg.toString() + " 数据 全部执行成功！");
             }
-            elasticsearchClient.close();
         }
     }
 
@@ -307,7 +302,6 @@ public class BaseServiceImpl<T, PK extends Serializable> implements BaseService<
             } else {
                 log.info("  添加 Elasticsearch " + msg.toString() + " 数据 失败! ");
             }
-            elasticsearchClient.close();
         }
         return success;
     }
