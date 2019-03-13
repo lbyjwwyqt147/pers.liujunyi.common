@@ -96,6 +96,13 @@ public interface BaseService<T, PK extends Serializable> {
     List<T> findAllByIdIn(List<PK> ids);
 
     /**
+     * 根据一组ID获取数据 并根据id 顺序排序
+     * @param ids
+     * @return
+     */
+    List<T> findByIdInOrderByIdAsc(List<PK> ids);
+
+    /**
      * 单条更新 Elasticsearch 里面的字段数据  参数为Map<String,Object>
      * @param id  id
      * @param sourceMap  资源   key = 需要更新的字段  value = 字段值

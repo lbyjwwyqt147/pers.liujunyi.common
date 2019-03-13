@@ -129,6 +129,11 @@ public class BaseServiceImpl<T, PK extends Serializable> implements BaseService<
     }
 
     @Override
+    public List<T> findByIdInOrderByIdAsc(List<PK> ids) {
+        return this.baseRepository.findByIdInOrderByIdAsc(ids);
+    }
+
+    @Override
     public Boolean updateSingleElasticsearchData(Long id, Map<String, Object> sourceMap) {
         boolean success = false;
         if (!CollectionUtils.isEmpty(sourceMap)) {
