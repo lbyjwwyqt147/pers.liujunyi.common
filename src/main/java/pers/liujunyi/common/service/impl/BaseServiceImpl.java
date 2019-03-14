@@ -1,6 +1,5 @@
 package pers.liujunyi.common.service.impl;
 
-import com.alibaba.fastjson.JSON;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.bulk.BulkItemResponse;
@@ -8,8 +7,6 @@ import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.delete.DeleteRequestBuilder;
 import org.elasticsearch.action.index.IndexRequestBuilder;
-import org.elasticsearch.action.index.IndexResponse;
-import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
 import org.elasticsearch.client.Client;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +26,10 @@ import pers.liujunyi.common.service.BaseService;
 import javax.annotation.Resource;
 import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
-import java.util.*;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /***
  * 文件名称: BaseServiceImpl.java
@@ -90,6 +90,7 @@ public class BaseServiceImpl<T, PK extends Serializable> implements BaseService<
         return this.baseRepository.existsById(id);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public Boolean deleteAllByIdIn(List<PK> ids) {
         long count = this.baseRepository.deleteByIdIn(ids);
