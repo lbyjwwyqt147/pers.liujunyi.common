@@ -11,10 +11,15 @@ import java.util.List;
  */
 public class ZTreeBuilder {
 
-    public static List<ZTreeNode> buildListToTree(List<ZTreeNode> dirs) {
-        List<ZTreeNode> roots = findRoots(dirs);
+    /**
+     * list 数据结构 转为 tree 数据结构
+     * @param source
+     * @return
+     */
+    public static List<ZTreeNode> buildListToTree(List<ZTreeNode> source) {
+        List<ZTreeNode> roots = findRoots(source);
         List<ZTreeNode> notRoots = (List<ZTreeNode>) CollectionUtils
-                .subtract(dirs, roots);
+                .subtract(source, roots);
         for (ZTreeNode root : roots) {
             List<ZTreeNode> children = findChildren(root, notRoots);
             if (!CollectionUtils.isEmpty(children)) {
@@ -26,6 +31,11 @@ public class ZTreeBuilder {
         return roots;
     }
 
+    /**
+     * root 节点数据
+     * @param allNodes
+     * @return
+     */
     private static List<ZTreeNode> findRoots(List<ZTreeNode> allNodes) {
         List<ZTreeNode> results = new ArrayList<>();
         for (ZTreeNode node : allNodes) {
@@ -39,7 +49,7 @@ public class ZTreeBuilder {
             if (isRoot) {
                 results.add(node);
                 // pid = 0 表示根节点
-                if (node.getPid() == 0) {
+                if (node.getPid().longValue() == 0) {
                     node.setPid(0L);
                 } else {
                     node.setPid(node.getId());
@@ -49,6 +59,11 @@ public class ZTreeBuilder {
         return results;
     }
 
+    /**
+     * children 节点数据
+     * @param allNodes
+     * @return
+     */
     private static List<ZTreeNode> findChildren(ZTreeNode root, List<ZTreeNode> allNodes) {
         List<ZTreeNode> children = new ArrayList<>();
         for (ZTreeNode comparedOne : allNodes) {
