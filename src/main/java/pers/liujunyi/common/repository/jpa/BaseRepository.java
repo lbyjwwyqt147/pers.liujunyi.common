@@ -3,6 +3,7 @@ package pers.liujunyi.common.repository.jpa;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.NoRepositoryBean;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
 import java.util.List;
@@ -47,5 +48,6 @@ public interface  BaseRepository<T, PK extends Serializable> extends JpaReposito
      * @param ids
      * @return
      */
+    @Transactional(rollbackFor = Exception.class)
     long deleteByIdIn(List<PK> ids);
 }

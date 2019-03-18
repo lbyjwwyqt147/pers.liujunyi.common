@@ -9,19 +9,19 @@ import java.util.List;
  *  ztree 树 构建
  * @author Administrator
  */
-public class ZTreeBuilder {
+public class ZtreeBuilder {
 
     /**
      * list 数据结构 转为 tree 数据结构
      * @param source
      * @return
      */
-    public static List<ZTreeNode> buildListToTree(List<ZTreeNode> source) {
-        List<ZTreeNode> roots = findRoots(source);
-        List<ZTreeNode> notRoots = (List<ZTreeNode>) CollectionUtils
+    public static List<ZtreeNode> buildListToTree(List<ZtreeNode> source) {
+        List<ZtreeNode> roots = findRoots(source);
+        List<ZtreeNode> notRoots = (List<ZtreeNode>) CollectionUtils
                 .subtract(source, roots);
-        for (ZTreeNode root : roots) {
-            List<ZTreeNode> children = findChildren(root, notRoots);
+        for (ZtreeNode root : roots) {
+            List<ZtreeNode> children = findChildren(root, notRoots);
             if (!CollectionUtils.isEmpty(children)) {
                 root.setIsParent(true);
                 root.setIsLeaf(false);
@@ -36,11 +36,11 @@ public class ZTreeBuilder {
      * @param allNodes
      * @return
      */
-    private static List<ZTreeNode> findRoots(List<ZTreeNode> allNodes) {
-        List<ZTreeNode> results = new ArrayList<>();
-        for (ZTreeNode node : allNodes) {
+    private static List<ZtreeNode> findRoots(List<ZtreeNode> allNodes) {
+        List<ZtreeNode> results = new ArrayList<>();
+        for (ZtreeNode node : allNodes) {
             boolean isRoot = true;
-            for (ZTreeNode comparedOne : allNodes) {
+            for (ZtreeNode comparedOne : allNodes) {
                 if (node.getPid().longValue() == comparedOne.getId().longValue()) {
                     isRoot = false;
                     break;
@@ -64,16 +64,16 @@ public class ZTreeBuilder {
      * @param allNodes
      * @return
      */
-    private static List<ZTreeNode> findChildren(ZTreeNode root, List<ZTreeNode> allNodes) {
-        List<ZTreeNode> children = new ArrayList<>();
-        for (ZTreeNode comparedOne : allNodes) {
+    private static List<ZtreeNode> findChildren(ZtreeNode root, List<ZtreeNode> allNodes) {
+        List<ZtreeNode> children = new ArrayList<>();
+        for (ZtreeNode comparedOne : allNodes) {
             if (comparedOne.getPid().longValue() == root.getId().longValue()) {
                 children.add(comparedOne);
             }
         }
-        List<ZTreeNode> notChildren = (List<ZTreeNode>) CollectionUtils.subtract(allNodes, children);
-        for (ZTreeNode child : children) {
-            List<ZTreeNode> tmpChildren = findChildren(child, notChildren);
+        List<ZtreeNode> notChildren = (List<ZtreeNode>) CollectionUtils.subtract(allNodes, children);
+        for (ZtreeNode child : children) {
+            List<ZtreeNode> tmpChildren = findChildren(child, notChildren);
             if (CollectionUtils.isEmpty(tmpChildren)) {
                 child.setIsLeaf(true);
             } else {

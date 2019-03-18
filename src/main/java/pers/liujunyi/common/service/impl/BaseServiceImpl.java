@@ -62,6 +62,7 @@ public class BaseServiceImpl<T, PK extends Serializable> implements BaseService<
         this.baseRepository = baseRepository;
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public int insertBatchSql(String sql, Collection<T> collection) {
         //批量转数组

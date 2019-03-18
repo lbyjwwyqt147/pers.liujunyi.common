@@ -8,16 +8,14 @@ import java.io.Serializable;
 import java.util.List;
 
 /***
- *  一种安全的组合模式
- *  声明一个接口用于访问和管理AbstractZTreeComponent的子部件
- *
+ * zTree 树结构
+ * @author Administrator
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-public  abstract class AbstractZTreeComponent implements Serializable {
+public class ZtreeNode implements Serializable {
 
-
-    private static final long serialVersionUID = 4689319284999357647L;
+    private static final long serialVersionUID = -2059747305690452341L;
 
     /**
      * true 表示节点的输入框被勾选
@@ -64,7 +62,7 @@ public  abstract class AbstractZTreeComponent implements Serializable {
 
     /** 是否是叶子节点  **/
     @JSONField(name = "isLeaf")
-    private Boolean isLeaf;
+    private Boolean isLeaf = true;
 
     /**
      * true 表示此节点不显示 checkbox / radio，不影响勾选的关联关系，不影响父节点的半选状态。
@@ -100,17 +98,14 @@ public  abstract class AbstractZTreeComponent implements Serializable {
     private String name;
 
     /** 附加属性 */
-    private Object attributes;
+    private Object otherAttributes;
 
+    /** 孩子节点  */
+    private List<ZtreeNode> children;
 
-    public AbstractZTreeComponent(Long id, String name, String icon){
-        this.icon = icon;
+    public ZtreeNode(Long id, Long pid, String name){
         this.id =  id;
+        this.pid = pid;
         this.name = name;
     }
-
-    /**
-     * 业务方法
-     */
-    public abstract void operation();
 }

@@ -2,7 +2,7 @@ package pers.liujunyi.common.util;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import pers.liujunyi.common.redis.RedisUtil;
+import pers.liujunyi.common.redis.RedisTemplateUtils;
 import pers.liujunyi.common.vo.user.UserDetails;
 
 /***
@@ -18,7 +18,7 @@ import pers.liujunyi.common.vo.user.UserDetails;
 @Component
 public class UserUtils {
     @Autowired
-    private RedisUtil redisUtil;
+    private RedisTemplateUtils redisTemplateUtils;
 
    /* @Value("${jwt.header}")
     private String tokenHeader;

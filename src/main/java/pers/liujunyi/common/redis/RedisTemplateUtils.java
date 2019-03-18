@@ -1,25 +1,29 @@
 package pers.liujunyi.common.redis;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.connection.DataType;
+import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
  * redis 工具类
+ * @author ljy
  */
 @Component
-public class RedisUtil {
+public class RedisTemplateUtils {
 
     @Autowired
     private RedisTemplate redisTemplate;
+    @Value("${spring.application.name}")
+    private String currentApplicationName;
+    @Value("${data.redisPrefixion}")
+    private Boolean redisPrefixion;
 
 
     /** #######################################   key 操作开始    #################################################################*/
@@ -34,7 +38,8 @@ public class RedisUtil {
      * @return key存在返回true  不存在返回false
      */
     public Boolean exists(String key){
-        return redisTemplate.hasKey(key);
+        String newKey = this.getNewKey(key);
+        return this.redisTemplate.hasKey(newKey);
     }
 
 
@@ -48,8 +53,9 @@ public class RedisUtil {
      * @return 删除成功返回true  失败返回false
      */
     public Boolean del(String key){
-        if (exists(key)){
-            return  redisTemplate.delete(key);
+        String newKey = this.getNewKey(key);
+        if (exists(newKey)){
+            return  this.redisTemplate.delete(newKey);
         }
         return false;
     }
@@ -60,7 +66,12 @@ public class RedisUtil {
      * @return 成功返回true  失败返回false
      */
     public Boolean deletes(Set<String> keys){
-        Long count = delete(keys);
+        Set<String> newKeys = new HashSet<>();
+        keys.stream().forEach(item ->{
+            String newKey = this.getNewKey(item);
+            newKeys.add(newKey);
+        });
+        Long count = delete(newKeys);
         if (count != null && count > 0){
             return true;
         }
@@ -73,7 +84,12 @@ public class RedisUtil {
      * @return 返回 删除key个数
      */
     public Long delete(Set<String> keys){
-        return redisTemplate.delete(keys);
+        Set<String> newKeys = new HashSet<>();
+        keys.stream().forEach(item ->{
+            String newKey = this.getNewKey(item);
+            newKeys.add(newKey);
+        });
+        return this.redisTemplate.delete(keys);
     }
 
     /**
@@ -105,8 +121,10 @@ public class RedisUtil {
      * @param newKey 替换后的key
      * @return  修改成功返回true  失败返回false
      */
-   public Boolean renamenx(String oldKey,String newKey){
-        return  redisTemplate.renameIfAbsent(oldKey,newKey);
+   public Boolean renamenx(String oldKey, String newKey){
+       String curOldKey = this.getNewKey(oldKey);
+       String curNewKey = this.getNewKey(newKey);
+       return  this.redisTemplate.renameIfAbsent(curOldKey,curNewKey);
    }
 
     /**
@@ -120,7 +138,8 @@ public class RedisUtil {
      * @return
      */
     public Set<String> keys(String pattern){
-        return redisTemplate.keys(pattern);
+        String curNewPattern = this.getNewKey(pattern);
+        return this.redisTemplate.keys(curNewPattern);
     }
 
     /**
@@ -128,7 +147,7 @@ public class RedisUtil {
      * @return 返回 key 集合
      */
     public Set<String> getAllKeys() {
-        return redisTemplate.keys("*");
+        return this.redisTemplate.keys("*");
     }
 
     /**
@@ -140,7 +159,25 @@ public class RedisUtil {
      * @param key
      */
     public void watch(String key) {
-        redisTemplate.watch(key);
+        String curNewKey = this.getNewKey(key);
+        this.redisTemplate.watch(curNewKey);
+    }
+
+    /**
+     * 处理事物锁定的key
+     * 用于监视一个(或多个) key ，如果在事务执行之前这个(或这些) key 被其他命令所改动，那么事务将被打断
+     * WATCH key [key ...]
+     * redis> WATCH lock lock_times
+     * OK
+     * @param keys
+     */
+    public void watch(String[] keys) {
+        Set<String> newKeys = new HashSet<>();
+        for (String key : keys) {
+            String newKey = this.getNewKey(key);
+            newKeys.add(newKey);
+        }
+        this.redisTemplate.watch(newKeys);
     }
 
 
@@ -156,7 +193,8 @@ public class RedisUtil {
      * @return
      */
     public void set(String key, Object value) {
-        redisTemplate.boundValueOps(key).set(value);
+        String newKey = this.getNewKey(key);
+        this.redisTemplate.boundValueOps(key).set(newKey);
     }
 
 
@@ -176,7 +214,8 @@ public class RedisUtil {
      * @param offset
      */
     public void setrange(String key,Object value,Long offset){
-         redisTemplate.boundValueOps(key).set(value,offset);
+        String newKey = this.getNewKey(key);
+        this.redisTemplate.boundValueOps(newKey).set(value,offset);
     }
 
     /**
@@ -198,7 +237,8 @@ public class RedisUtil {
      * @param value  设置成功返回true  设置失败返回 false
      */
     public Boolean  setnx(String key,Object value){
-        return redisTemplate.boundValueOps(key).setIfAbsent(value);
+        String newKey = this.getNewKey(key);
+        return this.redisTemplate.boundValueOps(newKey).setIfAbsent(value);
     }
 
     /**
@@ -216,8 +256,9 @@ public class RedisUtil {
      * @param expireTime  秒
      * @return
      */
-    public void setex (String key, Object value, Long expireTime) {
-        redisTemplate.boundValueOps(key).set(value, expireTime, TimeUnit.SECONDS);
+    public void setex(String key, Object value, Long expireTime) {
+        String newKey = this.getNewKey(key);
+        this.redisTemplate.boundValueOps(newKey).set(value, expireTime, TimeUnit.SECONDS);
     }
 
     /**
@@ -230,7 +271,8 @@ public class RedisUtil {
      * @return  返回key对应的值
      */
     public Object get(String key){
-        return redisTemplate.boundValueOps(key).get();
+        String newKey = this.getNewKey(key);
+        return this.redisTemplate.boundValueOps(newKey).get();
     }
 
 
@@ -254,7 +296,8 @@ public class RedisUtil {
      * @return 返回追加指定值之后， key 中字符串的长度。
      */
     public  Integer append(String key,String value){
-        return redisTemplate.boundValueOps(key).append(value);
+        String newKey = this.getNewKey(key);
+        return this.redisTemplate.boundValueOps(newKey).append(value);
     }
 
 
@@ -273,9 +316,10 @@ public class RedisUtil {
      * @param key
      * @return  返回值 增一后的数值
      */
-   /* public Long incr(String key){
-        return redisTemplate.boundValueOps(key).increment();
-    }*/
+    public Long incr(String key){
+        String newKey = this.getNewKey(key);
+        return this.redisTemplate.boundValueOps(newKey).increment();
+    }
 
     /**
      * 	将key 的整数值进行加法计算 如果 key 不存在，那么 key 的值会先被初始化为
@@ -305,7 +349,8 @@ public class RedisUtil {
      * @return  返回值 加法后的long数值
      */
     public Long incrby (String key,Long number){
-        return redisTemplate.boundValueOps(key).increment(number);
+        String newKey = this.getNewKey(key);
+        return this.redisTemplate.boundValueOps(newKey).increment(number);
     }
 
     /**
@@ -315,7 +360,8 @@ public class RedisUtil {
      * @return  返回值加法计算后的double数值
      */
     public Double incrby(String key,Double number){
-        return redisTemplate.boundValueOps(key).increment(number);
+        String newKey = this.getNewKey(key);
+        return this.redisTemplate.boundValueOps(newKey).increment(number);
     }
 
 
@@ -334,9 +380,10 @@ public class RedisUtil {
      * @param key
      * @return 返回会减一后的数值
      */
-    /*public Long decr(String key){
-        return redisTemplate.boundValueOps(key).decrement();
-    }*/
+    public Long decr(String key){
+        String newKey = this.getNewKey(key);
+        return this.redisTemplate.boundValueOps(newKey).decrement();
+    }
 
 
 
@@ -347,9 +394,10 @@ public class RedisUtil {
      * @param number  减数值
      * @return  返回值 减法后的long数值
      */
-   /* public Long decrby (String key,Long number){
-        return redisTemplate.boundValueOps(key).decrement(number);
-    }*/
+    public Long decrby (String key,Long number){
+        String newKey = this.getNewKey(key);
+        return this.redisTemplate.boundValueOps(newKey).decrement(number);
+    }
 
 
     /**
@@ -371,7 +419,8 @@ public class RedisUtil {
      * @return 返回一个字符串，也就是键的旧值。 如果键不存在，则返回null
      */
     public Object getset (String key,Object value){
-        return redisTemplate.boundValueOps(key).getAndSet(value);
+        String newKey = this.getNewKey(key);
+        return this.redisTemplate.boundValueOps(newKey).getAndSet(value);
     }
 
     /**
@@ -384,7 +433,8 @@ public class RedisUtil {
      * @return 设置成功返回true  失败返回false
      */
     public  Boolean expire(String key,Long expireTime){
-        return redisTemplate.boundValueOps(key).expire(expireTime,TimeUnit.SECONDS);
+        String newKey = this.getNewKey(key);
+        return this.redisTemplate.boundValueOps(newKey).expire(expireTime,TimeUnit.SECONDS);
     }
 
 
@@ -398,7 +448,8 @@ public class RedisUtil {
      * @return 设置成功返回true  失败返回false
      */
     public Boolean 	expireAt(String key, Date date){
-        return redisTemplate.boundValueOps(key).expireAt(date);
+        String newKey = this.getNewKey(key);
+        return this.redisTemplate.boundValueOps(newKey).expireAt(date);
     }
 
 
@@ -410,7 +461,8 @@ public class RedisUtil {
      * @return  返回key 的过期时间(秒)
      */
     public Long ttl(String key){
-        return redisTemplate.boundValueOps(key).getExpire();
+        String newKey = this.getNewKey(key);
+        return this.redisTemplate.boundValueOps(newKey).getExpire();
     }
 
 
@@ -433,7 +485,9 @@ public class RedisUtil {
      * @param newKey 替换后的key
      */
     public void  rename(String oldKey,String newKey) {
-        redisTemplate.boundValueOps(oldKey).rename(newKey);
+        String curOldKey = this.getNewKey(oldKey);
+        String curNewKey = this.getNewKey(newKey);
+        this.redisTemplate.boundValueOps(curOldKey).rename(curNewKey);
     }
 
     /**
@@ -445,7 +499,8 @@ public class RedisUtil {
      * @return 返回key 对应值的长度  不存在返回0
      */
     public Long strlen(String key){
-        return redisTemplate.boundValueOps(key).size();
+        String curNewKey = this.getNewKey(key);
+        return this.redisTemplate.boundValueOps(curNewKey).size();
     }
 
     /**
@@ -458,7 +513,8 @@ public class RedisUtil {
      * @return 成功返回true 失败返回false
      */
     public Boolean persist(String key){
-        return redisTemplate.boundValueOps(key).persist();
+        String curNewKey = this.getNewKey(key);
+        return this.redisTemplate.boundValueOps(curNewKey).persist();
     }
 
     /**
@@ -478,7 +534,8 @@ public class RedisUtil {
      * @return 返回指定key存储的类型 String |list|set|zset|hash
      */
     public DataType getType(String key) {
-        return  redisTemplate.boundValueOps(key).getType();
+        String curNewKey = this.getNewKey(key);
+        return this.redisTemplate.boundValueOps(curNewKey).getType();
     }
 
     /** #######################################   字符串类型操作结束    ################################################################# */
@@ -500,7 +557,8 @@ public class RedisUtil {
      * @return  返回被添加到集合中的新元素的数量，不包括被忽略的元素。
      */
     public Long  sadd(String key,Object... values){
-        return redisTemplate.boundSetOps(key).add(values);
+        String curNewKey = this.getNewKey(key);
+        return this.redisTemplate.boundSetOps(curNewKey).add(values);
     }
 
     /**
@@ -509,7 +567,8 @@ public class RedisUtil {
      * @return 返回指定key 的set 集合数据
      */
     public Set<Object> smembers(String key) {
-        return redisTemplate.boundSetOps(key).members();
+        String curNewKey = this.getNewKey(key);
+        return this.redisTemplate.boundSetOps(curNewKey).members();
     }
 
     /**
@@ -523,7 +582,8 @@ public class RedisUtil {
      * @return  返回给定集合之间的差集。不存在的集合 key 将视为空集
      */
     public Set<Object> sdiff(String key,Set<Object> set){
-        return redisTemplate.boundSetOps(key).diff(set);
+        String curNewKey = this.getNewKey(key);
+        return this.redisTemplate.boundSetOps(curNewKey).diff(set);
     }
 
     /**
@@ -534,7 +594,8 @@ public class RedisUtil {
      * @return 返回给定集合之间的差集。不存在的集合 key 将视为空集
      */
     public Set<Object> sidff(String key,String key1){
-        return redisTemplate.boundSetOps(key).diff(key1);
+        String curNewKey = this.getNewKey(key);
+        return this.redisTemplate.boundSetOps(curNewKey).diff(key1);
     }
 
     /**
@@ -555,7 +616,8 @@ public class RedisUtil {
      * @return 返回被移除的随机元素。 当集合不存在或是空集时，返回 nil
      */
     public  Object spop(String key){
-        return redisTemplate.boundSetOps(key).pop();
+        String curNewKey = this.getNewKey(key);
+        return this.redisTemplate.boundSetOps(curNewKey).pop();
     }
 
     /**
@@ -579,7 +641,8 @@ public class RedisUtil {
      * @return 被成功移除的元素的数量，不包括被忽略的元素。
      */
     public Long srem(String key,Object... objects){
-        return redisTemplate.boundSetOps(key).remove(objects);
+        String curNewKey = this.getNewKey(key);
+        return this.redisTemplate.boundSetOps(curNewKey).remove(objects);
     }
 
 
@@ -598,7 +661,8 @@ public class RedisUtil {
      * @return 返回 集合大小
      */
     public Long scard(String key){
-        return redisTemplate.boundSetOps(key).size();
+        String curNewKey = this.getNewKey(key);
+        return this.redisTemplate.boundSetOps(curNewKey).size();
     }
 
     /**
@@ -615,7 +679,8 @@ public class RedisUtil {
      * @return  值存在返回true  不存在返回false
      */
     public Boolean sismember(String key,Object value){
-        return redisTemplate.boundSetOps(key).isMember(value);
+        String curNewKey = this.getNewKey(key);
+        return this.redisTemplate.boundSetOps(curNewKey).isMember(value);
     }
 
     /**
@@ -645,7 +710,9 @@ public class RedisUtil {
      * @return 成功返回true 失败返回false
      */
     public Boolean smove(String srckey, String dstkey, Object value) {
-        return redisTemplate.boundSetOps(srckey).move(dstkey,value);
+        String curSrckey = this.getNewKey(srckey);
+        String curDstkeyKey = this.getNewKey(dstkey);
+        return this.redisTemplate.boundSetOps(curSrckey).move(curDstkeyKey,value);
     }
 
     /**
@@ -674,8 +741,10 @@ public class RedisUtil {
      * @param otherKey
      * @return 返回 并集成员的列表
      */
-    public Set<Object> sunion(String key,String otherKey){
-        return redisTemplate.boundSetOps(key).union(otherKey);
+    public Set<Object> sunion(String key, String otherKey){
+        String curNewKey = this.getNewKey(key);
+        String curOtherKey = this.getNewKey(otherKey);
+        return this.redisTemplate.boundSetOps(curNewKey).union(curOtherKey);
     }
 
     /**
@@ -686,7 +755,8 @@ public class RedisUtil {
      * @return 返回 并集成员的列表
      */
     public Set<Object> sunion(String key, Set<Object> set){
-        return redisTemplate.boundSetOps(key).union(set);
+        String curNewKey = this.getNewKey(key);
+        return this.redisTemplate.boundSetOps(curNewKey).union(set);
     }
 
     /**
@@ -715,7 +785,10 @@ public class RedisUtil {
      * @return
      */
     public  void  sunionstore(String key, String otherKey, String destKey){
-        redisTemplate.boundSetOps(key).unionAndStore(otherKey,destKey);
+        String curNewKey = this.getNewKey(key);
+        String curOtherKey = this.getNewKey(otherKey);
+        String curDestKey = this.getNewKey(destKey);
+        this.redisTemplate.boundSetOps(curNewKey).unionAndStore(curOtherKey,curDestKey);
     }
 
 
@@ -728,7 +801,9 @@ public class RedisUtil {
      * @return
      */
     public  void  sunionstore(String key,String otherKey ,Set<Object> set){
-        redisTemplate.boundSetOps(key).unionAndStore(set,otherKey);
+        String curNewKey = this.getNewKey(key);
+        String curOtherKey = this.getNewKey(otherKey);
+        this.redisTemplate.boundSetOps(curNewKey).unionAndStore(set,curOtherKey);
     }
 
 
@@ -752,7 +827,9 @@ public class RedisUtil {
      * @return 返回 交集成员的列表
      */
     public Set<Object> sinter(String key,String otherKey){
-        return redisTemplate.boundSetOps(key).intersect(otherKey);
+        String curNewKey = this.getNewKey(key);
+        String curOtherKey = this.getNewKey(otherKey);
+        return this.redisTemplate.boundSetOps(curNewKey).intersect(curOtherKey);
     }
 
     /**
@@ -763,7 +840,8 @@ public class RedisUtil {
      * @return 返回 交集成员的列表
      */
     public Set<Object> sinter(String key, Set<Object> set){
-        return redisTemplate.boundSetOps(key).intersect(set);
+        String curNewKey = this.getNewKey(key);
+        return this.redisTemplate.boundSetOps(curNewKey).intersect(set);
     }
 
     /**
@@ -789,7 +867,10 @@ public class RedisUtil {
      * @return
      */
     public  void  sinterstore(String key, String otherKey, String destKey){
-        redisTemplate.boundSetOps(key).intersectAndStore(otherKey,destKey);
+        String curNewKey = this.getNewKey(key);
+        String curOtherKey = this.getNewKey(otherKey);
+        String curDestKey = this.getNewKey(destKey);
+        this.redisTemplate.boundSetOps(curNewKey).intersectAndStore(curOtherKey, curDestKey);
     }
 
 
@@ -802,7 +883,9 @@ public class RedisUtil {
      * @return
      */
     public  void  sinterstore(String key,String otherKey ,Set<Object> set){
-        redisTemplate.boundSetOps(key).intersectAndStore(set,otherKey);
+        String curNewKey = this.getNewKey(key);
+        String curOtherKey = this.getNewKey(otherKey);
+        this.redisTemplate.boundSetOps(curNewKey).intersectAndStore(set, curOtherKey);
     }
 
     /**
@@ -817,7 +900,8 @@ public class RedisUtil {
      * @return 成功返回true  失败返回false
      */
     public Boolean setSetExpireTime(String key, Long time) {
-        return redisTemplate.boundSetOps(key).expire(time, TimeUnit.SECONDS);
+        String curNewKey = this.getNewKey(key);
+        return this.redisTemplate.boundSetOps(curNewKey).expire(time, TimeUnit.SECONDS);
     }
 
 
@@ -857,7 +941,8 @@ public class RedisUtil {
      * @return 成功返回true  失败返回false
      */
     public Boolean zadd(String key, double score, Object value){
-        return redisTemplate.boundZSetOps(key).add(value,score);
+        String curNewKey = this.getNewKey(key);
+        return this.redisTemplate.boundZSetOps(curNewKey).add(value,score);
     }
 
     /**
@@ -872,7 +957,8 @@ public class RedisUtil {
      * @return 返回被成功添加的新成员的数量，不包括那些被更新的、已经存在的成员
      */
     public Long zadd(String key, Set<Object> value) {
-        return redisTemplate.boundZSetOps(key).add(value);
+        String curNewKey = this.getNewKey(key);
+        return redisTemplate.boundZSetOps(curNewKey).add(value);
     }
 
 
@@ -890,7 +976,8 @@ public class RedisUtil {
      * @return 如果返回0则集合不存在
      */
     public Long zcard(String key){
-        return redisTemplate.boundZSetOps(key).zCard();
+        String curNewKey = this.getNewKey(key);
+        return this.redisTemplate.boundZSetOps(curNewKey).zCard();
     }
 
     /**
@@ -911,7 +998,8 @@ public class RedisUtil {
      * @return 分数值在 min 和 max 之间的成员的数量。
      */
     public Long zcount(String key, double min, double max){
-        return redisTemplate.boundZSetOps(key).count(min,max);
+        String curNewKey = this.getNewKey(key);
+        return this.redisTemplate.boundZSetOps(curNewKey).count(min,max);
     }
 
     /**
@@ -920,7 +1008,8 @@ public class RedisUtil {
      * @return 返回给定绑定键存储的排序集的元素个数。
      */
     public Long getZSetSize(String  key){
-        return redisTemplate.boundZSetOps(key).size();
+        String curNewKey = this.getNewKey(key);
+        return this.redisTemplate.boundZSetOps(curNewKey).size();
     }
 
     /**
@@ -935,7 +1024,8 @@ public class RedisUtil {
      * @return 成功返回true  失败返回false
      */
     public Boolean setZSetExpireTime(String key, Long time) {
-        return redisTemplate.boundZSetOps(key).expire(time, TimeUnit.SECONDS);
+        String curNewKey = this.getNewKey(key);
+        return redisTemplate.boundZSetOps(curNewKey).expire(time, TimeUnit.SECONDS);
     }
 
     /**
@@ -957,7 +1047,8 @@ public class RedisUtil {
      * @return 返回成员分数值
      */
     public Double zscore(String key, Object value) {
-        return redisTemplate.boundZSetOps(key).score(value);
+        String curNewKey = this.getNewKey(key);
+        return this.redisTemplate.boundZSetOps(curNewKey).score(value);
     }
 
     /**
@@ -983,7 +1074,8 @@ public class RedisUtil {
      * @param max 最大值(包含)
      */
     public void zremrangeByScore(String key,Double min,Double max){
-         redisTemplate.boundZSetOps(key).removeRangeByScore(min,max);
+        String curNewKey = this.getNewKey(key);
+        this.redisTemplate.boundZSetOps(curNewKey).removeRangeByScore(min,max);
     }
 
     /**
@@ -995,7 +1087,8 @@ public class RedisUtil {
      * @param end  结束索引
      */
     public void   zremrangeByRank(String key,Long start, Long end){
-        redisTemplate.boundZSetOps(key).removeRange(start,end);
+        String curNewKey = this.getNewKey(key);
+        this.redisTemplate.boundZSetOps(curNewKey).removeRange(start,end);
     }
 
 
@@ -1020,7 +1113,8 @@ public class RedisUtil {
      * @return  被成功移除的成员的数量
      */
     public Long zrem(String key, Object... value) {
-        return redisTemplate.boundZSetOps(key).remove(value);
+        String curNewKey = this.getNewKey(key);
+        return this.redisTemplate.boundZSetOps(curNewKey).remove(value);
     }
 
     /**
@@ -1063,7 +1157,10 @@ public class RedisUtil {
      * @param destKey     源数据key
      */
     public void zunionstore(String key,String otherKey, String destKey){
-        redisTemplate.boundZSetOps(key).unionAndStore(otherKey,destKey);
+        String curNewKey = this.getNewKey(key);
+        String curOtherKey = this.getNewKey(otherKey);
+        String curDestKey = this.getNewKey(destKey);
+        this.redisTemplate.boundZSetOps(curNewKey).unionAndStore(curOtherKey, curDestKey);
     }
 
     /**
@@ -1073,7 +1170,14 @@ public class RedisUtil {
      * @param destKey
      */
    public void zunionstore(String key,Set<String> otherKeys, String destKey){
-        redisTemplate.boundZSetOps(key).unionAndStore(otherKeys,destKey);
+       String curNewKey = this.getNewKey(key);
+       String curDestKey = this.getNewKey(destKey);
+       Set<String> newOtherKeys = new HashSet<>();
+       for (String otherKey : otherKeys) {
+           String newKey = this.getNewKey(otherKey);
+           newOtherKeys.add(newKey);
+       }
+       this.redisTemplate.boundZSetOps(curNewKey).unionAndStore(newOtherKeys, curDestKey);
    }
 
     /**
@@ -1089,7 +1193,8 @@ public class RedisUtil {
      * @return 返回排序后的集合
      */
    public Set<Object> zrevrange(String key){
-       return redisTemplate.boundZSetOps(key).reverseRange(0L,getZSetSize(key));
+       String curNewKey = this.getNewKey(key);
+       return this.redisTemplate.boundZSetOps(curNewKey).reverseRange(0L,getZSetSize(key));
    }
 
     /**
@@ -1105,7 +1210,8 @@ public class RedisUtil {
      * @return 返回排序后的集合
      */
     public Set<Object> zrange(String key){
-        return redisTemplate.boundZSetOps(key).range(0L,getZSetSize(key));
+        String curNewKey = this.getNewKey(key);
+        return this.redisTemplate.boundZSetOps(curNewKey).range(0L,getZSetSize(key));
     }
 
     /**
@@ -1123,7 +1229,8 @@ public class RedisUtil {
      * @return 返回排序后的集合
      */
     public Set<Object> zrange(String key,Long start,Long end){
-        return redisTemplate.boundZSetOps(key).range(start,end);
+        String curNewKey = this.getNewKey(key);
+        return this.redisTemplate.boundZSetOps(curNewKey).range(start,end);
     }
 
     /**
@@ -1141,7 +1248,8 @@ public class RedisUtil {
      * @return 返回排序后的集合
      */
     public Set<Object> zrevrange(String key,Long start,Long end){
-        return redisTemplate.boundZSetOps(key).reverseRange(start,end);
+        String curNewKey = this.getNewKey(key);
+        return this.redisTemplate.boundZSetOps(curNewKey).reverseRange(start,end);
     }
 
     /**
@@ -1155,7 +1263,8 @@ public class RedisUtil {
      * @return 指定区间内，带有分数值(可选)的有序集成员的列表。
      */
     public Set<Object> zrangeByScore(String key,Double min,Double max){
-        return redisTemplate.boundZSetOps(key).rangeByScore(min,max);
+        String curNewKey = this.getNewKey(key);
+        return this.redisTemplate.boundZSetOps(curNewKey).rangeByScore(min,max);
     }
 
     /**
@@ -1171,7 +1280,8 @@ public class RedisUtil {
      * @return 指定区间内，带有分数值(可选)的有序集成员的列表。
      */
     public Set<Object> zrevrangeByScore(String key,Double min,Double max){
-        return redisTemplate.boundZSetOps(key).reverseRangeByScore(min,max);
+        String curNewKey = this.getNewKey(key);
+        return this.redisTemplate.boundZSetOps(curNewKey).reverseRangeByScore(min,max);
     }
 
     /**
@@ -1183,7 +1293,8 @@ public class RedisUtil {
      * @return
      */
     public Set<ZSetOperations.TypedTuple<Object>> getZSetRangeWithScores(String key, Long start, Long end) {
-        return redisTemplate.boundZSetOps(key).rangeWithScores(start, end);
+        String curNewKey = this.getNewKey(key);
+        return this.redisTemplate.boundZSetOps(curNewKey).rangeWithScores(start, end);
     }
     /**
      * 键为K的集合，索引start<=index<=end的元素子集
@@ -1194,7 +1305,8 @@ public class RedisUtil {
      * @return
      */
     public Set<ZSetOperations.TypedTuple<Object>> getZSetReverseRangeWithScores(String key, Long start, Long end) {
-        return redisTemplate.boundZSetOps(key).reverseRangeWithScores(start, end);
+        String curNewKey = this.getNewKey(key);
+        return this.redisTemplate.boundZSetOps(curNewKey).reverseRangeWithScores(start, end);
     }
 
     /**
@@ -1238,7 +1350,8 @@ public class RedisUtil {
      * @return  成员的新分数值
      */
     public double zincrby (String key, Object value, double delta) {
-        return redisTemplate.boundZSetOps(key).incrementScore(value, delta);
+        String curNewKey = this.getNewKey(key);
+        return this.redisTemplate.boundZSetOps(curNewKey).incrementScore(value, delta);
     }
 
 
@@ -1260,7 +1373,8 @@ public class RedisUtil {
      * @return 值在集合中的索引
      */
     public Long zrank(String key,Object vlaue){
-        return redisTemplate.boundZSetOps(key).rank(vlaue);
+        String curNewKey = this.getNewKey(key);
+        return this.redisTemplate.boundZSetOps(curNewKey).rank(vlaue);
     }
 
     /**
@@ -1284,7 +1398,8 @@ public class RedisUtil {
      * @return 值在集合中的索引位置
      */
     public Long zrevrank(String key,Object value){
-        return redisTemplate.boundZSetOps(key).reverseRank(value);
+        String curNewKey = this.getNewKey(key);
+        return this.redisTemplate.boundZSetOps(curNewKey).reverseRank(value);
     }
 
     /** #######################################   ZSet 类型操作结束    ################################################################# */
@@ -1306,7 +1421,8 @@ public class RedisUtil {
      * @return 返回列表的长度
      */
     public Long llen(String key){
-        return redisTemplate.boundListOps(key).size();
+        String curNewKey = this.getNewKey(key);
+        return this.redisTemplate.boundListOps(curNewKey).size();
     }
 
     /**
@@ -1332,7 +1448,8 @@ public class RedisUtil {
      * @param value  数据值
      */
     public void lset(String key,Long index,Object value){
-        redisTemplate.boundListOps(key).set(index,value);
+        String curNewKey = this.getNewKey(key);
+        this.redisTemplate.boundListOps(curNewKey).set(index,value);
     }
 
     /**
@@ -1348,7 +1465,8 @@ public class RedisUtil {
      * @return 第一条移除的纪录
      */
     public Object lpop(String key){
-        return redisTemplate.boundListOps(key).leftPop();
+        String curNewKey = this.getNewKey(key);
+        return this.redisTemplate.boundListOps(curNewKey).leftPop();
     }
 
     /**
@@ -1358,7 +1476,8 @@ public class RedisUtil {
      * @return  第一条移除的纪录
      */
     public Object lpop(String key,Long timeout){
-        return redisTemplate.boundListOps(key).leftPop(timeout,TimeUnit.SECONDS);
+        String curNewKey = this.getNewKey(key);
+        return this.redisTemplate.boundListOps(curNewKey).leftPop(timeout,TimeUnit.SECONDS);
     }
 
 
@@ -1380,7 +1499,8 @@ public class RedisUtil {
      * @return 最后一条移除的纪录
      */
     public Object rpop(String key){
-        return redisTemplate.boundListOps(key).rightPop();
+        String curNewKey = this.getNewKey(key);
+        return this.redisTemplate.boundListOps(curNewKey).rightPop();
     }
 
     /**
@@ -1390,7 +1510,8 @@ public class RedisUtil {
      * @return  最后一条移除的纪录
      */
     public Object rpop(String key,Long timeout){
-        return redisTemplate.boundListOps(key).rightPop(timeout,TimeUnit.SECONDS);
+        String curNewKey = this.getNewKey(key);
+        return this.redisTemplate.boundListOps(curNewKey).rightPop(timeout,TimeUnit.SECONDS);
     }
 
     /**
@@ -1415,7 +1536,8 @@ public class RedisUtil {
      * @return 列表中下标为指定索引值的元素
      */
     public Object lindex(String key,Long index){
-        return redisTemplate.boundListOps(key).index(index);
+        String curNewKey = this.getNewKey(key);
+        return this.redisTemplate.boundListOps(curNewKey).index(index);
     }
 
     /**
@@ -1433,7 +1555,8 @@ public class RedisUtil {
      * @return 执行 LPUSH 命令后，列表的长度。
      */
     public Long lpush(String key,Object value){
-        return redisTemplate.boundListOps(key).leftPush(value);
+        String curNewKey = this.getNewKey(key);
+        return this.redisTemplate.boundListOps(curNewKey).leftPush(value);
     }
 
     /**
@@ -1451,7 +1574,8 @@ public class RedisUtil {
      * @return 执行 LPUSH 命令后，列表的长度。
      */
     public Long lpush(String key,Object... objects){
-        return redisTemplate.boundListOps(key).leftPushAll(objects);
+        String curNewKey = this.getNewKey(key);
+        return this.redisTemplate.boundListOps(curNewKey).leftPushAll(objects);
     }
 
     /**
@@ -1473,7 +1597,8 @@ public class RedisUtil {
      * @return 如果命令执行成功，返回插入操作完成之后，列表的长度
      */
     public Long lpush(String key,Object pivot,Object value ){
-        return redisTemplate.boundListOps(key).leftPush(pivot,value);
+        String curNewKey = this.getNewKey(key);
+        return this.redisTemplate.boundListOps(curNewKey).leftPush(pivot,value);
     }
 
 
@@ -1495,7 +1620,8 @@ public class RedisUtil {
      * @return LPUSHX 命令执行之后，列表的长度。
      */
     public Long Lpushx (String key,Object value){
-        return redisTemplate.boundListOps(key).leftPushIfPresent(value);
+        String curNewKey = this.getNewKey(key);
+        return this.redisTemplate.boundListOps(curNewKey).leftPushIfPresent(value);
     }
 
     /**
@@ -1517,7 +1643,8 @@ public class RedisUtil {
      * @return 执行 RPUSH 操作后，列表的长度。
      */
     public Long rpush(String key,Object value){
-        return redisTemplate.boundListOps(key).rightPush(value);
+        String curNewKey = this.getNewKey(key);
+        return this.redisTemplate.boundListOps(curNewKey).rightPush(value);
     }
 
     /**
@@ -1539,7 +1666,8 @@ public class RedisUtil {
      * @return 执行 RPUSH 操作后，列表的长度。
      */
     public Long rpush(String key,Object... values){
-        return redisTemplate.boundListOps(key).rightPush(values);
+        String curNewKey = this.getNewKey(key);
+        return this.redisTemplate.boundListOps(curNewKey).rightPush(values);
     }
 
 
@@ -1562,7 +1690,8 @@ public class RedisUtil {
      * @return 如果命令执行成功，返回插入操作完成之后，列表的长度
      */
     public Long rpush(String key,Object pivot,Object value ){
-        return redisTemplate.boundListOps(key).rightPush(pivot,value);
+        String curNewKey = this.getNewKey(key);
+        return this.redisTemplate.boundListOps(curNewKey).rightPush(pivot,value);
     }
 
     /**
@@ -1582,7 +1711,8 @@ public class RedisUtil {
      * @return  执行 Rpushx 操作后，列表的长度。
      */
     public Long rpushx(String key,Object value){
-        return redisTemplate.boundListOps(key).leftPushIfPresent(value);
+        String curNewKey = this.getNewKey(key);
+        return this.redisTemplate.boundListOps(curNewKey).leftPushIfPresent(value);
     }
 
     /**
@@ -1595,7 +1725,8 @@ public class RedisUtil {
      * @return 返回列表中指定区间内的元素
      */
     public List<Object> lrange(String key,Long start,Long end){
-        return redisTemplate.boundListOps(key).range(start,end);
+        String curNewKey = this.getNewKey(key);
+        return this.redisTemplate.boundListOps(curNewKey).range(start,end);
     }
 
     /**
@@ -1629,7 +1760,8 @@ public class RedisUtil {
      * @param end 结束索引
      */
     public void  ltrim(String key,Long start,Long end){
-         redisTemplate.boundListOps(key).trim(start,end);
+        String curNewKey = this.getNewKey(key);
+        this.redisTemplate.boundListOps(curNewKey).trim(start,end);
     }
 
 
@@ -1659,7 +1791,8 @@ public class RedisUtil {
      * @return 被移除元素的数量。 列表不存在时返回 0
      */
     public Long lrem(String key,Long count ,Object value){
-        return redisTemplate.boundListOps(key).remove(count,value);
+        String curNewKey = this.getNewKey(key);
+        return this.redisTemplate.boundListOps(curNewKey).remove(count,value);
     }
 
     /** #######################################   List 类型操作结束    ################################################################# */
@@ -1685,7 +1818,8 @@ public class RedisUtil {
      * @return 被成功删除字段的数量
      */
     public Long hdel(String key,String... fields){
-        return redisTemplate.boundHashOps(key).delete(fields);
+        String curNewKey = this.getNewKey(key);
+        return this.redisTemplate.boundHashOps(curNewKey).delete(fields);
     }
 
     /**
@@ -1703,7 +1837,8 @@ public class RedisUtil {
      * @return  存在返回true  不存在返回false
      */
     public  Boolean hexists(String key,String field){
-        return redisTemplate.boundHashOps(key).hasKey(field);
+        String curNewKey = this.getNewKey(key);
+        return this.redisTemplate.boundHashOps(curNewKey).hasKey(field);
     }
 
     /**
@@ -1722,7 +1857,8 @@ public class RedisUtil {
      * @return  返回给定字段的值
      */
     public  Object hget(String key,String field){
-        return redisTemplate.boundHashOps(key).get(field);
+        String curNewKey = this.getNewKey(key);
+        return this.redisTemplate.boundHashOps(curNewKey).get(field);
     }
 
     /**
@@ -1738,7 +1874,8 @@ public class RedisUtil {
      * @return 返回哈希表的字段及字段值。 若 key 不存在，返回空列表
      */
     public Map<String,Object> hgetAll(String key){
-        return redisTemplate.boundHashOps(key).entries();
+        String curNewKey = this.getNewKey(key);
+        return this.redisTemplate.boundHashOps(curNewKey).entries();
     }
 
     /**
@@ -1764,7 +1901,8 @@ public class RedisUtil {
      * @param value
      */
     public  void  hset(String key, String field, String value) {
-         redisTemplate.boundHashOps(key).put(field,value);
+        String curNewKey = this.getNewKey(key);
+        this.redisTemplate.boundHashOps(curNewKey).put(field,value);
     }
 
     /**
@@ -1773,7 +1911,8 @@ public class RedisUtil {
      * @param map
      */
     public void hmset(String key,Map<String,Object> map){
-        redisTemplate.boundHashOps(key).putAll(map);
+        String curNewKey = this.getNewKey(key);
+        this.redisTemplate.boundHashOps(curNewKey).putAll(map);
     }
 
     /**
@@ -1784,8 +1923,9 @@ public class RedisUtil {
      * @param time   过期时间（秒）
      */
     public  void  hset(String key, String field, String value,Long time){
-        redisTemplate.boundHashOps(key).put(field,value);
-        redisTemplate.boundHashOps(key).expire(time,TimeUnit.SECONDS);
+        String curNewKey = this.getNewKey(key);
+        this.redisTemplate.boundHashOps(curNewKey).put(field,value);
+        this.redisTemplate.boundHashOps(curNewKey).expire(time,TimeUnit.SECONDS);
     }
 
     /**
@@ -1806,7 +1946,8 @@ public class RedisUtil {
      * @return  设置成功返回true  设置失败返回false
      */
     public Boolean hsetnx(String key,String field,Object value){
-        return redisTemplate.boundHashOps(key).putIfAbsent(field,value);
+        String curNewKey = this.getNewKey(key);
+        return this.redisTemplate.boundHashOps(curNewKey).putIfAbsent(field,value);
     }
 
     /**
@@ -1823,7 +1964,8 @@ public class RedisUtil {
      * @return 一个包含哈希表中所有域(field)值的列表。 当 key 不存在时，返回一个空表
      */
     public List<Object> hvals(String key){
-        return redisTemplate.boundHashOps(key).values();
+        String curNewKey = this.getNewKey(key);
+        return this.redisTemplate.boundHashOps(curNewKey).values();
     }
 
 
@@ -1848,7 +1990,8 @@ public class RedisUtil {
      * @return  返回计算后哈希表中字段的值
      */
     public Long hincrby(String key,String field,Long number){
-        return redisTemplate.boundHashOps(key).increment(field,number);
+        String curNewKey = this.getNewKey(key);
+        return this.redisTemplate.boundHashOps(curNewKey).increment(field,number);
     }
 
     /**
@@ -1872,7 +2015,8 @@ public class RedisUtil {
      * @return  返回计算后哈希表中字段的值
      */
     public Double hincrby(String key,String field,Double number){
-        return redisTemplate.boundHashOps(key).increment(field,number);
+        String curNewKey = this.getNewKey(key);
+        return this.redisTemplate.boundHashOps(curNewKey).increment(field,number);
     }
 
     /**
@@ -1885,7 +2029,8 @@ public class RedisUtil {
      * @return  返回哈希表中所有域（field）列表
      */
     public Set<Object> hkeys(String key){
-        return redisTemplate.boundHashOps(key).keys();
+        String curNewKey = this.getNewKey(key);
+        return this.redisTemplate.boundHashOps(curNewKey).keys();
     }
 
     /**
@@ -1894,10 +2039,32 @@ public class RedisUtil {
      * @return
      */
     public Long hlen(String key){
-        return redisTemplate.boundHashOps(key).size();
+        String curNewKey = this.getNewKey(key);
+        return this.redisTemplate.boundHashOps(curNewKey).size();
     }
 
+    /**
+     * 切换 database
+     * @param redisDb database
+     */
+    public void switchDb(int redisDb){
+        JedisConnectionFactory jedisConnectionFactory = (JedisConnectionFactory) this.redisTemplate.getConnectionFactory();
+        jedisConnectionFactory.getStandaloneConfiguration().setDatabase(redisDb);
+        this.redisTemplate.setConnectionFactory(jedisConnectionFactory);
+    }
 
+    /**
+     * 设置 key
+     * @param key
+     * @return
+     */
+    private String getNewKey(String key) {
+        if (redisPrefixion) {
+            String  newKey = this.currentApplicationName.trim() + ":" + key;
+            return  newKey;
+        }
+        return key;
+    }
 
     /** #######################################   Hash 类型操作结束    ################################################################# */
 
