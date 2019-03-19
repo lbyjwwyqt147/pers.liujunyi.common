@@ -152,6 +152,11 @@ public class BaseServiceImpl<T, PK extends Serializable> implements BaseService<
                 success = true;
                 log.info("  更新 Elasticsearch " + msg.toString() + " 里面的字段数据 成功! ");
             } else {
+                try {
+                    Thread.sleep(1000L);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 log.info("  更新 Elasticsearch " + msg.toString() + " 里面的字段数据 失败! ");
             }
         }
@@ -184,6 +189,11 @@ public class BaseServiceImpl<T, PK extends Serializable> implements BaseService<
                     log.info(" 更新 Elasticsearch " + msg.toString() + " 里面的字段失败 .. 错误信息：" + item.getFailureMessage());
                 }
             } else {
+                try {
+                    Thread.sleep(1000L);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 log.info(" 更新 Elasticsearch " + msg.toString() + " 里面的字段数据 全部执行成功！");
             }
         }
@@ -226,6 +236,11 @@ public class BaseServiceImpl<T, PK extends Serializable> implements BaseService<
                     log.info(" 添加 Elasticsearch " + msg.toString() + " 数据失败 .. 错误信息：" + item.getFailureMessage());
                 }
             } else {
+                try {
+                    Thread.sleep(1000L);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 log.info(" 添加 Elasticsearch " + msg.toString() + " 数据 全部执行成功！");
             }
         }
@@ -252,6 +267,11 @@ public class BaseServiceImpl<T, PK extends Serializable> implements BaseService<
                 success = true;
                 log.info("  删除 Elasticsearch " + msg.toString() + " 数据 成功! ");
             } else {
+                try {
+                    Thread.sleep(1000L);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 log.info("  删除 Elasticsearch " + msg.toString() + " 数据 失败! ");
             }
         }
@@ -280,6 +300,11 @@ public class BaseServiceImpl<T, PK extends Serializable> implements BaseService<
                     log.info(" 删除 Elasticsearch " + msg.toString() + " 数据失败 .. 错误信息：" + item.getFailureMessage());
                 }
             } else {
+                try {
+                    Thread.sleep(1000L);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 log.info(" 删除 Elasticsearch " + msg.toString() + " 数据 全部执行成功！");
             }
         }
@@ -307,6 +332,11 @@ public class BaseServiceImpl<T, PK extends Serializable> implements BaseService<
                 success = true;
                 log.info("  添加 Elasticsearch " + msg.toString() + " 数据 成功! ");
             } else {
+                try {
+                    Thread.sleep(1000L);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 log.info("  添加 Elasticsearch " + msg.toString() + " 数据 失败! ");
             }
         }

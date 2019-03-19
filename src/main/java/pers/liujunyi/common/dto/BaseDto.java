@@ -40,7 +40,7 @@ public class BaseDto implements Serializable {
     private String temporary;
 
     /** 0: 启动 1：禁用  */
-    private Byte status = 0;
+    private Byte status;
 
     /** 创建时间 */
     @Temporal(TemporalType.TIMESTAMP)
