@@ -2,6 +2,7 @@ package pers.liujunyi.common.exception;
 
 /***
  * 异常代码 值
+ * @author Administrator
  */
 
 public enum ErrorCodeEnum {
