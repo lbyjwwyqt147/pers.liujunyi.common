@@ -1,6 +1,5 @@
 package pers.liujunyi.cloud.common.service.impl;
 
-import com.alibaba.fastjson.JSONArray;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.search.SearchHits;
 import org.springframework.data.domain.PageRequest;
@@ -9,12 +8,15 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.data.elasticsearch.core.query.SearchQuery;
-import pers.liujunyi.common.repository.elasticsearch.BaseElasticsearchRepository;
-import pers.liujunyi.common.service.BaseElasticsearchService;
+import pers.liujunyi.cloud.common.repository.elasticsearch.BaseElasticsearchRepository;
+import pers.liujunyi.cloud.common.service.BaseElasticsearchService;
 
 import javax.annotation.Resource;
 import java.io.Serializable;
-import java.util.*;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;

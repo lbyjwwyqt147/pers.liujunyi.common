@@ -20,8 +20,8 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSourceUtils;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-import pers.liujunyi.common.repository.jpa.BaseRepository;
-import pers.liujunyi.common.service.BaseService;
+import pers.liujunyi.cloud.common.repository.jpa.BaseRepository;
+import pers.liujunyi.cloud.common.service.BaseService;
 
 import javax.annotation.Resource;
 import java.io.Serializable;

@@ -4,8 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import pers.liujunyi.cloud.common.redis.RedisTemplateUtils;
 import pers.liujunyi.cloud.common.vo.user.UserDetails;
-import pers.liujunyi.common.redis.RedisTemplateUtils;
-import pers.liujunyi.common.vo.user.UserDetails;
 
 /***
  *

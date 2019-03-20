@@ -6,7 +6,6 @@ import org.springframework.data.domain.Sort;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
 
 /***
  * 文件名称: BaseElasticsearchService.java

@@ -20,13 +20,11 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.ssl.TrustStrategy;
 import org.apache.http.util.CharArrayBuffer;
 import org.apache.http.util.EntityUtils;
-import org.springframework.util.CollectionUtils;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLException;

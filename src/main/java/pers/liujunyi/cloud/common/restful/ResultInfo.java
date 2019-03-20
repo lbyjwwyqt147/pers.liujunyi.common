@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import pers.liujunyi.cloud.common.exception.ErrorCodeEnum;
-import pers.liujunyi.common.exception.ErrorCodeEnum;
 
 import java.io.Serializable;
 

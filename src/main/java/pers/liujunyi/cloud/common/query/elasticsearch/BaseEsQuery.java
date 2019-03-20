@@ -11,8 +11,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.data.elasticsearch.core.query.SearchQuery;
 import pers.liujunyi.cloud.common.query.jpa.annotation.AggregationType;
-import pers.liujunyi.common.query.jpa.annotation.AggregationType;
-import pers.liujunyi.common.query.jpa.annotation.QueryCondition;
+import pers.liujunyi.cloud.common.query.jpa.annotation.QueryCondition;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;

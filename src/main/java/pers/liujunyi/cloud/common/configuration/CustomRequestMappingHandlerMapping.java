@@ -3,7 +3,7 @@ package pers.liujunyi.cloud.common.configuration;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.web.servlet.mvc.condition.RequestCondition;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
-import pers.liujunyi.common.annotation.ApiVersion;
+import pers.liujunyi.cloud.common.annotation.ApiVersion;
 
 import java.lang.reflect.Method;
 

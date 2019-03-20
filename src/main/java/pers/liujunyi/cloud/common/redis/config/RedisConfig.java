@@ -19,7 +19,7 @@ import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
-import pers.liujunyi.common.redis.FastJsonRedisSerializer;
+import pers.liujunyi.cloud.common.redis.FastJsonRedisSerializer;
 import redis.clients.jedis.JedisPoolConfig;
 
 import java.time.Duration;
