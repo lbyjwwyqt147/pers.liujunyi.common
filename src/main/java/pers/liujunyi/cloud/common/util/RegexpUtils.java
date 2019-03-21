@@ -10,6 +10,11 @@ public class RegexpUtils {
     public static  final String ALNUM_CODE_REGEXP = "^(?!_)(?!.*?_$)[a-zA-Z0-9-_]+$";
     public static  final String ALNUM_CODE_MSG = "只能输入数字、字母、下划线,不能以下划线开头和结尾";
 
+    public static  final String ALNUM_ACCOUNT_REGEXP = "^(?!_)(?!.*?_$)[a-zA-Z0-9-._@]+$";
+    public static  final String ALNUM_ACCOUNT_MSG = "只能输入数字、字母、下划线、邮箱,不能以下划线开头和结尾";
+
+    public static  final String ALNUM_PWD_REGEXP = "^[a-zA-Z0-9-._@~!#$%^&*()+={}:<>,\"\"?]+$";
+    public static  final String ALNUM_PWD_MSG = "存在非法输入字符,请检查输入法是否正确";
 
 
     public static  final String ALNUM_NAME_REGEXP = "^(?!_)(?!.*?_$)[a-zA-Z0-9-._#\\u4e00-\\u9fa5]+$";
