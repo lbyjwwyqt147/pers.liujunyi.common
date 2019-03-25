@@ -10,7 +10,7 @@ import org.springframework.http.HttpInputMessage;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.RequestBodyAdvice;
-import pers.liujunyi.cloud.common.encrypt.RsaEncryptUtils;
+import pers.liujunyi.cloud.common.encrypt.AesEncryptUtils;
 import pers.liujunyi.cloud.common.encrypt.annotation.Decrypt;
 import pers.liujunyi.cloud.common.encrypt.autoconfigure.EncryptProperties;
 
@@ -54,7 +54,7 @@ public class EncryptRequestBodyAdvice implements RequestBodyAdvice {
 			Class<? extends HttpMessageConverter<?>> converterType) throws IOException {
 		if(parameter.getMethod().isAnnotationPresent(Decrypt.class) && !encryptProperties.isDebug()){
 			try {
-				return new DecryptHttpInputMessage(inputMessage, encryptProperties.getPrivateKey(), encryptProperties.getCharset());
+				return new DecryptHttpInputMessage(inputMessage, encryptProperties.getSecretKey().trim(), encryptProperties.getCharset());
 			} catch (Exception e) {
 				logger.error("数据解密失败", e);
 			}
@@ -83,7 +83,7 @@ class DecryptHttpInputMessage implements HttpInputMessage {
         if (content.startsWith("{")) {
         	decryptBody = content;
 		} else {
-			decryptBody = RsaEncryptUtils.decryptByPrivateKey(content, key);
+			decryptBody = AesEncryptUtils.aesDecrypt(content, key);
 		}
         long endTime = System.currentTimeMillis();
 		logger.debug("Decrypt Time:" + (endTime - startTime));

@@ -107,7 +107,7 @@ public class RsaEncryptUtils {
     public static boolean verify(String data, String publicKey, String sign)
             throws Exception {
         PublicKey  key = getPublicKeyFromBase64KeyEncodeStr(publicKey);
-        Signature signature = Signature.getInstance("SIGNATURE_ALGORITHM");
+        Signature signature = Signature.getInstance(SIGNATURE_ALGORITHM);
         signature.initVerify(key);
         signature.update(data.getBytes());
         return signature.verify(Base64.decodeBase64(sign.getBytes()));
@@ -160,7 +160,7 @@ public class RsaEncryptUtils {
         //要加密的数据
         System.out.println("要解密的数据:" + data);
         //对私钥解密
-        Key decodePrivateKey = getPrivateKeyFromBase64KeyEncodeStr(privateKey);
+        PrivateKey decodePrivateKey = getPrivateKeyFromBase64KeyEncodeStr(privateKey);
         Cipher cipher = Cipher.getInstance(KEY_ALGORITHM);
         cipher.init(Cipher.DECRYPT_MODE, decodePrivateKey);
         byte[] encodedData = Base64.decodeBase64(data);
@@ -204,19 +204,19 @@ public class RsaEncryptUtils {
         System.out.println("要加密的数据:"+primitiveData);
         byte[] data = primitiveData.getBytes();
         // 对公钥解密
-        Key decodePublicKey = getPublicKeyFromBase64KeyEncodeStr(publicKey);
-
+        PublicKey decodePublicKey = getPublicKeyFromBase64KeyEncodeStr(publicKey);
         KeyFactory keyFactory = KeyFactory.getInstance(KEY_ALGORITHM);
         // 对数据加密
         Cipher cipher = Cipher.getInstance(keyFactory.getAlgorithm());
         cipher.init(Cipher.ENCRYPT_MODE, decodePublicKey);
         int inputLen = data.length;
         ByteArrayOutputStream out = new ByteArrayOutputStream();
+        //偏移量
         int offSet = 0;
-        byte[] cache;
         int i = 0;
         // 对数据分段加密
         while (inputLen - offSet > 0) {
+            byte[] cache;
             if (inputLen - offSet > MAX_ENCRYPT_BLOCK) {
                 cache = cipher.doFinal(data, offSet, MAX_ENCRYPT_BLOCK);
             } else {
@@ -228,7 +228,7 @@ public class RsaEncryptUtils {
         }
         byte[] encryptedData = out.toByteArray();
         out.close();
-        String encodedDataStr = new String(Base64.encodeBase64(encryptedData));
+        String encodedDataStr = Base64.encodeBase64String(encryptedData);
         System.out.println("公钥加密后的数据:"+encodedDataStr);
         return encodedDataStr;
     }
@@ -245,17 +245,16 @@ public class RsaEncryptUtils {
             throws Exception {
         byte[] encryptedData = Base64.decodeBase64(data);
         KeyFactory keyFactory = KeyFactory.getInstance(KEY_ALGORITHM);
-        Key decodePrivateKey = getPrivateKeyFromBase64KeyEncodeStr(privateKey);
-
+        PrivateKey decodePrivateKey = getPrivateKeyFromBase64KeyEncodeStr(privateKey);
         Cipher cipher = Cipher.getInstance(keyFactory.getAlgorithm());
         cipher.init(Cipher.DECRYPT_MODE, decodePrivateKey);
         int inputLen = encryptedData.length;
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         int offSet = 0;
-        byte[] cache;
         int i = 0;
         // 对数据分段解密
         while (inputLen - offSet > 0) {
+            byte[] cache;
             if (inputLen - offSet > MAX_DECRYPT_BLOCK) {
                 cache = cipher.doFinal(encryptedData, offSet, MAX_DECRYPT_BLOCK);
             } else {
@@ -291,7 +290,8 @@ public class RsaEncryptUtils {
         String data = "{\"data\":[{\"children\":[{\"functionButtonGroup\":[\"1\",\"2\",\"3\",\"4\",\"5\",\"6\",\"7\",\"8\",\"9\",\"10\"],\"id\":10,\"menuIcon\":\"la-outdent\",\"menuOpenUrl\":\"../dict/dict.html\",\"moduleCode\":\"1010\",\"moduleName\":\"数据字典\",\"modulePid\":1,\"moduleType\":2,\"status\":0},{\"functionButtonGroup\":[\"1\",\"2\",\"3\",\"4\",\"5\",\"6\",\"7\",\"8\",\"9\",\"10\"],\"id\":11,\"menuIcon\":\"la-outdent\",\"menuOpenUrl\":\"../organization/organization.html\",\"moduleCode\":\"1011\",\"moduleName\":\"组织机构\",\"modulePid\":1,\"moduleType\":2,\"status\":0}],\"id\":1,\"menuIcon\":\"flaticon-cogwheel\",\"menuOpenUrl\":\"\",\"moduleCode\":\"1001\",\"moduleName\":\"系统设置\",\"modulePid\":0,\"moduleType\":1,\"status\":0},{\"children\":[{\"functionButtonGroup\":[\"1\",\"2\",\"3\",\"4\",\"5\",\"6\",\"7\",\"8\",\"9\",\"10\"],\"id\":20,\"menuIcon\":\"la-outdent\",\"menuOpenUrl\":\"../photo/album/fahrenheit/fahrenheit.html\",\"moduleCode\":\"1020\",\"moduleName\":\"写真集\",\"modulePid\":2,\"moduleType\":2,\"status\":0},{\"functionButtonGroup\":[\"1\",\"2\",\"3\",\"4\",\"5\",\"6\",\"7\",\"8\",\"9\",\"10\"],\"id\":21,\"menuIcon\":\"la-outdent\",\"menuOpenUrl\":\"../photo/album/wang/wang.html\",\"moduleCode\":\"1021\",\"moduleName\":\"婚纱照\",\"modulePid\":2,\"moduleType\":2,\"status\":0},{\"functionButtonGroup\":[\"1\",\"2\",\"3\",\"4\",\"5\",\"6\",\"7\",\"8\",\"9\",\"10\"],\"id\":22,\"menuIcon\":\"la-outdent\",\"menuOpenUrl\":\"../photo/album/carousel/carousel.html\",\"moduleCode\":\"1022\",\"moduleName\":\"轮播图\",\"modulePid\":2,\"moduleType\":2,\"status\":0}],\"id\":2,\"menuIcon\":\"flaticon-web\",\"menuOpenUrl\":\"\",\"moduleCode\":\"1002\",\"moduleName\":\"相册管理\",\"modulePid\":0,\"moduleType\":1,\"status\":0},{\"children\":[{\"functionButtonGroup\":[\"1\",\"2\",\"3\",\"4\",\"5\",\"6\",\"7\",\"8\",\"9\",\"10\"],\"id\":30,\"menuIcon\":\"la-outdent\",\"menuOpenUrl\":\"../photo/users/staff/staff.html\",\"moduleCode\":\"1030\",\"moduleName\":\"员工管理\",\"modulePid\":3,\"moduleType\":2,\"status\":0},{\"functionButtonGroup\":[\"1\",\"2\",\"3\",\"4\",\"5\",\"6\",\"7\",\"8\",\"9\",\"10\"],\"id\":31,\"menuIcon\":\"la-outdent\",\"menuOpenUrl\":\"../photo/users/customer/customer.html\",\"moduleCode\":\"1031\",\"moduleName\":\"顾客管理\",\"modulePid\":3,\"moduleType\":2,\"status\":0}],\"id\":3,\"menuIcon\":\"flaticon-users\",\"menuOpenUrl\":\"\",\"moduleCode\":\"1003\",\"moduleName\":\"用户管理\",\"modulePid\":0,\"moduleType\":1,\"status\":0}],\"message\":\"success.\",\"status\":200,\"success\":true,\"timestamp\":\"2019-03-25 15:44:53\"}";
         String encrypt = encryptByPublicKey(data, publicKey);
         System.out.println("分段加密后:" + encrypt);
-        System.out.println("分段解密后:" + decryptByPrivateKey(encrypt, privateKey));
+        String test = "ovoxDd+ns/sewWRzaHKPYzFT8l07MC0f1FZqnaqxLWHCm0hrpdesQq8uj1mQvjp7U5fwxmEJPBxlB83vlOmQJ3W7ImwSF9p5PzWcrbE5H6KyLgK6T944M6+DcgRCisRbV5Jf/2emBRRzWKda4d8OkPl2Usz8Joc00s4JZc5e1tvRbH/y0+2I1GoSf3b4cGwSZXRJEEp6UjhXDlRYk6tfDdh+yhu+2fdZ2WC1WHgjVtYX5TBV5p5DWNOEG3GmAgGRpNgVWpZO6FjxLVBJNWLTxQx3iVgunObY83eKMq+cyYoUYPjgJVpIEribEZVgp/ltmztc0k6QB6ed4Drbqh1jVgdcPeYWPzT4I0cRD0RwDSgT8lEhL3Ux5R4fCQNHHoVBxPwtoT7Hxj+ZuWMyztvIg6xNqURFJ06W4HFYo22MudI=";
+        System.out.println("分段解密后:" + decryptByPrivateKey(test, privateKey));
     }
 
 }

@@ -19,6 +19,11 @@ public class EncryptProperties {
 	 */
 	private String publicKey;
 
+	/**
+	 * AES 密匙
+	 */
+	private String secretKey;
+
 	private String charset = "UTF-8";
 	
 	/**

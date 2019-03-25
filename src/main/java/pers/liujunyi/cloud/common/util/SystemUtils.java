@@ -2,6 +2,7 @@ package pers.liujunyi.cloud.common.util;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
@@ -18,7 +19,7 @@ public final class SystemUtils {
      * @param  id
      * @return
      */
-    public static List<Long> getIds(String id){
+    public static List<Long> idToLong(String id){
         List<Long> idsList = new LinkedList<>();
         if (StringUtils.isNotBlank(id)){
             String[] idsArray  = id.split(",");
@@ -29,6 +30,18 @@ public final class SystemUtils {
             }
         }
         return  idsList;
+    }
+
+    /**
+     * 将字符串转　　List<String>
+     * @param  data
+     * @return
+     */
+    public static List<String> stringToList(String data){
+        if (StringUtils.isNotBlank(data)){
+            return Arrays.asList(data.split(","));
+        }
+        return null;
     }
 
     /**

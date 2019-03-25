@@ -12,7 +12,7 @@ import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
-import pers.liujunyi.cloud.common.encrypt.RsaEncryptUtils;
+import pers.liujunyi.cloud.common.encrypt.AesEncryptUtils;
 import pers.liujunyi.cloud.common.encrypt.annotation.Encrypt;
 import pers.liujunyi.cloud.common.encrypt.autoconfigure.EncryptProperties;
 
@@ -65,10 +65,10 @@ public class EncryptResponseBodyAdvice implements ResponseBodyAdvice<Object> {
 		if (encrypt) {
 			try {
 				String content = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(body);
-				if (!StringUtils.hasText(encryptProperties.getPublicKey())) {
-					throw new NullPointerException("请配置spring.encrypt.key");
+				if (!StringUtils.hasText(encryptProperties.getSecretKey())) {
+					throw new NullPointerException("请配置spring.encrypt.secretKey");
 				}
-				String result =  RsaEncryptUtils.encryptByPublicKey(content, encryptProperties.getPublicKey());
+				String result =  AesEncryptUtils.aesEncrypt(content, encryptProperties.getSecretKey().trim());
 				long endTime = System.currentTimeMillis();
 				logger.debug("Encrypt Time:" + (endTime - startTime));
 				return result;

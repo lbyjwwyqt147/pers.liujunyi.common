@@ -4,6 +4,7 @@ import org.apache.commons.codec.binary.Base64;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 /***
@@ -11,8 +12,27 @@ import javax.crypto.spec.SecretKeySpec;
  * @author ljy
  */
 public class AesEncryptUtils {
-	private static final String KEY = "d7b85f6e214abcda";
+	private static final String KEY = "dO6+g3+08ELBKtx/1/WBYQ==";
 	private static final String ALGORITHMSTR = "AES/ECB/PKCS5Padding";
+	private static final Integer KEY_LENGTH = 128;
+
+	/**
+	 * 生成密钥
+	 * @return
+	 * @throws Exception
+	 */
+	public static String generateDesKey() throws Exception {
+		//实例化
+		KeyGenerator kgen = null;
+		kgen = KeyGenerator.getInstance("AES");
+		//设置密钥长度
+		kgen.init(KEY_LENGTH);
+		//生成密钥
+		SecretKey skey = kgen.generateKey();
+		//返回密钥
+		return Base64.encodeBase64String(skey.getEncoded());
+	}
+
 
 	/**
 	 * base64 加密
@@ -34,7 +54,7 @@ public class AesEncryptUtils {
 
 	public static byte[] aesEncryptToBytes(String content, String encryptKey) throws Exception {
 		KeyGenerator kgen = KeyGenerator.getInstance("AES");
-		kgen.init(128);
+		kgen.init(KEY_LENGTH);
 		Cipher cipher = Cipher.getInstance(ALGORITHMSTR);
 		cipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(encryptKey.getBytes(), "AES"));
 		return cipher.doFinal(content.getBytes("utf-8"));
@@ -60,7 +80,7 @@ public class AesEncryptUtils {
 	 */
 	public static String aesDecryptByBytes(byte[] encryptBytes, String decryptKey) throws Exception {
 		KeyGenerator kgen = KeyGenerator.getInstance("AES");
-		kgen.init(128);
+		kgen.init(KEY_LENGTH);
 		Cipher cipher = Cipher.getInstance(ALGORITHMSTR);
 		cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(decryptKey.getBytes(), "AES"));
 		byte[] decryptBytes = cipher.doFinal(encryptBytes);
@@ -79,13 +99,17 @@ public class AesEncryptUtils {
 	}
 
 	public static void main(String[] args) throws Exception {
-		String content = "你好";
+		//System.out.println(generateDesKey());
+		String content = "            out.write(cache, 0, cache.length);";
 		System.out.println("加密前：" + content);
 
 		String encrypt = aesEncrypt(content, KEY);
 		System.out.println(encrypt.length() + ":加密后：" + encrypt);
 
-		String decrypt = aesDecrypt(encrypt, KEY);
+
+        String test = "EOqRKqCCF/xRJWrqRaxN0Z6HyislNf+F1mTapZcjhgYg/B9uUrIvJhx8LusM4uzQO0x1k6rzNxPrj/phNnmoSCfiRvaB6bUtO7OMoxn5fbFe/GQ0mMV2oxig+Vs6jJRzMUIY87onlqtFiPTvaIY74iaDpIbY4zXIsxBkVv/F2y1Iq3gl8idQXwUzC4VwbS42ILdWnLWaiYcokHUNIayk1HXWhOLk15JtKuvnw05cxbO4gSLqt04MYmYli3Y5+5CUXYXIH3tgOk7EpOpTianEXdBkFdosQkRJHhXiW7TaSKhobFw+pzhVOxKH7aP9hV3NkVAuYsbQtPgwlsUPBFSL7qVTTk/cnyDJhsn4eSXkUOk5PU3yXVlZ9loTQD8kdjYap0sYozxIGrtI6qmU5Ah0fw==";
+
+		String decrypt = aesDecrypt(test, KEY);
 		System.out.println("解密后：" + decrypt);
 	}
 	
