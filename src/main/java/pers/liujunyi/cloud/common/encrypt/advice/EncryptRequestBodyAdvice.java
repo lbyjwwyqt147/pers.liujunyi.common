@@ -83,7 +83,7 @@ class DecryptHttpInputMessage implements HttpInputMessage {
         if (content.startsWith("{")) {
         	decryptBody = content;
 		} else {
-			decryptBody = RsaEncryptUtils.decrypt(content, key);
+			decryptBody = RsaEncryptUtils.decryptByPrivateKey(content, key);
 		}
         long endTime = System.currentTimeMillis();
 		logger.debug("Decrypt Time:" + (endTime - startTime));

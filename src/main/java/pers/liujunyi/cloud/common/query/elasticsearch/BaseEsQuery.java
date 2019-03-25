@@ -1,5 +1,6 @@
 package pers.liujunyi.cloud.common.query.elasticsearch;
 
+import org.apache.lucene.queryparser.classic.QueryParser;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.RangeQueryBuilder;
@@ -155,6 +156,9 @@ public abstract class BaseEsQuery implements Serializable {
                     //如果值为"",且注解未标注emptyable,跳过
                     if (s.trim().equals("") && !qw.emptyable()) {
                         continue;
+                    }
+                    if (value instanceof String) {
+                        value = QueryParser.escape(String.valueOf(value)).trim().replace(" ","");
                     }
                 }
                 //通过注解上func属性,构建条件表达式

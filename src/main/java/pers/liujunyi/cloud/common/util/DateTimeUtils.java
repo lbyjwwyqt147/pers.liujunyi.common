@@ -1,5 +1,6 @@
 package pers.liujunyi.cloud.common.util;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -37,5 +38,16 @@ public final class DateTimeUtils {
         ZonedDateTime zdt = localDateTime.atZone(zoneId);
         Date date = Date.from(zdt.toInstant());
         return  date;
+    }
+
+
+    /**
+     * 获取当前年份
+     * @return
+     */
+    public static Integer getCurrentYear() {
+        // 取当前日期：
+        LocalDate today = LocalDate.now();
+        return today.getDayOfYear();
     }
 }

@@ -68,7 +68,7 @@ public class EncryptResponseBodyAdvice implements ResponseBodyAdvice<Object> {
 				if (!StringUtils.hasText(encryptProperties.getPublicKey())) {
 					throw new NullPointerException("请配置spring.encrypt.key");
 				}
-				String result =  RsaEncryptUtils.encrypt(content, encryptProperties.getPublicKey());
+				String result =  RsaEncryptUtils.encryptByPublicKey(content, encryptProperties.getPublicKey());
 				long endTime = System.currentTimeMillis();
 				logger.debug("Encrypt Time:" + (endTime - startTime));
 				return result;

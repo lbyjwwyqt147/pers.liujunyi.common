@@ -57,7 +57,7 @@ public class SignAuthFilter implements Filter {
 			return;
 		}
 		try {
-			String decryptBody = RsaEncryptUtils.decrypt(sign, encryptProperties.getPrivateKey());
+			String decryptBody = RsaEncryptUtils.decryptByPrivateKey(sign, encryptProperties.getPrivateKey());
 			Map<String, Object> signInfo = JsonUtils.getMapper().readValue(decryptBody, Map.class);
 			Long signTime = (Long) signInfo.get("signTime");
 			
