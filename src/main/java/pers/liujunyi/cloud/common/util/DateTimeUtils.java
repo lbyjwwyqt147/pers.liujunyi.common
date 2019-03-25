@@ -50,4 +50,15 @@ public final class DateTimeUtils {
         LocalDate today = LocalDate.now();
         return today.getDayOfYear();
     }
+
+    /**
+     * 获取过去几年的年份
+     * @param number  过去几年值
+     * @return
+     */
+    public static Integer getCurrentBeforeYear(int number) {
+        // 取当前日期：
+        LocalDate today = LocalDate.now();
+        return today.getDayOfYear() - number;
+    }
 }
