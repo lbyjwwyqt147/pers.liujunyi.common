@@ -263,4 +263,17 @@ public final class ResultUtil {
         writeJavaScript(response, restfulVo);
     }
 
+    /**
+     * 将数据输出给前端
+     * @param response
+     * @param message
+     */
+    public static void writeJavaScript(HttpServletResponse response,ErrorCodeEnum errorCodeEnum, String message) {
+        //自定义的信息方便自己查看
+        ResultInfo restfulVo = info(errorCodeEnum, null);
+        restfulVo.setMessage(message);
+        restfulVo.setTimestamp(DateTimeUtils.getCurrentDateTimeAsString());
+        writeJavaScript(response, restfulVo);
+    }
+
 }

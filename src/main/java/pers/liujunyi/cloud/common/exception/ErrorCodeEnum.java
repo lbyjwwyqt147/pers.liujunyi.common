@@ -16,6 +16,8 @@ public enum ErrorCodeEnum {
     LOGIN_INCORRECT("登录账户或者密码错误.", -3),
     USER_LOCK("你登陆的用户已被锁定,请联系管理员.", -5),
     TOKEN_INVALID("无效的用户token.", 530),
+    SIGN_INVALID("非法请求：数字签名错误.", 401),
+    SIGN_TIME_OUT("非法请求：请求已过期.", 408),
     NO_TOKEN("要访问此资源，需要身份验证,缺少token参数,必须在headers中Authorization传递token值.", 401);
 
     private String message ;

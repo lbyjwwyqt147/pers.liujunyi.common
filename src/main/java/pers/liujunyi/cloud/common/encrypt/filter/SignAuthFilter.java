@@ -1,10 +1,13 @@
 package pers.liujunyi.cloud.common.encrypt.filter;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpMethod;
 import org.springframework.util.StringUtils;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import pers.liujunyi.cloud.common.encrypt.AesEncryptUtils;
+import pers.liujunyi.cloud.common.encrypt.SignInfo;
 import pers.liujunyi.cloud.common.exception.ErrorCodeEnum;
 import pers.liujunyi.cloud.common.restful.ResultUtil;
 import pers.liujunyi.cloud.common.util.JsonUtils;
@@ -31,64 +34,61 @@ import java.util.Set;
 @Slf4j
 public class SignAuthFilter extends OncePerRequestFilter {
 
-	/**  AES 密匙 */
-	private String secretKey;
-	/** 签名过期 分钟数 */
-	private Integer signExpireMinute;
 	/** sign 过期时间 */
 	private Integer signExpireTime = 60000;
-
-	public SignAuthFilter(String secretKey, Integer signExpireMinute) {
-		this.secretKey = secretKey.trim();
-		this.signExpireMinute = signExpireMinute;
-	}
 
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
-		httpServletResponse.setCharacterEncoding("UTF-8");
+		ApplicationContext ctx = WebApplicationContextUtils.getWebApplicationContext(super.getServletContext());
+		SignInfo signObj = ctx.getBean(SignInfo.class);
+	    httpServletResponse.setCharacterEncoding("UTF-8");
 		String sign = httpServletRequest.getHeader("sign");
 		if (!StringUtils.hasText(sign)) {
-			log.info("非法请求:缺少签名信息");
-			ResultUtil.writeJavaScript(httpServletResponse, ErrorCodeEnum.PARAMS, "非法请求:缺少签名信息");
+			log.info("非法请求: " + httpServletRequest.getRequestURI() + " 缺少签名信息");
+			ResultUtil.writeJavaScript(httpServletResponse, ErrorCodeEnum.SIGN_INVALID);
 			return;
 		}
 		try {
-			String decryptBody = AesEncryptUtils.aesDecrypt(sign, this.secretKey);
+			String decryptBody = AesEncryptUtils.aesDecrypt(sign, signObj.getSecretKey().trim());
 			Map<String, Object> signInfo = JsonUtils.getMapper().readValue(decryptBody, Map.class);
 			Long signTime = (Long) signInfo.get("signTime");
 			String secret = (String) signInfo.get("secret");
-			if (!secret.equals(this.secretKey)) {
-				log.info("非法请求: 密钥 secret 错误");
-				ResultUtil.writeJavaScript(httpServletResponse, ErrorCodeEnum.PARAMS, "非法请求:非法凭证");
+			String appKey = (String) signInfo.get("appKey");
+			boolean validateParameter = (Boolean) signInfo.get("parameter");
+			if (!secret.equals(signObj.getSecretKey().trim()) || !appKey.equals(signObj.getAppKey().trim()) ) {
+				log.info("非法请求: " + httpServletRequest.getRequestURI() + " 签名信息不正确");
+				ResultUtil.writeJavaScript(httpServletResponse, ErrorCodeEnum.SIGN_INVALID);
 				return;
 			}
 			// 签名时间和服务器时间相差10分钟以上则认为是过期请求，此时间可以配置
-			if ((System.currentTimeMillis() - signTime) > this.signExpireMinute * this.signExpireTime) {
-				log.info("非法请求:请求已过期");
-				ResultUtil.writeJavaScript(httpServletResponse, ErrorCodeEnum.PARAMS, "非法请求:请求已过期");
+			if ((System.currentTimeMillis() - signTime) > signObj.getSignExpireTime() * this.signExpireTime) {
+				log.info("非法请求:" + httpServletRequest.getRequestURI() + " 请求已过期");
+				ResultUtil.writeJavaScript(httpServletResponse, ErrorCodeEnum.SIGN_TIME_OUT);
 				return;
 			}
 
 			// POST请求只处理时间
-			// GET请求处理参数和时间
-			if(httpServletRequest.getMethod().equals(HttpMethod.GET.name())) {
+			// GET请求处理参数和时间(参数信息需要在签名信息中才行)
+			if(validateParameter && httpServletRequest.getMethod().equals(HttpMethod.GET.name())) {
 				Set<String> paramsSet = signInfo.keySet();
 				for (String key : paramsSet) {
 					if (!"signTime".equals(key)) {
 						String signValue = signInfo.get(key).toString();
-						String reqValue = httpServletRequest.getParameter(key).toString();
+						String reqValue = httpServletRequest.getParameter(key);
+						//签名信息中的参数和请求参数进行比较 看是否一至
 						if (!signValue.equals(reqValue)) {
-							log.info("非法请求:参数被篡改");
-							ResultUtil.writeJavaScript(httpServletResponse, ErrorCodeEnum.PARAMS, "非法请求:参数被篡改");
+							log.info("非法请求:" + httpServletRequest.getRequestURI() + " 参数被篡改");
+							ResultUtil.writeJavaScript(httpServletResponse, ErrorCodeEnum.SIGN_INVALID, "非法请求:参数被篡改");
 							return;
 						}
 					}
 				}
 			}
 		} catch (Exception e) {
-			log.info("非法请求:" + e.getMessage());
-			ResultUtil.writeJavaScript(httpServletResponse, ErrorCodeEnum.PARAMS, "非法请求:" + e.getMessage());
+			log.info("非法请求:" + httpServletRequest.getRequestURI());
+			e.printStackTrace();
+			ResultUtil.writeJavaScript(httpServletResponse, ErrorCodeEnum.SIGN_INVALID);
 			return;
 		}
 		filterChain.doFilter(httpServletRequest, httpServletResponse);
