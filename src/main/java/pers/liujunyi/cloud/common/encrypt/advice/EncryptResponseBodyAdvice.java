@@ -1,8 +1,7 @@
 package pers.liujunyi.cloud.common.encrypt.advice;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
@@ -26,11 +25,10 @@ import pers.liujunyi.cloud.common.encrypt.autoconfigure.EncryptProperties;
  * @about http://cxytiandi.com/about
  *
  */
+@Log4j2
 @ControllerAdvice
 public class EncryptResponseBodyAdvice implements ResponseBodyAdvice<Object> {
-	
-	private Logger logger = LoggerFactory.getLogger(EncryptResponseBodyAdvice.class);
-	
+
 	private ObjectMapper objectMapper = new ObjectMapper();
 	
 	@Autowired
@@ -70,10 +68,10 @@ public class EncryptResponseBodyAdvice implements ResponseBodyAdvice<Object> {
 				}
 				String result =  AesEncryptUtils.aesEncrypt(content, encryptProperties.getSecretKey().trim());
 				long endTime = System.currentTimeMillis();
-				logger.debug("Encrypt Time:" + (endTime - startTime));
+				log.debug("AES Encrypt Time:" + (endTime - startTime));
 				return result;
 			} catch (Exception e) {
-				logger.error("加密数据异常", e);
+				log.error("AES 加密数据异常:", e);
 			}
 		}
 		

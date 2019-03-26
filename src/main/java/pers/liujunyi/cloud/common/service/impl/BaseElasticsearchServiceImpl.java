@@ -2,6 +2,7 @@ package pers.liujunyi.cloud.common.service.impl;
 
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.search.SearchHits;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -27,6 +28,9 @@ public class BaseElasticsearchServiceImpl<T, PK extends Serializable> implements
     protected  Pageable pageable;
     /** 全部所有数据  */
     protected Pageable allPageable  = PageRequest.of(0, 9999999);
+    /**  AES 密匙 */
+    @Value("${spring.encrypt.secretKey}")
+    protected String secretKey;
     @Resource
     private ElasticsearchTemplate elasticsearchTemplate;
 

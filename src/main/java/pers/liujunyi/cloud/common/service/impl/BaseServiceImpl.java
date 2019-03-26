@@ -10,6 +10,7 @@ import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
 import org.elasticsearch.client.Client;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -51,6 +52,9 @@ public class BaseServiceImpl<T, PK extends Serializable> implements BaseService<
     protected  Pageable pageable;
     /** 全部所有数据  */
     protected Pageable allPageable  = PageRequest.of(0, 9999999);
+    /**  AES 密匙 */
+    @Value("${spring.encrypt.secretKey}")
+    protected String secretKey;
 
     protected BaseRepository<T, PK> baseRepository;
     @Autowired

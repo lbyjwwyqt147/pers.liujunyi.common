@@ -72,8 +72,8 @@ public class RsaEncryptUtils {
         KeyPair keyPair = keyPairGen.generateKeyPair();
         RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
         RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
-        System.out.println("RSA 公钥:" + Base64.encodeBase64String(publicKey.getEncoded()));
-        System.out.println("RSA 私钥:" + Base64.encodeBase64String(privateKey.getEncoded()));
+        log.info("RSA 公钥:" + Base64.encodeBase64String(publicKey.getEncoded()));
+        log.info("RSA 私钥:" + Base64.encodeBase64String(privateKey.getEncoded()));
     }
 
     /**
@@ -158,7 +158,7 @@ public class RsaEncryptUtils {
      */
     public static String decrypt(String data, String privateKey) throws Exception{
         //要加密的数据
-        System.out.println("要解密的数据:" + data);
+        log.info("要解密的数据:" + data);
         //对私钥解密
         PrivateKey decodePrivateKey = getPrivateKeyFromBase64KeyEncodeStr(privateKey);
         Cipher cipher = Cipher.getInstance(KEY_ALGORITHM);
@@ -166,7 +166,7 @@ public class RsaEncryptUtils {
         byte[] encodedData = Base64.decodeBase64(data);
         byte[] decodedData = cipher.doFinal(encodedData);
         String decodedDataStr = new String(decodedData,"utf-8");
-        System.out.println("私钥解密后的数据:"+decodedDataStr);
+        log.info("私钥解密后的数据:"+decodedDataStr);
         return decodedDataStr;
     }
 
@@ -179,7 +179,7 @@ public class RsaEncryptUtils {
      */
     public static String encrypt(String primitiveData, String publicKey) throws Exception{
         //要加密的数据
-        System.out.println("要加密的数据:"+ primitiveData);
+        log.info("要加密的数据:" + primitiveData);
         byte[] data = primitiveData.getBytes();
         // 对公钥解密
         Key decodePublicKey = getPublicKeyFromBase64KeyEncodeStr(publicKey);
@@ -188,7 +188,7 @@ public class RsaEncryptUtils {
         cipher.init(Cipher.ENCRYPT_MODE, decodePublicKey);
         byte[] encodedData = cipher.doFinal(data);
         String encodedDataStr = new String(Base64.encodeBase64(encodedData));
-        System.out.println("公钥加密后的数据:"+encodedDataStr);
+        log.info("公钥加密后的数据:" + encodedDataStr);
         return encodedDataStr;
     }
 
@@ -201,7 +201,7 @@ public class RsaEncryptUtils {
      */
     public static String encryptByPublicKey(String primitiveData, String publicKey) throws Exception {
         //要加密的数据
-        System.out.println("要加密的数据:"+primitiveData);
+        log.info("要加密的数据:" + primitiveData);
         byte[] data = primitiveData.getBytes();
         // 对公钥解密
         PublicKey decodePublicKey = getPublicKeyFromBase64KeyEncodeStr(publicKey);
@@ -229,7 +229,7 @@ public class RsaEncryptUtils {
         byte[] encryptedData = out.toByteArray();
         out.close();
         String encodedDataStr = Base64.encodeBase64String(encryptedData);
-        System.out.println("公钥加密后的数据:"+encodedDataStr);
+        log.info("公钥加密后的数据:" + encodedDataStr);
         return encodedDataStr;
     }
 
@@ -267,7 +267,7 @@ public class RsaEncryptUtils {
         byte[] decryptedData = out.toByteArray();
         out.close();
         String decodedDataStr = new String(decryptedData,"utf-8");
-        System.out.println("私钥解密后的数据:"+decodedDataStr);
+        log.info("私钥解密后的数据:" + decodedDataStr);
         return decodedDataStr;
     }
 

@@ -1,5 +1,6 @@
 package pers.liujunyi.cloud.common.encrypt;
 
+import com.alibaba.fastjson.JSON;
 import org.apache.commons.codec.binary.Base64;
 
 import javax.crypto.Cipher;
@@ -67,8 +68,29 @@ public class AesEncryptUtils {
 	 * @return
 	 * @throws Exception
 	 */
-	public static String aesEncrypt(String content, String encryptKey) throws Exception {
-		return base64Encode(aesEncryptToBytes(content, encryptKey));
+	public static String aesEncrypt(String content, String encryptKey) {
+		try {
+			return base64Encode(aesEncryptToBytes(content, encryptKey));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	/**
+	 * 对数据进行加密
+	 * @param content  要加密的数据
+	 * @param encryptKey 密钥
+	 * @return
+	 * @throws Exception
+	 */
+	public static String aesEncrypt(Object content, String encryptKey) {
+		try {
+			return base64Encode(aesEncryptToBytes(JSON.toJSONString(content), encryptKey));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	/**
@@ -94,8 +116,29 @@ public class AesEncryptUtils {
 	 * @return
 	 * @throws Exception
 	 */
-	public static String aesDecrypt(String encryptStr, String decryptKey) throws Exception {
-		return aesDecryptByBytes(base64Decode(encryptStr), decryptKey);
+	public static String aesDecrypt(String encryptStr, String decryptKey) {
+		try {
+			return aesDecryptByBytes(base64Decode(encryptStr), decryptKey);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	/**
+	 * 对加密数据 进行解密
+	 * @param encryptStr
+	 * @param decryptKey
+	 * @return
+	 * @throws Exception
+	 */
+	public static String aesDecrypt(Object encryptStr, String decryptKey) {
+		try {
+			return aesDecryptByBytes(base64Decode(JSON.toJSONString(encryptStr)), decryptKey);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	public static void main(String[] args) throws Exception {

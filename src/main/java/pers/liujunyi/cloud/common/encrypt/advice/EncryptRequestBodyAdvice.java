@@ -56,7 +56,7 @@ public class EncryptRequestBodyAdvice implements RequestBodyAdvice {
 			try {
 				return new DecryptHttpInputMessage(inputMessage, encryptProperties.getSecretKey().trim(), encryptProperties.getCharset());
 			} catch (Exception e) {
-				logger.error("数据解密失败", e);
+				logger.error("AES数据解密失败:", e);
 			}
 		}
 		return inputMessage;
@@ -86,7 +86,7 @@ class DecryptHttpInputMessage implements HttpInputMessage {
 			decryptBody = AesEncryptUtils.aesDecrypt(content, key);
 		}
         long endTime = System.currentTimeMillis();
-		logger.debug("Decrypt Time:" + (endTime - startTime));
+		logger.debug("AES Decrypt Time:" + (endTime - startTime));
         this.body = IOUtils.toInputStream(decryptBody, charset);
     }
 
