@@ -55,8 +55,9 @@ public class SignAuthFilter extends OncePerRequestFilter {
 			Long signTime = (Long) signInfo.get("signTime");
 			String secret = (String) signInfo.get("secret");
 			String appKey = (String) signInfo.get("appKey");
+			String appId = (String) signInfo.get("appId");
 			boolean validateParameter = (Boolean) signInfo.get("parameter");
-			if (!secret.equals(signObj.getSecretKey().trim()) || !appKey.equals(signObj.getAppKey().trim()) ) {
+			if (!secret.equals(signObj.getSecretKey().trim()) || !appKey.equals(signObj.getAppKey().trim()) || !appId.equals(signObj.getAppId().trim()) ) {
 				log.info("非法请求: " + httpServletRequest.getRequestURI() + " 签名信息不正确");
 				ResultUtil.writeJavaScript(httpServletResponse, ErrorCodeEnum.SIGN_INVALID);
 				return;
