@@ -20,7 +20,7 @@ public class RegexpUtils {
     public static  final String ALNUM_NAME_REGEXP = "^(?!_)(?!.*?_$)[a-zA-Z0-9-._#\\u4e00-\\u9fa5]+$";
     public static  final String ALNUM_NAME_MSG = "只能输入汉字、数字、字母、下划线,不能以下划线开头和结尾";
 
-    public static  final String ILLEGITMACY_REGEXP = "^[\\u4E00-\\u9FA5A-Za-z0-9_@#%￥*()-=\\/.,;:\"\"?]+$";
+    public static  final String ILLEGITMACY_REGEXP = "^[\\u4e00-\\u9fa5A-Za-z0-9_@#%￥*()-=\\/.,;:\"\"? ]+$";
     public static  final String ILLEGITMACY_MSG = "含有中英文特殊字符";
 
 

@@ -1,6 +1,7 @@
 package pers.liujunyi.cloud.common.exception;
 
 import lombok.extern.slf4j.Slf4j;
+import org.elasticsearch.index.engine.VersionConflictEngineException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindException;
@@ -69,6 +70,19 @@ public class GlobalExceptionHandler {
         log.info(errorMsg.toString());
         return ResultUtil.error(ErrorCodeEnum.PARAMS.getCode(), errorMsg.toString());
     }
+
+    /**
+     * 数据库表数据版本号 异常处理
+     * @param e
+     * @return
+     */
+    @ExceptionHandler(value = VersionConflictEngineException.class)
+    @ResponseBody
+    public ResultInfo handlerVersionConflictEngineException(VersionConflictEngineException e) {
+        log.error("【数据乐观锁版本号错误】： ", e);
+        return ResultUtil.error(ErrorCodeEnum.PARAMS.getCode(), "数据版本号错误,请稍候再试!");
+    }
+
 
     /**
      * validation 进行数据校验 异常处理

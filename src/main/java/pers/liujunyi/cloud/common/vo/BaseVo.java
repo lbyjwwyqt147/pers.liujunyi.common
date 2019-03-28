@@ -31,4 +31,7 @@ public class BaseVo implements Serializable {
 
     /** 最后更新人ID */
     private Long updateUserId;
+
+    /** 版本号  */
+    private Long dataVersion;
 }

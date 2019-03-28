@@ -57,4 +57,7 @@ public class BaseDto implements Serializable {
     /** 最后更新人ID */
     @LastModifiedBy
     private Long updateUserId;
+
+    /** 版本号  */
+    private Long dataVersion;
 }
