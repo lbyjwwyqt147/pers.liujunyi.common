@@ -20,11 +20,14 @@ public class RegexpUtils {
     public static  final String ALNUM_NAME_REGEXP = "^(?!_)(?!.*?_$)[a-zA-Z0-9-._#\\u4e00-\\u9fa5]+$";
     public static  final String ALNUM_NAME_MSG = "只能输入汉字、数字、字母、下划线,不能以下划线开头和结尾";
 
-    public static  final String ILLEGITMACY_REGEXP = "/[(\\~)(\\!)(\\^)(\\！)(\\…)(\\（)(\\）)(\\—)(\\+)(\\|)(\\｛)(\\｝)(\\【)(\\】)(\\‘)(\\；)(\\：)(\\”)(\\“)(\\’)(\\。)(\\，)(\\、)(\\？)]+/";
+    public static  final String ILLEGITMACY_REGEXP = "^[\\u4E00-\\u9FA5A-Za-z0-9_@#%￥*()-=\\/.,;:\"\"?]+$";
     public static  final String ILLEGITMACY_MSG = "含有中英文特殊字符";
 
 
-    public static  final String HTML_LABEL_REGEXP = "/<(.*)>.*</1>|<(.*) />/";
+    public static  final String DOMAIN_NAME_REGEXP = "[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(/.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+/.?";
+    public static  final String DOMAIN_NAME_MSG = "域名格式错误";
+
+    public static  final String HTML_LABEL_REGEXP = "<(\\S*?)[^>]*>.*?</\\1>|<.*? />";
     public static  final String HTML_LABEL_MSG = "含有html标签字符";
 
     public static  final String FIGURE_REGEXP = "^[0-9]*$";
@@ -46,10 +49,10 @@ public class RegexpUtils {
     public static  final String DIGITAL_ALPHABET_REGEXP = "^[A-Za-z0-9]+$";
     public static  final String DIGITAL_ALPHABET_MSG = "只能输入由数字和英文字母";
 
-    public static  final String DIGITALALPHABETLINE_REGEXP = "^[A-Za-z0-9]+$";
-    public static  final String DIGITALALPHABETLINE_MSG = "只能输入由数字和英文字母下划线";
+    public static  final String DIGITALALPHABETLINE_REGEXP = "^\\w+$";
+    public static  final String DIGITALALPHABETLINE_MSG = "只能数字、字母、下划线";
 
-    public static  final String HANZI_REGEXP = "^[\\u4e00-\\u9fa5]{0,}";
+    public static  final String HANZI_REGEXP = "^[\\u4e00-\\u9fa5]{0,}$ ";
     public static  final String HANZI_MSG = "只能输入汉字";
 
     public static  final String URL_REGEXP = "^http://%28[/\\w-]+\\.)+[\\w-]+(/[\\w-./?%&=]*)?$";
@@ -64,6 +67,6 @@ public class RegexpUtils {
     public static  final String IDENTIFICATIONCARD_REGEXP = "^\\d{15}|\\d{18}$";
     public static  final String IDENTIFICATIONCARD_MSG = "身份证格式错误";
 
-    public static  final String EMAIL_REGEXP = "/^\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*$/";
+    public static  final String EMAIL_REGEXP = "^\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*$";
     public static  final String EMAIL_MSG = "电子邮箱格式错误";
 }
