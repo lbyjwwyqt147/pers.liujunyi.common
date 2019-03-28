@@ -20,12 +20,12 @@ public class RegexpUtils {
     public static  final String ALNUM_NAME_REGEXP = "^(?!_)(?!.*?_$)[a-zA-Z0-9-._#\\u4e00-\\u9fa5]+$";
     public static  final String ALNUM_NAME_MSG = "只能输入汉字、数字、字母、下划线,不能以下划线开头和结尾";
 
-    public static  final String ILLEGITMACY_REGEXP = "^(?!_)(?!.*?_$)[a-zA-Z0-9-_.@#%$*()={}\"\"?<>, \\u4e00-\\u9fa5]+$";
-    public static  final String ILLEGITMACY_MSG = "存在非法输入字符,请检查输入法是否正确";
+    public static  final String ILLEGITMACY_REGEXP = "/[(\\~)(\\!)(\\^)(\\！)(\\…)(\\（)(\\）)(\\—)(\\+)(\\|)(\\｛)(\\｝)(\\【)(\\】)(\\‘)(\\；)(\\：)(\\”)(\\“)(\\’)(\\。)(\\，)(\\、)(\\？)]+/";
+    public static  final String ILLEGITMACY_MSG = "含有中英文特殊字符";
 
 
-    public static  final String HTML_LABEL_REGEXP = "/<(.*)>.*<\\/\\1>|<(.*) \\/>/";
-    public static  final String HTML_LABEL_MSG = "存在html标签,这是不符合规定的";
+    public static  final String HTML_LABEL_REGEXP = "/<(.*)>.*</1>|<(.*) />/";
+    public static  final String HTML_LABEL_MSG = "含有html标签字符";
 
     public static  final String FIGURE_REGEXP = "^[0-9]*$";
     public static  final String FIGURE_MSG = "只能输入数字";
@@ -63,4 +63,7 @@ public class RegexpUtils {
 
     public static  final String IDENTIFICATIONCARD_REGEXP = "^\\d{15}|\\d{18}$";
     public static  final String IDENTIFICATIONCARD_MSG = "身份证格式错误";
+
+    public static  final String EMAIL_REGEXP = "/^\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*$/";
+    public static  final String EMAIL_MSG = "电子邮箱格式错误";
 }
