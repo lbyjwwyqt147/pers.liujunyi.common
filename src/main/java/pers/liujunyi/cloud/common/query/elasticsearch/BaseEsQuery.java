@@ -74,6 +74,17 @@ public abstract class BaseEsQuery implements Serializable {
     }
 
     /**
+     * JPA分页查询类,带排序条件
+     * @param direction 排序方式
+     * @param properties  排序字段
+     * @return
+     */
+    public Pageable toPageable(Sort.Direction direction, String... properties) {
+        return PageRequest.of(pageNumber - 1, pageSize, direction, properties);
+    }
+
+
+    /**
      * 动态查询and连接
      * @return
      */
