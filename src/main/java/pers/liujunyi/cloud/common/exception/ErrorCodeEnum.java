@@ -14,10 +14,11 @@ public enum ErrorCodeEnum {
     AUTHORITY("无访问权限,请联系管理员.", 403 ),
     LOGIN_WITHOUT("登录超时,请重新登录.", 504),
     LOGIN_INCORRECT("登录账户或者密码错误.", -3),
-    USER_LOCK("你登陆的用户已被锁定,请联系管理员.", -5),
+    USER_LOCK("你登陆的用户已被停用,请联系客服.", -5),
     TOKEN_INVALID("无效的用户token.", 530),
     SIGN_INVALID("非法请求：数字签名错误.", 401),
     SIGN_TIME_OUT("非法请求：请求已过期.", 408),
+    DATA_LOCK("数据被锁,已被他人修改,请稍候再试!", 409),
     NO_TOKEN("要访问此资源，需要身份验证,缺少token参数,必须在headers中Authorization传递token值.", 401);
 
     private String message ;

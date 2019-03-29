@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.index.engine.VersionConflictEngineException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -72,15 +73,27 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * 数据库表数据版本号 异常处理
+     * Elasticsearch 的乐观锁 异常处理
      * @param e
      * @return
      */
     @ExceptionHandler(value = VersionConflictEngineException.class)
     @ResponseBody
     public ResultInfo handlerVersionConflictEngineException(VersionConflictEngineException e) {
-        log.error("【数据乐观锁版本号错误】： ", e);
-        return ResultUtil.error(ErrorCodeEnum.PARAMS.getCode(), "数据版本号错误,请稍候再试!");
+        log.error("【Elasticsearch 乐观锁 数据版本号错误 异常】： ", e);
+        return ResultUtil.info(ErrorCodeEnum.DATA_LOCK, null, false);
+    }
+
+    /**
+     * 数据库表乐观锁 异常处理
+     * @param e
+     * @return
+     */
+    @ExceptionHandler(value = ObjectOptimisticLockingFailureException.class)
+    @ResponseBody
+    public ResultInfo ObjectOptimisticLockingFailureException(ObjectOptimisticLockingFailureException e) {
+        log.error("【数据库表乐观锁 数据版本号错误 异常】： ", e);
+        return ResultUtil.info(ErrorCodeEnum.DATA_LOCK, null, false);
     }
 
 
