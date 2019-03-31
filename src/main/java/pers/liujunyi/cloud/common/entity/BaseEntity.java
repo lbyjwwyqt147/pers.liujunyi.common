@@ -48,8 +48,4 @@ public class BaseEntity implements Serializable {
     @LastModifiedBy
     private Long updateUserId;
 
-    /** 版本号  */
-    @Version
-    private Long dataVersion;
-
 }
