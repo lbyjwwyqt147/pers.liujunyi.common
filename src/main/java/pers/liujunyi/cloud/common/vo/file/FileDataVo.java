@@ -43,4 +43,14 @@ public class FileDataVo implements Serializable {
      */
     private Byte fileCategory;
 
+    /**
+     * 顺序
+     */
+    private Byte sequence;
+
+    /**
+     * 文件上传后的唯一签名
+     */
+    private String fileSignature;
+
 }
