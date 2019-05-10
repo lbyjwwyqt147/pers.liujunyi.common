@@ -115,7 +115,7 @@ public class DictUtil {
             Map<String, String> header = this.cloudHeader.getHeader();
             Map<String, Object> paramMap = new ConcurrentHashMap<>();
             paramMap.put("id", id);
-            String result = HttpClientUtils.httpGet(cloudUrl + "/v1/ignore/area/name", paramMap, header);
+            String result = HttpClientUtils.httpGet(cloudUrl.trim() + "/v1/ignore/area/name", paramMap, header);
             JSONObject jsonObject = JSONObject.parseObject(result);
             String data = jsonObject.getString("data");
             areaName = StringUtils.isNotBlank(data) ? data.trim() : "";
@@ -138,7 +138,7 @@ public class DictUtil {
             Map<String, String> header = this.cloudHeader.getHeader();
             Map<String, Object> paramMap = new ConcurrentHashMap<>();
             paramMap.put("ids", StringUtils.join(ids,","));
-            String result = HttpClientUtils.httpGet(cloudUrl + "/v1/ignore/area/map/name", paramMap, header);
+            String result = HttpClientUtils.httpGet(cloudUrl.trim() + "/v1/ignore/area/map/name", paramMap, header);
             JSONObject jsonObject = JSONObject.parseObject(result);
             String data = jsonObject.getString("data");
             if (StringUtils.isNotBlank(data)) {

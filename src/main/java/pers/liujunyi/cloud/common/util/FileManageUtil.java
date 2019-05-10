@@ -37,7 +37,7 @@ public class FileManageUtil {
         Map<String, String> header = this.cloudHeader.getHeader();
         threadPoolExecutor.execute(() -> {
             for (int i = 0; i < RETRY; i++) {
-                String result = HttpClientUtils.httpDelete(cloudUrl.trim() + "/file/delete/" + fileId, header);
+                String result = HttpClientUtils.httpDelete(cloudUrl.trim() + "v1/ignore/file/d/" + fileId, header);
                 JSONObject jsonObject = JSONObject.parseObject(result);
                 boolean success = jsonObject.getBoolean("success");
                 if (success) {
@@ -62,7 +62,7 @@ public class FileManageUtil {
         Map<String, String> header = this.cloudHeader.getHeader();
         threadPoolExecutor.execute(() -> {
             for (int i = 0; i < RETRY; i++) {
-                String result = HttpClientUtils.httpDelete(cloudUrl.trim() + "/file/batchDelete/" + fileId, header);
+                String result = HttpClientUtils.httpDelete(cloudUrl.trim() + "/v1/ignore/file/d/b/" + fileId, header);
                 JSONObject jsonObject = JSONObject.parseObject(result);
                 boolean success = jsonObject.getBoolean("success");
                 if (success) {
