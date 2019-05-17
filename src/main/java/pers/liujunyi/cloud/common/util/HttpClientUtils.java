@@ -29,6 +29,7 @@ import org.apache.http.util.EntityUtils;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLException;
 import javax.servlet.http.HttpServletRequest;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -642,6 +643,31 @@ public final class HttpClientUtils {
         return responseContent;
     }
 
+    /**
+     * 执行curl请求.
+     * @param cmds
+     * @return
+     */
+    public static String execCurl(String[] cmds){
+        ProcessBuilder process = new ProcessBuilder(cmds);
+        Process p;
+        try {
+            log.info(" 开始执行curl请求............ ");
+            p = process.start();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
+            StringBuilder builder = new StringBuilder();
+            String line = null;
+            while ((line = reader.readLine()) != null) {
+                builder.append(line);
+                builder.append(System.getProperty("line.separator"));
+            }
+            return builder.toString();
+        } catch (IOException e) {
+            log.info(" 执行curl请求出现异常..... ");
+            e.printStackTrace();
+        }
+        return null;
+    }
 
 
     /**
