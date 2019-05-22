@@ -28,6 +28,7 @@
         <collections4.version>4.3</collections4.version>
         <fastjson.version>1.2.56</fastjson.version>
         <httpclient.version>4.5.7</httpclient.version>
+        <elasticsearch-rest.version>5.7.2</elasticsearch-rest.version>
         <skipTests>true</skipTests>
     </properties>
 
@@ -74,6 +75,16 @@
                     <artifactId>spring-boot-starter-logging</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.bbossgroups.plugins</groupId>
+            <artifactId>bboss-elasticsearch-rest</artifactId>
+            <version>${elasticsearch-rest.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.bbossgroups.plugins</groupId>
+            <artifactId>bboss-elasticsearch-spring-boot-starter</artifactId>
+            <version>${elasticsearch-rest.version}</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
