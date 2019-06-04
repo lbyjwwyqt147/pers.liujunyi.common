@@ -180,6 +180,9 @@ public final class ResultUtil {
      */
     public static ResultInfo info(ErrorCodeEnum errorCodeEnum, Object data) {
         ResultInfo result = new ResultInfo(errorCodeEnum, data);
+        if (errorCodeEnum.getCode().intValue() != ErrorCodeEnum.SUCCESS.getCode().intValue()) {
+            result.setSuccess(false);
+        }
         result.setTimestamp(DateTimeUtils.getCurrentDateTimeAsString());
         return result;
     }
@@ -259,6 +262,18 @@ public final class ResultUtil {
     public static void writeJavaScript(HttpServletResponse response, ErrorCodeEnum errorCodeEnum) {
         //自定义的信息方便自己查看
         ResultInfo restfulVo = info(errorCodeEnum, null);
+        restfulVo.setTimestamp(DateTimeUtils.getCurrentDateTimeAsString());
+        writeJavaScript(response, restfulVo);
+    }
+
+    /**
+     * 将数据输出给前端
+     * @param response
+     * @param errorCodeEnum
+     */
+    public static void writeJavaScript(HttpServletResponse response, ErrorCodeEnum errorCodeEnum, Boolean success) {
+        //自定义的信息方便自己查看
+        ResultInfo restfulVo = info(errorCodeEnum, null, success);
         restfulVo.setTimestamp(DateTimeUtils.getCurrentDateTimeAsString());
         writeJavaScript(response, restfulVo);
     }
