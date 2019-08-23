@@ -15,6 +15,7 @@ import java.util.Date;
 
 /***
  * 抽象　Entity　部分
+ * @author ljy
  */
 @Data
 @EntityListeners(AuditingEntityListener.class)
@@ -47,5 +48,8 @@ public class BaseEntity implements Serializable {
     /** 最后更新人ID */
     @LastModifiedBy
     private Long updateUserId;
+
+    /** 租户Id  */
+    private Long lessee;
 
 }
