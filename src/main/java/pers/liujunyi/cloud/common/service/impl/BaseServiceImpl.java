@@ -62,6 +62,16 @@ public class BaseServiceImpl<T, PK extends Serializable> extends ElasticsearchBa
     }
 
     @Override
+    public List<T> findAllByLessee(PK id) {
+        return this.baseRepository.findByLessee(id);
+    }
+
+    @Override
+    public List<T> findAllByLessee(PK id, Sort sort) {
+        return this.baseRepository.findByLessee(id, sort);
+    }
+
+    @Override
     public List<T> findAll(Sort sort) {
         return this.baseRepository.findAll(sort);
     }
@@ -103,6 +113,12 @@ public class BaseServiceImpl<T, PK extends Serializable> extends ElasticsearchBa
     @Override
     public void deleteInBatch(Iterable<T> var1) {
         this.baseRepository.deleteInBatch(var1);
+    }
+
+    @Override
+    public Boolean deleteByLessee(PK id) {
+        this.baseRepository.deleteByLessee(id);
+        return true;
     }
 
     @Override

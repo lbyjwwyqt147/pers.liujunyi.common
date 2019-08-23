@@ -25,7 +25,8 @@ public class DictUtil {
     private CloudHeader cloudHeader;
     @Value("${data.cloudUrl}")
     private String cloudUrl;
-
+    @Autowired
+    private UserUtils userUtils;
       /**
      * 获取业务字典值
      * @param parentDictCode  父级字典代码
@@ -41,6 +42,7 @@ public class DictUtil {
             paramMap.put("systemCode", header.get("systemCode"));
             paramMap.put("parentCode", parentDictCode.trim());
             paramMap.put("dictCode", dictCode.trim());
+            paramMap.put("lessee", this.userUtils.getPresentLoginLesseeId());
             String result = HttpClientUtils.httpGet(cloudUrl.trim() + "/v1/ignore/dict/name", paramMap, header);
             JSONObject jsonObject = JSONObject.parseObject(result);
             dictName = jsonObject.getString("data");
@@ -63,6 +65,7 @@ public class DictUtil {
             Map<String, Object> paramMap = new ConcurrentHashMap<>();
             paramMap.put("systemCode", header.get("systemCode"));
             paramMap.put("fullParentCode", fullParentCode.trim());
+            paramMap.put("lessee", this.userUtils.getPresentLoginLesseeId());
             String result = HttpClientUtils.httpGet(cloudUrl.trim() + "/v1/ignore/dict/map/name", paramMap, header);
             JSONObject jsonObject = JSONObject.parseObject(result);
             String data = jsonObject.getString("data");
@@ -88,6 +91,7 @@ public class DictUtil {
             Map<String, Object> paramMap = new ConcurrentHashMap<>();
             paramMap.put("systemCode", header.get("systemCode"));
             paramMap.put("fullParentCodes", StringUtils.join(parentDictCodes,","));
+            paramMap.put("lessee", this.userUtils.getPresentLoginLesseeId());
             String result = HttpClientUtils.httpGet(cloudUrl.trim() + "/v1/ignore/dict/map/list/name", paramMap, header);
             JSONObject jsonObject = JSONObject.parseObject(result);
             String data = jsonObject.getString("data");

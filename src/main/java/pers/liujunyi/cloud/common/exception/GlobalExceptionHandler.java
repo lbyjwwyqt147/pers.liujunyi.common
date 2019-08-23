@@ -1,6 +1,6 @@
 package pers.liujunyi.cloud.common.exception;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 import org.elasticsearch.index.engine.VersionConflictEngineException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -25,7 +25,7 @@ import java.util.Set;
  * 异常处理
  */
 @ControllerAdvice
-@Slf4j
+@Log4j2
 public class GlobalExceptionHandler {
 
     /**

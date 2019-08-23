@@ -37,6 +37,8 @@ public class UserDetails implements Serializable {
     private String nickName;
     /** 头像 */
     private String portrait;
+    /** 租户ID */
+    private Long lesseeId;
 
 
 }

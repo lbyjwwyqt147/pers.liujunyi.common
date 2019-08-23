@@ -34,6 +34,20 @@ public interface BaseService<T, PK extends Serializable> extends ElasticsearchBa
     List<T> findAll();
 
     /**
+     * 查询租户下的所有数据
+     * @param id  租户id
+     * @return
+     */
+    List<T> findAllByLessee(PK id);
+
+    /**
+     * 查询所有数据 并排序
+     * @param sort
+     * @return
+     */
+    List<T> findAllByLessee(PK id, Sort sort);
+
+    /**
      * 查询所有数据 并排序
      * @param sort
      * @return
@@ -79,6 +93,13 @@ public interface BaseService<T, PK extends Serializable> extends ElasticsearchBa
      * @param var1
      */
     void deleteInBatch(Iterable<T> var1);
+
+    /**
+     * 根据租户ID 删除数据
+     * @param id
+     * @return
+     */
+    Boolean deleteByLessee(PK id);
 
     /**
      * 根据一组ID获取数据

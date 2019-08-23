@@ -1,6 +1,6 @@
 package pers.liujunyi.cloud.common.configuration;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -20,7 +20,7 @@ import pers.liujunyi.cloud.common.util.ApplicationContextUtils;
  * @version 1.0
  * @author ljy
  */
-@Slf4j
+@Log4j2
 @Component
 @Order(value = 1)
 public class ApplicationContextProvider implements ApplicationContextAware {

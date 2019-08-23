@@ -67,6 +67,7 @@ public class UserUtils {
         }*/
         UserDetails userDetail = new UserDetails();
         userDetail.setUserId(1L);
+        userDetail.setLesseeId(1L);
         return userDetail;
     }
 
@@ -78,6 +79,18 @@ public class UserUtils {
         UserDetails userDetail = this.getUserDetail();
         if (userDetail != null){
             return userDetail.getUserId();
+        }
+        return null;
+    }
+
+    /**
+     * 获取当前登录人租户ID
+     * @return
+     */
+    public Long getPresentLoginLesseeId(){
+        UserDetails userDetail = this.getUserDetail();
+        if (userDetail != null){
+            return userDetail.getLesseeId();
         }
         return null;
     }
