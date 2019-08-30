@@ -60,4 +60,7 @@ public class BaseDto implements Serializable {
 
     /** 版本号  */
     private Long dataVersion;
+
+    /** 租户Id  */
+    private Long lessee;
 }
