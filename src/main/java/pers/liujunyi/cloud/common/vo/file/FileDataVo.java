@@ -44,6 +44,11 @@ public class FileDataVo implements Serializable {
     private Byte fileCategory;
 
     /**
+     * 文件后缀
+     */
+    private String fileSuffix;
+
+    /**
      * 顺序
      */
     private Byte sequence;
