@@ -1,5 +1,6 @@
 package pers.liujunyi.cloud.common.query.elasticsearch;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -202,7 +203,13 @@ public abstract class BaseEsQuery implements Serializable {
                         queryFilter.must(QueryBuilders.fuzzyQuery(column, value));
                         break;
                     case or:
-                        boolQueryOr.should(QueryBuilders.termQuery(column, value));
+                        if (StringUtils.isNotBlank(qw.orFieldValue())) {
+                            boolQueryOr.should(QueryBuilders.termQuery(column, field.get(qw.orFieldValue())));
+                        } else if (StringUtils.isNotBlank(qw.orLikeFieldValue())) {
+                            boolQueryOr.should(QueryBuilders.fuzzyQuery(column, field.get(qw.orFieldValue())));
+                        } else {
+                            boolQueryOr.should(QueryBuilders.termQuery(column, value));
+                        }
                         queryFilter.must(boolQueryOr);
                         break;
                     case gt:
@@ -219,6 +226,9 @@ public abstract class BaseEsQuery implements Serializable {
                         break;
                     case notEqual:
                         queryFilter.mustNot(QueryBuilders.termQuery(column, value));
+                        break;
+                    case notIn:
+                        queryFilter.mustNot(QueryBuilders.termQuery(column, Arrays.asList(String.valueOf(value).split(","))));
                         break;
                     case notLike:
                         queryFilter.mustNot(QueryBuilders.fuzzyQuery(column, value));

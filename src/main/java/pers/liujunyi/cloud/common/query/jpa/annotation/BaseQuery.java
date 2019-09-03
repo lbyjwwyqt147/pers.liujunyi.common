@@ -1,5 +1,6 @@
 package pers.liujunyi.cloud.common.query.jpa.annotation;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -110,6 +111,12 @@ public abstract class BaseQuery<T>  implements Serializable {
                         case equal:
                             predicates.add(cb.equal(path, value));
                             break;
+                        case term:
+                            predicates.add(cb.equal(path, value));
+                            break;
+                        case equals:
+                            predicates.add(cb.equal(path, Arrays.asList(String.valueOf(value).split(","))));
+                            break;
                         case like:
                             predicates.add(cb.like(path, "%" + value + "%"));
                             break;
@@ -125,8 +132,21 @@ public abstract class BaseQuery<T>  implements Serializable {
                         case le:
                             predicates.add(cb.le(path, (Number) value));
                             break;
+                        case or:
+                            Predicate[] predicatesPermissionArr = new Predicate[1];
+                            if (StringUtils.isNotBlank(qw.orFieldValue())) {
+                                predicatesPermissionArr[0] =  cb.equal(path, field.get(qw.orFieldValue()));
+                            } else if (StringUtils.isNotBlank(qw.orLikeFieldValue())) {
+                                predicatesPermissionArr[0] =  cb.like(path, "%" + field.get(qw.orFieldValue()) +  "%");
+                            } else {
+                                predicatesPermissionArr[0] =  cb.equal(path, value);
+                            }
+                            predicates.add(cb.or(predicatesPermissionArr));
+                            break;
                         case notEqual:
                             predicates.add(cb.notEqual(path, value));
+                        case notIn:
+                            predicates.add(cb.notEqual(path, Arrays.asList(String.valueOf(value).split(","))));
                             break;
                         case notLike:
                             predicates.add(cb.notLike(path, "%" + value + "%"));

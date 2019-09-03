@@ -17,6 +17,12 @@ public @interface QueryCondition {
     // equal, like, gt, lt...
     MatchType func() default MatchType.equal;
 
+    // or 完全匹配 条件值字段
+    String orFieldValue() default "";
+
+    // or like 匹配 条件值字段
+    String orLikeFieldValue() default "";
+
     // object是否可以为null
     boolean nullable() default false;
 

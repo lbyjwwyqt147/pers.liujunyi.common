@@ -16,6 +16,10 @@ public enum MatchType {
     match,
     //  匹配多个字段, field有通配符忒行
     multiMatch,
+    // in
+    in,
+    // not in
+    notIn,
     // 前缀查询
     prefix,
     // 通配符查询
