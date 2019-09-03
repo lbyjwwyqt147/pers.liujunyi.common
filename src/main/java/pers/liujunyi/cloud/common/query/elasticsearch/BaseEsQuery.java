@@ -178,7 +178,19 @@ public abstract class BaseEsQuery implements Serializable {
                         queryFilter.must(QueryBuilders.termQuery(column, value));
                         break;
                     case equals:
+                        queryFilter.must(QueryBuilders.termsQuery(column, Arrays.asList(String.valueOf(value).split(","))));
+                        break;
+                    case term:
                         queryFilter.must(QueryBuilders.termQuery(column, value));
+                        break;
+                    case terms:
+                        queryFilter.must(QueryBuilders.termsQuery(column, Arrays.asList(String.valueOf(value).split(","))));
+                        break;
+                    case match:
+                        queryFilter.must(QueryBuilders.matchQuery(column, value));
+                        break;
+                    case multiMatch:
+                        queryFilter.must(QueryBuilders.multiMatchQuery(column, String.valueOf(value).split(",")));
                         break;
                     case prefix:
                         queryFilter.must(QueryBuilders.prefixQuery(column, String.valueOf(value)));

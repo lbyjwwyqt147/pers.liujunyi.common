@@ -6,9 +6,16 @@ package pers.liujunyi.cloud.common.query.jpa.annotation;
  */
 public enum MatchType {
     //filed = value
+    // 完成匹配
+    term,
     equal,
     // termsQuery("key", obj1, obj2..)   一次匹配多个值
     equals,
+    terms,
+    //  单个匹配, field不支持通配符, 前缀具高级特性
+    match,
+    //  匹配多个字段, field有通配符忒行
+    multiMatch,
     // 前缀查询
     prefix,
     // 通配符查询
