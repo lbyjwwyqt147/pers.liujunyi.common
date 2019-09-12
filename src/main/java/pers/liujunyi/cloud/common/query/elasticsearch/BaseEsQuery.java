@@ -170,6 +170,7 @@ public abstract class BaseEsQuery implements Serializable {
                         continue;
                     }
                     if (value instanceof String) {
+                        //  QueryParser.escape(String.valueOf(value)).trim().replace(" ","") 对特殊字符的处理, 如果对特殊字符进行处理  则查询条件携带了特殊字符 ES 无法匹配数据
                         value = QueryParser.escape(String.valueOf(value)).trim().replace(" ","");
                     }
                 }
