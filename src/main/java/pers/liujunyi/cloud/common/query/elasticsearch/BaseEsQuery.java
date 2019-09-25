@@ -162,6 +162,12 @@ public abstract class BaseEsQuery implements Serializable {
                 if (value == null && !qw.nullable()) {
                     continue;
                 }
+                if (String.class.isAssignableFrom(value.getClass()) ) {
+                    String val = (String) value;
+                    if (val.trim().equals("")) {
+                        continue;
+                    }
+                }
                 // can be empty
                 if (value != null && String.class.isAssignableFrom(value.getClass())) {
                     String s = (String) value;
