@@ -49,7 +49,10 @@ public enum MatchType {
     // field < value
     lessThan,
     // field <= value
-    lessThanOrEqualTo
-
+    lessThanOrEqualTo,
+    //  value1 <= field <= value2
+    leRange,
+    //  value1 < field < value2
+    ltRange
 
 }

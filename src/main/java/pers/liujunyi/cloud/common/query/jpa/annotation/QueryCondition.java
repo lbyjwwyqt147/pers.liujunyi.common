@@ -29,4 +29,7 @@ public @interface QueryCondition {
     // 字符串是否可为空
     boolean emptyable() default false;
 
+    // 范围比较值字段
+    String[] rangeField() default "";
+
 }

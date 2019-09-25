@@ -154,6 +154,7 @@ public abstract class BaseEsQuery implements Serializable {
             if (column.equals("")) {
                 column = field.getName();
             }
+            String[] rangeField = qw.rangeField();
             field.setAccessible(true);
             try {
                 // nullable
@@ -230,6 +231,9 @@ public abstract class BaseEsQuery implements Serializable {
                         break;
                     case le:
                         queryFilter.must(new RangeQueryBuilder(column).lte(value));
+                        break;
+                    case leRange:
+                        queryFilter.must(new RangeQueryBuilder(column).from(field.get(rangeField[0])).to(field.get(rangeField[1])));
                         break;
                     case notEqual:
                         queryFilter.mustNot(QueryBuilders.termQuery(column, value));
