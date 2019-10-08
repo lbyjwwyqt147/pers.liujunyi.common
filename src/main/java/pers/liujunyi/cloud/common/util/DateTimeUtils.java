@@ -1,7 +1,12 @@
 package pers.liujunyi.cloud.common.util;
 
 import java.text.DecimalFormat;
-import java.time.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
@@ -13,6 +18,7 @@ import java.util.Date;
 public final class DateTimeUtils {
 
     private static final String YMDHMS = "yyyy-MM-dd HH:mm:ss";
+    private static final String YMD = "yyyy-MM-dd";
 
     private DateTimeUtils() { }
 
@@ -30,12 +36,27 @@ public final class DateTimeUtils {
      * @return 2018-10-28
      */
     public static  Date getCurrentDate() {
+        SimpleDateFormat sDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(YMD);
         LocalDate localDate = LocalDate.now();
-        ZoneId zone = ZoneId.systemDefault();
-        Instant instant = localDate.atStartOfDay().atZone(zone).toInstant();
-        return Date.from(instant);
+        try {
+            return sDateFormat.parse(localDate.format(formatter));
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
+
+    /**
+     * 获取当前年月日
+     * @return 2018-10-28
+     */
+    public static  String getCurrentDateAsString() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(YMD);
+        LocalDate localDate = LocalDate.now();
+        return localDate.format(formatter);
+    }
 
     /**
      * 当前时间基础上追加年份
