@@ -1,10 +1,7 @@
 package pers.liujunyi.cloud.common.util;
 
 import java.text.DecimalFormat;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
@@ -26,6 +23,17 @@ public final class DateTimeUtils {
     public static String getCurrentDateTimeAsString() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(YMDHMS);
         return LocalDateTime.now().format(formatter);
+    }
+
+    /**
+     * 获取当前年月日
+     * @return 2018-10-28
+     */
+    public static  Date getCurrentDate() {
+        LocalDate localDate = LocalDate.now();
+        ZoneId zone = ZoneId.systemDefault();
+        Instant instant = localDate.atStartOfDay().atZone(zone).toInstant();
+        return Date.from(instant);
     }
 
 
