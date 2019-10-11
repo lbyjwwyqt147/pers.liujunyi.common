@@ -3,6 +3,7 @@ package pers.liujunyi.cloud.common.encrypt.filter;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -43,6 +44,13 @@ public class SignAuthFilter extends OncePerRequestFilter {
 		ApplicationContext ctx = WebApplicationContextUtils.getWebApplicationContext(super.getServletContext());
 		SignInfo signObj = ctx.getBean(SignInfo.class);
 	    httpServletResponse.setCharacterEncoding("UTF-8");
+		// 如果是OPTIONS则结束请求
+		if (HttpMethod.OPTIONS.toString().equals(httpServletRequest.getMethod())) {
+			httpServletResponse.setStatus(HttpStatus.NO_CONTENT.value());
+			filterChain.doFilter(httpServletRequest, httpServletResponse);
+			return;
+		}
+		log.info(" >>>>>>>> 开始进行签名校验 >>>>>>>>>> ");
 		String sign = httpServletRequest.getHeader("sign");
 		if (!StringUtils.hasText(sign)) {
 			log.info("非法请求: " + httpServletRequest.getRequestURI() + " 缺少签名信息");
