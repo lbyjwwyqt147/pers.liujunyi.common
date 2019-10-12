@@ -1,8 +1,10 @@
 package pers.liujunyi.cloud.common.util;
 
+import com.alibaba.fastjson.JSON;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import pers.liujunyi.cloud.common.redis.RedisTemplateUtils;
+import pers.liujunyi.cloud.common.vo.BaseRedisKeys;
 import pers.liujunyi.cloud.common.vo.user.UserDetails;
 
 /***
@@ -17,14 +19,9 @@ import pers.liujunyi.cloud.common.vo.user.UserDetails;
  */
 @Component
 public class UserUtils {
+
     @Autowired
     private RedisTemplateUtils redisTemplateUtils;
-
-   /* @Value("${jwt.header}")
-    private String tokenHeader;
-
-    @Value("${jwt.tokenHead}")
-    private String tokenHead;*/
 
     /**
      * 根据token 获取用户信息
@@ -32,12 +29,12 @@ public class UserUtils {
      * @return
      */
     public UserDetails getUser(String token){
-       /* String userKey =  RedisKeys.USER_KEY;
-        Object object = redisUtil.hget(userKey, token);
+        String userKey =  BaseRedisKeys.USER_LOGIN_TOKNE;
+        Object object = redisTemplateUtils.hget(userKey, token);
         if (object != null){
-            UserDetail userDetail = JSON.parseObject(object.toString(), UserDetail.class);
+            UserDetails userDetail = JSON.parseObject(object.toString(), UserDetails.class);
             return userDetail;
-        }*/
+        }
         return null;
     }
 
@@ -47,27 +44,19 @@ public class UserUtils {
      * @return
      */
     public Long getUserId(String token) {
-       /* String userIdKey =  RedisKeys.USER_ID_KEY;
-        Object object = redisUtil.hget(userIdKey, token);
-        return object != null ? Long.valueOf(object.toString()) : null;*/
-       return null;
+        UserDetails userDetails = this.getUser(token);
+        if (userDetails != null) {
+            return userDetails.getUserId();
+        }
+        return null;
     }
 
     /**
      * 根据token 获取用户信息
      * @return
      */
-    public UserDetails getUserDetail(){
-      /*  String token = TokenUtils.getToken();
-        String userKey =  RedisKeys.USER_KEY;
-        Object object = redisUtil.hget(userKey, token);
-        if (object != null){
-            UserDetail userDetail = JSON.parseObject(object.toString(), UserDetail.class);
-            return userDetail;
-        }*/
-        UserDetails userDetail = new UserDetails();
-        userDetail.setUserId(1L);
-        userDetail.setLesseeId(1L);
+    public UserDetails getCurrentUserDetail(){
+        UserDetails userDetail = this.getUser(TokenLocalContext.getToken());
         return userDetail;
     }
 
@@ -76,7 +65,7 @@ public class UserUtils {
      * @return
      */
     public Long getPresentLoginUserId(){
-        UserDetails userDetail = this.getUserDetail();
+        UserDetails userDetail = this.getCurrentUserDetail();
         if (userDetail != null){
             return userDetail.getUserId();
         }
@@ -88,21 +77,11 @@ public class UserUtils {
      * @return
      */
     public Long getPresentLoginLesseeId(){
-        UserDetails userDetail = this.getUserDetail();
+        UserDetails userDetail = this.getCurrentUserDetail();
         if (userDetail != null){
-            return userDetail.getLesseeId();
+            return userDetail.getLessee();
         }
         return null;
     }
 
-    /**
-     * 获取用户token值
-     * @param request
-     * @return
-     */
-    /*public String getUserToken(HttpServletRequest request){
-        String token = request.getHeader(tokenHeader);
-        final String authToken = token.substring(tokenHead.length());
-        return authToken;
-    }*/
 }

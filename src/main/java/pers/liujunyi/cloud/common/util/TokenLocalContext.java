@@ -1,11 +1,12 @@
 package pers.liujunyi.cloud.common.util;
 
 /***
- * token 工具类
+ * 存储token
+ * @author ljy
  */
-public final class TokenUtils {
+public final class TokenLocalContext {
 
-    private TokenUtils() {}
+    private TokenLocalContext() {}
 
     private static final ThreadLocal<String> LOCAL_TOKEN = new ThreadLocal<>();
 
@@ -23,7 +24,15 @@ public final class TokenUtils {
      */
     public static  String getToken(){
         String token = LOCAL_TOKEN.get();
-        LOCAL_TOKEN.remove();
+        //LOCAL_TOKEN.remove();
         return token;
+    }
+
+    /**
+     * 移除
+     * @return
+     */
+    public static  void remove(){
+        LOCAL_TOKEN.remove();
     }
 }

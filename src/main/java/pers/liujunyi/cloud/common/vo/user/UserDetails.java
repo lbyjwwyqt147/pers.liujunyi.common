@@ -32,13 +32,16 @@ public class UserDetails implements Serializable {
     /** 用户类别   0：超级管理员 1：普通管理员  2：员工  3：顾客 */
     private Byte userCategory;
     /** 真实姓名 */
-    private String realUserName;
+    private String userName;
     /** 昵称 */
-    private String nickName;
+    private String userNickName;
     /** 头像 */
     private String portrait;
     /** 租户ID */
-    private Long lesseeId;
-
+    private Long lessee;
+    /** 所属机构ID */
+    private Long orgId;
+    /** 所属机构名称 */
+    private String orgName;
 
 }

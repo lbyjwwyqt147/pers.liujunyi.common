@@ -5,8 +5,8 @@ package pers.liujunyi.cloud.common.vo;
  * @author ljy
  */
 public class BaseRedisKeys {
-    /** user token */
-    public final static String USER_TOKEN_REDIS_KEY = "user_info:user_token";
-    /** user 信息  */
-    public final static String USER_INFO_REDIS_KEY = "user_info:user_details";
+    /** 用户登录toke redis key  */
+    public static final String USER_LOGIN_TOKNE = "user:login:token";
+    /** 用户 toke redis key  */
+    public static final String USER_DETAILS_TOKNE = "user:details:token";
 }
