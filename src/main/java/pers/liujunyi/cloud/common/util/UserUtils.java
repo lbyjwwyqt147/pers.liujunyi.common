@@ -1,6 +1,7 @@
 package pers.liujunyi.cloud.common.util;
 
 import com.alibaba.fastjson.JSON;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import pers.liujunyi.cloud.common.redis.RedisTemplateUtils;
@@ -29,11 +30,13 @@ public class UserUtils {
      * @return
      */
     public UserDetails getUser(String token){
-        String userKey =  BaseRedisKeys.USER_LOGIN_TOKNE;
-        Object object = redisTemplateUtils.hget(userKey, token);
-        if (object != null){
-            UserDetails userDetail = JSON.parseObject(object.toString(), UserDetails.class);
-            return userDetail;
+        if (StringUtils.isNotBlank(token)) {
+            String userKey =  BaseRedisKeys.USER_LOGIN_TOKNE;
+            Object object = redisTemplateUtils.hget(userKey, token);
+            if (object != null){
+                UserDetails userDetail = JSON.parseObject(object.toString(), UserDetails.class);
+                return userDetail;
+            }
         }
         return null;
     }
