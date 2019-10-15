@@ -151,6 +151,43 @@ public final class HttpClientUtils {
     }
 
     /**
+     * 获取客户端请求参数中所有的信息
+     * @param request
+     * @return
+     */
+    public static Map<String, Object> getAllRequestParam(HttpServletRequest request) {
+        Map<String, Object> res = new HashMap();
+        Enumeration<?> temp = request.getParameterNames();
+        if (null != temp) {
+            while (temp.hasMoreElements()) {
+                String en = (String) temp.nextElement();
+                String value = request.getParameter(en);
+                res.put(en, value);
+                //如果字段的值为空，判断若值为空，则删除这个字段>
+                if (null == res.get(en)) {
+                    res.remove(en);
+                }
+            }
+        }
+        return res;
+    }
+
+    /**
+     * map拼接URL参数
+     * @param params
+     * @return
+     */
+    public static String paramsConvertUrl(Map<String, Object> params) {
+        StringBuilder urlParams = new StringBuilder("?");
+        Set<Map.Entry<String, Object>> entries = params.entrySet();
+        for (Map.Entry<String, Object> entry : params.entrySet()) {
+            urlParams.append(entry.getKey()).append("=").append(entry.getValue()).append("&");
+        }
+        String urlParamsStr = urlParams.toString();
+        return urlParamsStr.substring(0, urlParamsStr.length() - 1);
+    }
+
+    /**
      * http get请求，参数拼接在地址上
      *
      * @param url 请求地址加参数
@@ -806,4 +843,6 @@ public final class HttpClientUtils {
         }
         return httpclient;
     }
+
+
 }
