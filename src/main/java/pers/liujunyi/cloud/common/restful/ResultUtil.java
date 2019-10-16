@@ -229,6 +229,7 @@ public final class ResultUtil {
         response.setHeader("Access-Control-Max-Age", "3600");
         response.setHeader("Access-Control-Allow-Headers", "x-requested-with,Authorization,appId,appKey,systemCode,credential,accessToken,sign");
         response.setHeader("Access-Control-Allow-Credentials", "true");
+        response.reset();
         try {
             PrintWriter out = response.getWriter();
             out.write(JSON.toJSONString(obj));
