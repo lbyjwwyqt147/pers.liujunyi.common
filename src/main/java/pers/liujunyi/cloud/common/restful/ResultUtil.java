@@ -232,7 +232,7 @@ public final class ResultUtil {
         response.reset();
         try {
             PrintWriter out = response.getWriter();
-            out.write(JSON.toJSONString(obj));
+            out.write(String.valueOf(JSON.toJSONString(obj).getBytes("utf-8")));
             out.flush();
             out.close();
         } catch (IOException e) {
