@@ -33,7 +33,7 @@ public class UserUtils {
         if (StringUtils.isNotBlank(token)) {
             String userKey =  BaseRedisKeys.USER_LOGIN_TOKNE;
             Object object = redisTemplateUtils.hget(userKey, token);
-            if (object != null){
+            if (object != null && !object.toString().trim().equals("")){
                 UserDetails userDetail = JSON.parseObject(object.toString(), UserDetails.class);
                 return userDetail;
             }
@@ -60,11 +60,11 @@ public class UserUtils {
      */
     public UserDetails getCurrentUserDetail(){
         UserDetails userDetail = this.getUser(TokenLocalContext.getToken());
-        //if (userDetail == null) {
+        if (userDetail == null) {
             userDetail = new UserDetails();
             userDetail.setUserId(1L);
             userDetail.setLessee(1L);
-       // }
+        }
         return userDetail;
     }
 
