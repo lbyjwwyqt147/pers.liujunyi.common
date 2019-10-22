@@ -50,10 +50,9 @@ public class SignAuthFilter extends OncePerRequestFilter {
 			filterChain.doFilter(httpServletRequest, httpServletResponse);
 			return;
 		}
-		log.info(" >>>>>>>> 开始进行签名校验 >>>>>>>>>> ");
 		String sign = httpServletRequest.getHeader("sign");
 		if (!StringUtils.hasText(sign)) {
-			log.info("非法请求: " + httpServletRequest.getRequestURI() + " 缺少签名信息");
+			log.info(" >> 非法请求: " + httpServletRequest.getRequestURI() + " 缺少签名信息");
 			ResultUtil.writeJavaScript(httpServletResponse, ErrorCodeEnum.SIGN_INVALID);
 			return;
 		}
@@ -66,13 +65,13 @@ public class SignAuthFilter extends OncePerRequestFilter {
 			String appId = (String) signInfo.get("appId");
 			boolean validateParameter = (Boolean) signInfo.get("parameter");
 			if (!secret.equals(signObj.getSecretKey().trim()) || !appKey.equals(signObj.getAppKey().trim()) || !appId.equals(signObj.getAppId().trim()) ) {
-				log.info("非法请求: " + httpServletRequest.getRequestURI() + " 签名信息不正确");
+				log.info(" >> 非法请求: " + httpServletRequest.getRequestURI() + " 签名信息不正确");
 				ResultUtil.writeJavaScript(httpServletResponse, ErrorCodeEnum.SIGN_INVALID);
 				return;
 			}
 			// 签名时间和服务器时间相差10分钟以上则认为是过期请求，此时间可以配置
 			if ((System.currentTimeMillis() - signTime) > signObj.getSignExpireTime() * this.signExpireTime) {
-				log.info("非法请求:" + httpServletRequest.getRequestURI() + " 请求已过期");
+				log.info(" >> 非法请求:" + httpServletRequest.getRequestURI() + " 请求已过期");
 				ResultUtil.writeJavaScript(httpServletResponse, ErrorCodeEnum.SIGN_TIME_OUT);
 				return;
 			}
@@ -87,15 +86,16 @@ public class SignAuthFilter extends OncePerRequestFilter {
 						String reqValue = httpServletRequest.getParameter(key);
 						//签名信息中的参数和请求参数进行比较 看是否一至
 						if (!signValue.equals(reqValue)) {
-							log.info("非法请求:" + httpServletRequest.getRequestURI() + " 参数被篡改");
+							log.info(" >> 非法请求:" + httpServletRequest.getRequestURI() + " 参数被篡改");
 							ResultUtil.writeJavaScript(httpServletResponse, ErrorCodeEnum.SIGN_INVALID, "非法请求:参数被篡改");
 							return;
 						}
 					}
 				}
 			}
+			log.info(" >> 签名校验通过....  ");
 		} catch (Exception e) {
-			log.info("非法请求:" + httpServletRequest.getRequestURI());
+			log.info(" >> 非法请求:" + httpServletRequest.getRequestURI());
 			e.printStackTrace();
 			ResultUtil.writeJavaScript(httpServletResponse, ErrorCodeEnum.SIGN_INVALID);
 			return;
