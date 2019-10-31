@@ -6,7 +6,7 @@ import java.lang.annotation.*;
 
 /***
  * 文件名称: ApiVersion.java
- * 文件描述: 自定义api版本号注解
+ * 文件描述: 控制api版本注解
  * 公 司:
  * 内容摘要:
  * 其他说明:

@@ -1,5 +1,6 @@
 package pers.liujunyi.cloud.common.configuration;
 
+import lombok.Data;
 import org.springframework.web.servlet.mvc.condition.RequestCondition;
 
 import javax.servlet.http.HttpServletRequest;
@@ -8,7 +9,7 @@ import java.util.regex.Pattern;
 
 /***
  * 文件名称: ApiVersionCondition.java
- * 文件描述:
+ * 文件描述: 版本号规则配置类
  * 公 司:
  * 内容摘要:
  * 其他说明:
@@ -17,6 +18,7 @@ import java.util.regex.Pattern;
  * @version 1.0
  * @author ljy
  */
+@Data
 public class ApiVersionCondition implements RequestCondition<ApiVersionCondition> {
 
     // 路径中版本的前缀， 这里用 /v[1-9]/的形式
@@ -35,7 +37,7 @@ public class ApiVersionCondition implements RequestCondition<ApiVersionCondition
      */
     @Override
     public ApiVersionCondition combine(ApiVersionCondition other) {
-        // 采用最后定义优先原则，则方法上的定义覆盖类上面的定义
+        // 最近优先原则，方法定义的 @ApiVersion > 类定义的 @ApiVersion
         return new ApiVersionCondition(other.getApiVersion());
     }
 
@@ -49,8 +51,10 @@ public class ApiVersionCondition implements RequestCondition<ApiVersionCondition
         Matcher m = VERSION_PREFIX_PATTERN.matcher(request.getRequestURI());
         if (m.find()) {
             Integer version = Integer.valueOf(m.group(1));
-            if (version >= this.apiVersion) // 如果请求的版本号大于配置版本号， 则满足
+            // 如果请求的版本号大于配置版本号， 则满足
+            if (version >= this.apiVersion) {
                 return this;
+            }
         }
         return null;
     }
@@ -63,12 +67,8 @@ public class ApiVersionCondition implements RequestCondition<ApiVersionCondition
      */
     @Override
     public int compareTo(ApiVersionCondition other, HttpServletRequest request) {
-        // 优先匹配最新的版本号
+        // 当出现多个符合匹配条件的ApiVersionCondition，优先匹配版本号较大的(最新的版本号)
         return other.getApiVersion() - this.apiVersion;
-    }
-
-    public int getApiVersion() {
-        return apiVersion;
     }
 
 }
