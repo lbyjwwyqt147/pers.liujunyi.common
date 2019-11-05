@@ -15,4 +15,12 @@ public class BasePagination implements Serializable {
     private Integer pageNumber = 1;
     /** 每页显示记录条数 */
     private Integer pageSize = 10;
+    /** 从第几条开始 */
+    private Integer firstResult;
+
+    public void setPageNumber(Integer pageNumber) {
+        this.pageNumber = pageNumber;
+        this.firstResult = (pageNumber - 1) * getPageSize();
+    }
+
 }
