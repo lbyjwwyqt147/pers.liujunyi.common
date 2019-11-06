@@ -18,7 +18,7 @@ import java.util.Date;
  * @author ljy
  */
 @Data
-@EntityListeners(AuditingEntityListener.class)
+@EntityListeners({AuditingEntityListener.class, LesseeAuditListener.class})
 @NoArgsConstructor
 @AllArgsConstructor
 @MappedSuperclass

@@ -43,5 +43,7 @@ public class UserDetails implements Serializable {
     private Long orgId;
     /** 所属机构名称 */
     private String orgName;
+    /** token */
+    private String token;
 
 }
