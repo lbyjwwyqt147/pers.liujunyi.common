@@ -7,6 +7,7 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.sort.SortBuilder;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -87,18 +88,31 @@ public abstract class BaseEsQuery implements Serializable {
 
     /**
      * 动态查询and连接
+     * @param pageable 分页
      * @return
      */
     public SearchQuery toSpecPageable(Pageable pageable) {
-        return this.toSpec(pageable, null);
+        return this.toSpec(pageable, null,null);
     }
 
     /**
+     * 动态查询and连接
+     * @param sortBuilder 排序
+     * @return
+     */
+    public SearchQuery toSpecSortPageable(SortBuilder sortBuilder) {
+        return this.toSpec(this.toPageable(), sortBuilder, null);
+    }
+
+
+    /**
      * 聚合函数
+     * @param fieldName 字段名称
+     * @param type  聚合函数类型
      * @return
      */
     public SearchQuery toAggregationBuilders(String fieldName, AggregationType type) {
-        return this.toSpec(null, aggregationBuilders(fieldName, type));
+        return this.toSpec(null, null, aggregationBuilders(fieldName, type));
     }
 
 
@@ -131,10 +145,12 @@ public abstract class BaseEsQuery implements Serializable {
      *    should 相当于 或  |   or
      *    filter  过滤
      *
-     * @param pageable
-     * @return
+     * @param pageable  分页
+     * @param sortBuilder  指定排序字段
+     * @param aggregationBuilder 包含聚合函数查询
+     * @return SearchQuery
      */
-    private SearchQuery toSpec(Pageable pageable, AbstractAggregationBuilder aggregationBuilder) {
+    private SearchQuery toSpec(Pageable pageable, SortBuilder sortBuilder, AbstractAggregationBuilder aggregationBuilder) {
         BaseEsQuery outerThis = this;
         Class clazz = outerThis.getClass();
         //获取查询类Query的所有字段,包括父类字段
@@ -264,12 +280,15 @@ public abstract class BaseEsQuery implements Serializable {
             }
         }
         SearchQuery searchQuery  = null;
-        if (pageable == null && aggregationBuilder == null) {
+        if (pageable == null && aggregationBuilder == null && sortBuilder == null) {
             searchQuery =  new NativeSearchQueryBuilder().withQuery(queryFilter).build();
-        } else if (pageable != null){
+        } else if (pageable != null && sortBuilder == null){
             searchQuery = new NativeSearchQueryBuilder().withPageable(pageable)
                     .withQuery(queryFilter).build();
-        } else if (aggregationBuilder != null) {
+        } else if (pageable != null && sortBuilder != null){
+            searchQuery = new NativeSearchQueryBuilder().withPageable(pageable)
+                    .withQuery(queryFilter).withSort(sortBuilder).build();
+        } else if (aggregationBuilder != null ) {
             searchQuery =  new NativeSearchQueryBuilder().withQuery(queryFilter).addAggregation(aggregationBuilder).build();
         }
         return searchQuery;
