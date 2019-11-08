@@ -1,6 +1,5 @@
 package pers.liujunyi.cloud.common.entity;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -34,7 +33,6 @@ public class BaseEntity implements Serializable {
     /** 创建时间 */
     @Temporal(TemporalType.TIMESTAMP)
     @CreatedDate
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date createTime;
 
     /** 创建人ID */
@@ -45,7 +43,6 @@ public class BaseEntity implements Serializable {
     /** 最后更新时间 */
     @Temporal(TemporalType.TIMESTAMP)
     @LastModifiedDate
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date updateTime;
 
     /** 最后更新人ID */
