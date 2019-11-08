@@ -12,7 +12,7 @@ public class BaseRedisKeys {
     /** 用户 authentication redis key  */
     public static final String USER_DETAILS_AUTHENTICATION = "user:details:authentication";
     /** 租户 */
-    public static final String LESSEE = "lessee_id";
+    public static final String LESSEE = "tenement";
     /** userID */
     public static final String USER_ID = "user_id";
     /** 用户详情 */

@@ -1,6 +1,7 @@
 package pers.liujunyi.cloud.common.util;
 
 import com.alibaba.fastjson.JSONObject;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import pers.liujunyi.cloud.common.vo.BaseRedisKeys;
@@ -36,6 +37,11 @@ public class UserContext {
         Object lesseeId = request.getAttribute(BaseRedisKeys.LESSEE);
         if (lesseeId != null) {
             return Long.valueOf(lesseeId.toString());
+        } else {
+            String lessee = request.getHeader(BaseRedisKeys.LESSEE);
+            if (StringUtils.isNotBlank(lessee)) {
+                return Long.valueOf(lessee);
+            }
         }
         return null;
     }
