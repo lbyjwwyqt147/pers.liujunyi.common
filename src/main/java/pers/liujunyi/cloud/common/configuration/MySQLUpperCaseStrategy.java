@@ -66,7 +66,8 @@ public class MySQLUpperCaseStrategy extends SpringPhysicalNamingStrategy {
     @Override
     protected Identifier getIdentifier(String name, boolean quoted, JdbcEnvironment jdbcEnvironment) {
         if(this.isCaseInsensitive(jdbcEnvironment)) {
-            name = name.toLowerCase(Locale.ROOT);
+            //将所有字母转为大写
+            name = name.toUpperCase(Locale.ROOT);
         }
         return new Identifier(name, quoted);
     }
@@ -77,7 +78,6 @@ public class MySQLUpperCaseStrategy extends SpringPhysicalNamingStrategy {
     }
 
     private boolean isUnderscoreRequired(char before, char current, char after) {
-        //2.将大写字母变为小写：Login_Name--->login_name
         return Character.isLowerCase(before) && Character.isUpperCase(current) && Character.isLowerCase(after);
     }
 
