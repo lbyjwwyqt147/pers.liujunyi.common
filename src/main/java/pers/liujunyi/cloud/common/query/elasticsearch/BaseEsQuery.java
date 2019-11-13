@@ -224,7 +224,7 @@ public abstract class BaseEsQuery implements Serializable {
                         queryFilter.must(QueryBuilders.wildcardQuery(column, String.valueOf(value)));
                         break;
                     case like:
-                        queryFilter.must(QueryBuilders.fuzzyQuery(column, value));
+                        queryFilter.must(QueryBuilders.matchPhraseQuery(column, value));
                         break;
                     case or:
                         if (StringUtils.isNotBlank(qw.orFieldValue())) {
