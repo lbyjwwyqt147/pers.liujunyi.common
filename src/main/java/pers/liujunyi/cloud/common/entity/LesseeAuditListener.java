@@ -22,6 +22,7 @@ public class LesseeAuditListener {
         }
     }
 
+
     @PostRemove
     private void PostRemove(BaseEntity entity) {
         //从数据库中删除实体（在commit或期间flush）
