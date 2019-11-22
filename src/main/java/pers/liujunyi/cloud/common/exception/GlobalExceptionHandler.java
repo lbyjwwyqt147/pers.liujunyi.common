@@ -1,7 +1,6 @@
 package pers.liujunyi.cloud.common.exception;
 
 import lombok.extern.log4j.Log4j2;
-import org.elasticsearch.index.engine.VersionConflictEngineException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
@@ -72,17 +71,6 @@ public class GlobalExceptionHandler {
         return ResultUtil.error(ErrorCodeEnum.PARAMS.getCode(), errorMsg.toString());
     }
 
-    /**
-     * Elasticsearch 的乐观锁 异常处理
-     * @param e
-     * @return
-     */
-    @ExceptionHandler(value = VersionConflictEngineException.class)
-    @ResponseBody
-    public ResultInfo handlerVersionConflictEngineException(VersionConflictEngineException e) {
-        log.error("【Elasticsearch 乐观锁 数据版本号错误 异常】： ", e);
-        return ResultUtil.info(ErrorCodeEnum.DATA_LOCK, null, false);
-    }
 
     /**
      * 数据库表乐观锁 异常处理

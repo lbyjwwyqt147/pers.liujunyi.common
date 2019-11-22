@@ -17,7 +17,7 @@ import java.util.List;
  * @version 1.0
  * @author ljy
  */
-public interface BaseService<T, PK extends Serializable> extends ElasticsearchBaseService<T, PK> {
+public interface BaseService<T, PK extends Serializable> extends BaseMongoTemplateService<T, PK> {
 
     /**
      * 批量插入

@@ -1,18 +1,12 @@
-package pers.liujunyi.cloud.common.query.elasticsearch;
+package pers.liujunyi.cloud.common.query.mongo;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.lucene.queryparser.classic.QueryParser;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.RangeQueryBuilder;
-import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
-import org.elasticsearch.search.aggregations.AggregationBuilders;
-import org.elasticsearch.search.sort.SortBuilder;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
-import org.springframework.data.elasticsearch.core.query.SearchQuery;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import pers.liujunyi.cloud.common.query.jpa.annotation.AggregationType;
 import pers.liujunyi.cloud.common.query.jpa.annotation.QueryCondition;
 
@@ -21,36 +15,43 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /***
  *  公共查询实体类，其中在toSpecWithLogicType方法中利用反射机制，将所有的属性按照注解的规则加入到动态查询条件中
  * @author ljy
  * @param
  */
-public abstract class BaseEsQuery implements Serializable {
+public abstract class BaseMongoQuery implements Serializable {
     private static final long serialVersionUID = -741728191209491619L;
     /** 当前页码 */
     private Integer pageNumber = 1;
     /** 每页显示记录条数 */
     private Integer pageSize = 10;
 
-    public AbstractAggregationBuilder aggregationBuilders(String fieldName, AggregationType type) {
-        AbstractAggregationBuilder termQueryBuilder = null;
+    /**
+     * 聚合函数
+     * @param fieldName
+     * @param type
+     * @return
+     */
+   public Aggregation aggregationBuilders(String fieldName, AggregationType type) {
+        Aggregation termQueryBuilder = null;
         switch (type) {
             case count:
-                termQueryBuilder = AggregationBuilders.count(fieldName);
+                termQueryBuilder = Aggregation.newAggregation(Aggregation.match(this.toCriteria()), Aggregation.group("id").count().as("count"));
                 break;
             case avg:
-                termQueryBuilder = AggregationBuilders.avg(fieldName);
+                termQueryBuilder = Aggregation.newAggregation(Aggregation.match(this.toCriteria()), Aggregation.group("id").avg(fieldName).as("count"));
                 break;
             case sum:
-                termQueryBuilder = AggregationBuilders.sum(fieldName);
+                termQueryBuilder = Aggregation.newAggregation(Aggregation.match(this.toCriteria()), Aggregation.group("id").sum(fieldName).as("count"));
                 break;
             case min:
-                termQueryBuilder = AggregationBuilders.min(fieldName);
+                termQueryBuilder = Aggregation.newAggregation(Aggregation.match(this.toCriteria()), Aggregation.group("id").min(fieldName).as("count"));
                 break;
             case max:
-                termQueryBuilder = AggregationBuilders.max(fieldName);
+                termQueryBuilder = Aggregation.newAggregation(Aggregation.match(this.toCriteria()), Aggregation.group("id").max(fieldName).as("count"));
                 break;
             default:
                 break;
@@ -91,17 +92,8 @@ public abstract class BaseEsQuery implements Serializable {
      * @param pageable 分页
      * @return
      */
-    public SearchQuery toSpecPageable(Pageable pageable) {
-        return this.toSpec(pageable, null,null);
-    }
-
-    /**
-     * 动态查询and连接
-     * @param sortBuilder 排序
-     * @return
-     */
-    public SearchQuery toSpecSortPageable(SortBuilder sortBuilder) {
-        return this.toSpec(this.toPageable(), sortBuilder, null);
+    public Query toSpecPageable(Pageable pageable) {
+        return this.toSpec(pageable);
     }
 
 
@@ -111,53 +103,39 @@ public abstract class BaseEsQuery implements Serializable {
      * @param type  聚合函数类型
      * @return
      */
-    public SearchQuery toAggregationBuilders(String fieldName, AggregationType type) {
+   /* public Query toAggregationBuilders(String fieldName, AggregationType type) {
         return this.toSpec(null, null, aggregationBuilders(fieldName, type));
-    }
+    }*/
 
 
     /**
-     *
-     * term是代表完全匹配，也就是精确查询，搜索前不会再对搜索词进行分词，所以我们的搜索词必须是文档分词集合中的一个
-     *
-     * TermsBuilder:构造聚合函数
-     *
-     * AggregationBuilders:创建聚合函数工具类
-     *
-     * BoolQueryBuilder:拼装连接(查询)条件
-     *
-     * QueryBuilders:简单的静态工厂”导入静态”使用。主要作用是查询条件(关系),如区间\精确\多值等条件
-     *
-     * NativeSearchQueryBuilder:将连接条件和聚合函数等组合
-     *
-     * SearchQuery:生成查询
-     *
-     * 使用QueryBuilder
-     *    termQuery("key", obj) 完全匹配
-     *    termsQuery("key", obj1, obj2..)   一次匹配多个值
-     *    matchQuery("key", Obj) 单个匹配, field不支持通配符, 前缀具高级特性
-     *    multiMatchQuery("text", "field1", "field2"..);  匹配多个字段, field有通配符忒行
-     *    fuzzyQuery("key"，value)  模糊查询
-     *    matchAllQuery();         匹配所有文件
-
-     *    must 相当于 与 & =
-     *    must not 相当于 非 ~   ！=
-     *    should 相当于 或  |   or
-     *    filter  过滤
+     * 构建查询条件
      *
      * @param pageable  分页
-     * @param sortBuilder  指定排序字段
-     * @param aggregationBuilder 包含聚合函数查询
      * @return SearchQuery
      */
-    private SearchQuery toSpec(Pageable pageable, SortBuilder sortBuilder, AbstractAggregationBuilder aggregationBuilder) {
-        BaseEsQuery outerThis = this;
+    private Query toSpec(Pageable pageable) {
+        // 条件过滤
+        Query queryFilter = new Query();
+        queryFilter.addCriteria(this.toCriteria() );
+        if (pageable != null ) {
+            queryFilter.with(pageable);
+        }
+        return queryFilter;
+
+    }
+
+    /**
+     * 构建查询条件
+     *
+     * @return SearchQuery
+     */
+    private Criteria toCriteria() {
+        BaseMongoQuery outerThis = this;
         Class clazz = outerThis.getClass();
         //获取查询类Query的所有字段,包括父类字段
         List<Field> fields = getAllFieldsWithRoot(clazz);
-        // 条件过滤
-        BoolQueryBuilder queryFilter = QueryBuilders.boolQuery();
-        BoolQueryBuilder boolQueryOr = QueryBuilders.boolQuery();
+        Criteria criteria = new Criteria();
         for (Field field : fields) {
             //获取字段上的@QueryCondition 注解
             QueryCondition qw = field.getAnnotation(QueryCondition.class);
@@ -193,84 +171,95 @@ public abstract class BaseEsQuery implements Serializable {
                         continue;
                     }
                     if (value instanceof String) {
-                        //  QueryParser.escape(String.valueOf(value)).trim().replace(" ","") 对特殊字符的处理, 如果对特殊字符进行处理  则查询条件携带了特殊字符 ES 无法匹配数据
-                        value = QueryParser.escape(String.valueOf(value)).trim().replace(" ","");
+                        value = String.valueOf(value).trim().replace(" ","");
                     }
                 }
+                Pattern pattern = null;
                 //通过注解上func属性,构建条件表达式
                 switch (qw.func()) {
                     case equal:
-                        queryFilter.must(QueryBuilders.termQuery(column, value));
+                        criteria.and(column).is(value);
                         break;
                     case equals:
-                        queryFilter.must(QueryBuilders.termsQuery(column, Arrays.asList(String.valueOf(value).split(","))));
+                        criteria.and(column).in(Arrays.asList(String.valueOf(value).split(",")));
                         break;
                     case term:
-                        queryFilter.must(QueryBuilders.termQuery(column, value));
+                        criteria.and(column).is(value);
                         break;
                     case terms:
-                        queryFilter.must(QueryBuilders.termsQuery(column, Arrays.asList(String.valueOf(value).split(","))));
+                        criteria.and(column).in(Arrays.asList(String.valueOf(value).split(",")));
                         break;
                     case match:
-                        queryFilter.must(QueryBuilders.matchQuery(column, value));
+                        criteria.and(column).is(value);
                         break;
                     case multiMatch:
-                        queryFilter.must(QueryBuilders.multiMatchQuery(column, String.valueOf(value).split(",")));
+                        criteria.and(column).is(value);
                         break;
                     case prefix:
-                        queryFilter.must(QueryBuilders.prefixQuery(column, String.valueOf(value)));
+                        //左匹配
+                        pattern = Pattern.compile("^"+value+".*$", Pattern.CASE_INSENSITIVE);
+                        criteria.and(column).regex(pattern);
                         break;
                     case wildcard:
-                        queryFilter.must(QueryBuilders.wildcardQuery(column, String.valueOf(value)));
+                        //模糊匹配
+                        pattern = Pattern.compile("^.*"+value+".*$", Pattern.CASE_INSENSITIVE);
+                        criteria.and(column).regex(pattern);
                         break;
                     case like:
-                        queryFilter.must(QueryBuilders.matchPhraseQuery(column, value));
+                        //模糊匹配
+                        pattern = Pattern.compile("^.*"+value+".*$", Pattern.CASE_INSENSITIVE);
+                        criteria.and(column).regex(pattern);
                         break;
                     case or:
                         if (StringUtils.isNotBlank(qw.orFieldValue())) {
-                            boolQueryOr.should(QueryBuilders.termQuery(column, field.get(qw.orFieldValue())));
+                            criteria.orOperator(Criteria.where(column)
+                                    .is(qw.orFieldValue()));
                         } else if (StringUtils.isNotBlank(qw.orLikeFieldValue())) {
-                            boolQueryOr.should(QueryBuilders.fuzzyQuery(column, field.get(qw.orFieldValue())));
+                            //模糊匹配
+                            pattern = Pattern.compile("^.*"+qw.orLikeFieldValue()+".*$", Pattern.CASE_INSENSITIVE);
+                            criteria.orOperator(Criteria.where(column)
+                                    .regex(pattern));
                         } else {
-                            boolQueryOr.should(QueryBuilders.termQuery(column, value));
+                            criteria.orOperator(Criteria.where(column)
+                                    .is(value));
                         }
-                        queryFilter.must(boolQueryOr);
                         break;
                     case gt:
-                        queryFilter.must(new RangeQueryBuilder(column).gt(value));
+                        criteria.and(column).gt(value);
                         break;
                     case lt:
-                        queryFilter.must(new RangeQueryBuilder(column).lt(value));
+                        criteria.and(column).lt(value);
                         break;
                     case ge:
-                        queryFilter.must(new RangeQueryBuilder(column).gte(value));
+                        criteria.and(column).gte(value);
                         break;
                     case le:
-                        queryFilter.must(new RangeQueryBuilder(column).lte(value));
+                        criteria.and(column).lte(value);
                         break;
                     case leRange:
-                        queryFilter.must(new RangeQueryBuilder(column).from(field.get(rangeField[0])).to(field.get(rangeField[1])));
+                        criteria.and(column).lte(field.get(rangeField[0]));
+                        criteria.and(column).lte(field.get(rangeField[1]));
                         break;
                     case notEqual:
-                        queryFilter.mustNot(QueryBuilders.termQuery(column, value));
+                        criteria.and(column).ne(value);
                         break;
                     case notIn:
-                        queryFilter.mustNot(QueryBuilders.termQuery(column, Arrays.asList(String.valueOf(value).split(","))));
+                        criteria.and(column).nin(Arrays.asList(String.valueOf(value).split(",")));
                         break;
                     case notLike:
-                        queryFilter.mustNot(QueryBuilders.fuzzyQuery(column, value));
+                        criteria.and(column).ne(value);
                         break;
                     case greaterThan:
-                        queryFilter.must(new RangeQueryBuilder(column).gt(value));
+                        criteria.and(column).gt(value);
                         break;
                     case greaterThanOrEqualTo:
-                        queryFilter.must(new RangeQueryBuilder(column).gte(value));
+                        criteria.and(column).gte(value);
                         break;
                     case lessThan:
-                        queryFilter.must(new RangeQueryBuilder(column).lt(value));
+                        criteria.and(column).lt(value);
                         break;
                     case lessThanOrEqualTo:
-                        queryFilter.must(new RangeQueryBuilder(column).lte(value));
+                        criteria.and(column).lte(value);
                         break;
                     default:
                         break;
@@ -279,19 +268,7 @@ public abstract class BaseEsQuery implements Serializable {
                 continue;
             }
         }
-        SearchQuery searchQuery  = null;
-        if (pageable == null && aggregationBuilder == null && sortBuilder == null) {
-            searchQuery =  new NativeSearchQueryBuilder().withQuery(queryFilter).build();
-        } else if (pageable != null && sortBuilder == null){
-            searchQuery = new NativeSearchQueryBuilder().withPageable(pageable)
-                    .withQuery(queryFilter).build();
-        } else if (pageable != null && sortBuilder != null){
-            searchQuery = new NativeSearchQueryBuilder().withPageable(pageable)
-                    .withQuery(queryFilter).withSort(sortBuilder).build();
-        } else if (aggregationBuilder != null ) {
-            searchQuery =  new NativeSearchQueryBuilder().withQuery(queryFilter).addAggregation(aggregationBuilder).build();
-        }
-        return searchQuery;
+        return criteria;
 
     }
 

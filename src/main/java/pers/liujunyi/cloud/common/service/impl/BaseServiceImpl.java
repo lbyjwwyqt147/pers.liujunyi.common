@@ -29,7 +29,7 @@ import java.util.List;
  * @author ljy
  */
 @Log4j2
-public class BaseServiceImpl<T, PK extends Serializable> extends ElasticsearchBaseServiceImpl<T, PK> implements BaseService<T, PK> {
+public class BaseServiceImpl<T, PK extends Serializable> extends BaseMongoTemplateServiceImpl<T, PK> implements BaseService<T, PK> {
 
     /** 自定义分页数据  */
     protected  Pageable pageable;

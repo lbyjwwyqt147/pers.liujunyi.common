@@ -1,7 +1,5 @@
 package pers.liujunyi.cloud.common.service;
 
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import java.io.Serializable;
@@ -18,7 +16,7 @@ import java.util.List;
  * @version 1.0
  * @author ljy
  */
-public interface BaseElasticsearchService<T, PK extends Serializable> {
+public interface BaseMongoService<T, PK extends Serializable> {
 
     /**
      * 查询所有数据
@@ -115,12 +113,4 @@ public interface BaseElasticsearchService<T, PK extends Serializable> {
      */
     List<T> findAllByIdIn(List<PK> ids);
 
-    /**
-     * 多索引查询
-     * @param indexNames  多个索引名称
-     * @param pageable    分页参数
-     * @param queryFilter 过滤条件
-     * @return
-     */
-    List<String> prepareSearch(BoolQueryBuilder queryFilter, Pageable pageable, String...indexNames);
 }
