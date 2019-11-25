@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.util.CollectionUtils;
 import pers.liujunyi.cloud.common.service.BaseMongoTemplateService;
 
 import javax.annotation.Resource;
@@ -18,6 +19,7 @@ import java.lang.reflect.ParameterizedType;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /***
@@ -48,6 +50,40 @@ public class BaseMongoTemplateServiceImpl<T, PK extends Serializable> implements
             return true;
         }
         return false;
+    }
+
+    @Override
+    public Boolean updateMongoDataByIds(Map<String, Map<String, Object>> sourceMap) {
+        AtomicBoolean success = new AtomicBoolean(false);
+        if (!CollectionUtils.isEmpty(sourceMap)) {
+            Iterator<Map.Entry<String, Map<String, Object>>> entries = sourceMap.entrySet().iterator();
+            while (entries.hasNext()) {
+                Map.Entry<String, Map<String, Object>> entry = entries.next();
+                String id = entry.getKey();
+                Map<String, Object> source = entry.getValue();
+                Query query = new Query(Criteria.where("id").is(id));
+                Update update = this.updateData(source);
+                UpdateResult updateResult = mongoTemplate.updateMulti(query, update, tClazz);
+                if (updateResult.getModifiedCount() > 0) {
+                    success.set(true);
+                }
+            }
+        }
+        return success.get();
+    }
+
+    @Override
+    public Boolean updateMongoDataById(PK id, Map<String, Object> sourceMap) {
+        AtomicBoolean success = new AtomicBoolean(false);
+        if (!CollectionUtils.isEmpty(sourceMap)) {
+            Query query = new Query(Criteria.where("id").is(id));
+            Update update = this.updateData(sourceMap);
+            UpdateResult updateResult = mongoTemplate.updateMulti(query, update, tClazz);
+            if (updateResult.getModifiedCount() > 0) {
+                success.set(true);
+            }
+        }
+        return success.get();
     }
 
     @Override
@@ -161,7 +197,7 @@ public class BaseMongoTemplateServiceImpl<T, PK extends Serializable> implements
 
 
     /**
-     * 查询条件
+     * 更新数据
      * @param queryParam
      * @return
      */

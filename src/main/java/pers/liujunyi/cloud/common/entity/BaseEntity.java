@@ -28,28 +28,37 @@ public class BaseEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(columnDefinition="COMMENT '主键ID'")
     private Long id;
 
     /** 创建时间 */
     @Temporal(TemporalType.TIMESTAMP)
     @CreatedDate
+    @Column(columnDefinition=" timestamp NOT NULL COMMENT '创建时间'")
     private Date createTime;
 
     /** 创建人ID */
     @CreatedBy
+    @Column(columnDefinition="COMMENT '创建人ID'")
     private Long createUserId;
 
 
     /** 最后更新时间 */
     @Temporal(TemporalType.TIMESTAMP)
     @LastModifiedDate
+    @Column(columnDefinition=" timestamp NOT NULL COMMENT '最后更新时间'")
     private Date updateTime;
 
     /** 最后更新人ID */
     @LastModifiedBy
+    @Column(columnDefinition="COMMENT '最后更新人ID'")
     private Long updateUserId;
 
     /** 租户Id  */
+    @Column(columnDefinition="COMMENT '租户Id'")
     private Long lessee;
+
+    @Column(columnDefinition="DEFAULT '1' COMMENT '乐观锁版本号'")
+    private Long dataVersion;
 
 }
