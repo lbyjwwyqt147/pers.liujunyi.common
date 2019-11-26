@@ -62,16 +62,6 @@ public class BaseServiceImpl<T, PK extends Serializable> extends BaseMongoTempla
     }
 
     @Override
-    public List<T> findAllByLessee(PK id) {
-        return this.baseRepository.findByLessee(id);
-    }
-
-    @Override
-    public List<T> findAllByLessee(PK id, Sort sort) {
-        return this.baseRepository.findByLessee(id, sort);
-    }
-
-    @Override
     public List<T> findAll(Sort sort) {
         return this.baseRepository.findAll(sort);
     }

@@ -50,16 +50,6 @@ public class BaseMongoServiceImpl<T, PK extends Serializable> implements BaseMon
     }
 
     @Override
-    public List<T> findAllByLessee(PK id) {
-        return this.baseMongoRepository.findByLessee(id);
-    }
-
-    @Override
-    public List<T> findAllByLessee(PK id, Sort sort) {
-        return this.baseMongoRepository.findByLessee(id, sort);
-    }
-
-    @Override
     public List<T> findAll(Sort sort) {
         return this.baseMongoRepository.findAll(sort);
     }
