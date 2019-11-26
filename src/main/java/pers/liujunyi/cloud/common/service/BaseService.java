@@ -81,13 +81,6 @@ public interface BaseService<T, PK extends Serializable> extends BaseMongoTempla
     void deleteInBatch(Iterable<T> var1);
 
     /**
-     * 根据租户ID 删除数据
-     * @param id
-     * @return
-     */
-    Boolean deleteByLessee(PK id);
-
-    /**
      * 根据一组ID获取数据
      * @param ids
      * @return
@@ -108,4 +101,13 @@ public interface BaseService<T, PK extends Serializable> extends BaseMongoTempla
      */
     List<T> findByIdInOrderByIdAsc(List<PK> ids);
 
+    /**
+     * 同步数据到Mongo中
+     */
+    void syncDataMongoDb();
+
+    /**
+     * 同步数据到Mysql中
+     */
+    void syncDataMysql();
 }

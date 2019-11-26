@@ -94,12 +94,6 @@ public class BaseMongoServiceImpl<T, PK extends Serializable> implements BaseMon
     }
 
     @Override
-    public Boolean deleteByLessee(PK id) {
-        this.baseMongoRepository.deleteByLessee(id);
-        return true;
-    }
-
-    @Override
     public List<T> findByIdIn(List<PK> ids) {
         return this.baseMongoRepository.findByIdIn(ids);
     }
@@ -113,7 +107,6 @@ public class BaseMongoServiceImpl<T, PK extends Serializable> implements BaseMon
     public List<T> findAllByIdIn(List<PK> ids) {
         return this.baseMongoRepository.findAllByIdIn(ids);
     }
-
 
     /**
      * 返回分页数据

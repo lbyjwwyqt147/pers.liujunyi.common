@@ -73,13 +73,6 @@ public interface BaseMongoService<T, PK extends Serializable> {
     void deleteInBatch(Iterable<T> var1);
 
     /**
-     * 根据租户ID 删除数据
-     * @param id
-     * @return
-     */
-    Boolean deleteByLessee(PK id);
-
-    /**
      * 根据一组ID获取数据
      * @param ids
      * @return

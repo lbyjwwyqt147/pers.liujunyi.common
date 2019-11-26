@@ -6,15 +6,18 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSourceUtils;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import pers.liujunyi.cloud.common.repository.jpa.BaseRepository;
 import pers.liujunyi.cloud.common.service.BaseService;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
 /***
@@ -106,12 +109,6 @@ public class BaseServiceImpl<T, PK extends Serializable> extends BaseMongoTempla
     }
 
     @Override
-    public Boolean deleteByLessee(PK id) {
-        this.baseRepository.deleteByLessee(id);
-        return true;
-    }
-
-    @Override
     public List<T> findByIdIn(List<PK> ids) {
         return this.baseRepository.findByIdIn(ids);
     }
@@ -124,6 +121,43 @@ public class BaseServiceImpl<T, PK extends Serializable> extends BaseMongoTempla
     @Override
     public List<T> findByIdInOrderByIdAsc(List<PK> ids) {
         return this.baseRepository.findByIdInOrderByIdAsc(ids);
+    }
+
+    @Override
+    public void syncDataMongoDb() {
+        Sort sort =  Sort.by(Sort.Direction.ASC, "id");
+        List<T> list = this.baseRepository.findAll(sort);
+        if (!CollectionUtils.isEmpty(list)) {
+            this.mongoTemplate.remove(new Query(), tClazz);
+            // 限制条数
+            int pointsDataLimit = 1000;
+            int size = list.size();
+            //判断是否有必要分批
+            if(pointsDataLimit < size){
+                //分批数
+                int part = size/pointsDataLimit;
+                for (int i = 0; i < part; i++) {
+                    //1000条
+                    List<T> partList = new LinkedList<>(list.subList(0, pointsDataLimit));
+                    //剔除
+                    list.subList(0, pointsDataLimit).clear();
+                    this.mongoTemplate.insertAll(partList);
+                }
+                //表示最后剩下的数据
+                if (!CollectionUtils.isEmpty(list)) {
+                    this.mongoTemplate.insertAll(list);
+                }
+            } else {
+                this.mongoTemplate.insertAll(list);
+            }
+        } else {
+            this.mongoTemplate.remove(new Query(), tClazz);
+        }
+    }
+
+    @Override
+    public void syncDataMysql() {
+
     }
 
     /**

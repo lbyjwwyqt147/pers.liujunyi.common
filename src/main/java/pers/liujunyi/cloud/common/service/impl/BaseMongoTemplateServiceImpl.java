@@ -39,7 +39,7 @@ public class BaseMongoTemplateServiceImpl<T, PK extends Serializable> implements
     protected Class <T> tClazz  = (Class <T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
 
     @Resource
-    private MongoTemplate mongoTemplate;
+    protected MongoTemplate mongoTemplate;
 
     @Override
     public Boolean updateMongoData(Map<String, Object> queryParam, Map<String, Object> updateParam) {
