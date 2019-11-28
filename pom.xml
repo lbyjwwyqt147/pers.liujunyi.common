@@ -29,6 +29,7 @@
         <fastjson.version>1.2.62</fastjson.version>
         <httpclient.version>4.5.10</httpclient.version>
         <commons-codec.version>1.13</commons-codec.version>
+        <elasticsearch-rest.version>5.9.5</elasticsearch-rest.version>
         <skipTests>true</skipTests>
     </properties>
 
@@ -88,6 +89,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!-- elasticsearch 依赖包  开始 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-elasticsearch</artifactId>
@@ -98,6 +100,17 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <dependency>
+            <groupId>com.bbossgroups.plugins</groupId>
+            <artifactId>bboss-elasticsearch-rest</artifactId>
+            <version>${elasticsearch-rest.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.bbossgroups.plugins</groupId>
+            <artifactId>bboss-elasticsearch-spring-boot-starter</artifactId>
+            <version>${elasticsearch-rest.version}</version>
+        </dependency>
+        <!-- elasticsearch 依赖包  结束 -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
