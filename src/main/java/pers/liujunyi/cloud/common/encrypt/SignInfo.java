@@ -12,19 +12,16 @@ import org.springframework.stereotype.Component;
 @Component
 public class SignInfo {
 
-    @Value("${data.coreAppId}")
-    private String appId;
-
-    @Value("${data.coreAppKey}")
-    private String appKey;
-
-    @Value("${data.coreCredential}")
-    private String credential;
-
     @Value("${spring.encrypt.signExpireTime}")
     private Integer signExpireTime;
 
     @Value("${spring.encrypt.secretKey}")
     private  String secretKey;
+
+    @Value("${spring.encrypt.privateKey}")
+    private  String privateKey;
+
+    @Value("${spring.encrypt.publicKey}")
+    private  String publicKey;
 
 }

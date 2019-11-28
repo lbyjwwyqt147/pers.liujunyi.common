@@ -15,6 +15,7 @@ import java.util.Date;
 
 /***
  * BaseDto
+ * @author ljy
  */
 @Data
 @EntityListeners(AuditingEntityListener.class)
@@ -62,5 +63,5 @@ public class BaseDto implements Serializable {
     private Long dataVersion;
 
     /** 租户Id  */
-    private Long lessee;
+    private Long tenementId;
 }

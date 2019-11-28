@@ -32,7 +32,7 @@ public class UserContext {
      * 获取当前租户ID
      * @return
      */
-    public static Long currentLesseeId() {
+    public static Long currentTenementId() {
         HttpServletRequest request = ((ServletRequestAttributes) (RequestContextHolder.currentRequestAttributes())).getRequest();
         Object lesseeId = request.getAttribute(BaseRedisKeys.LESSEE);
         if (lesseeId != null) {

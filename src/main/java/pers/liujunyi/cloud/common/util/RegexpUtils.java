@@ -7,18 +7,18 @@ package pers.liujunyi.cloud.common.util;
  */
 public class RegexpUtils {
 
-    public static  final String ALNUM_CODE_REGEXP = "^$|^(?!_)(?!.*?_$)[a-zA-Z0-9-_]+$";
-    public static  final String ALNUM_CODE_MSG = "只能输入数字、字母、下划线,不能以下划线开头和结尾";
+    public static  final String CODE_REGEXP = "^$|^(?!_)(?!.*?_$)[a-zA-Z0-9-_]+$";
+    public static  final String CODE_MSG = "只能输入数字、字母、下划线,不能以下划线开头和结尾";
 
-    public static  final String ALNUM_ACCOUNT_REGEXP = "^$|^(?!_)(?!.*?_$)[a-zA-Z0-9-._@]+$";
-    public static  final String ALNUM_ACCOUNT_MSG = "只能输入数字、字母、下划线、邮箱,不能以下划线开头和结尾";
+    public static  final String ACCOUNT_REGEXP = "^$|^(?!_)(?!.*?_$)[a-zA-Z0-9-._@]+$";
+    public static  final String ACCOUNT_MSG = "只能输入数字、字母、下划线、邮箱,不能以下划线开头和结尾";
 
-    public static  final String ALNUM_PWD_REGEXP = "^$|^[a-zA-Z0-9-._@~!#$%^&*()+={}:<>,\"\"?]+$";
-    public static  final String ALNUM_PWD_MSG = "存在非法输入字符,请检查输入法是否正确";
+    public static  final String PWD_REGEXP = "^$|^[a-zA-Z0-9-._@~!#$%^&*()+={}:<>,\"\"?]+$";
+    public static  final String PWD_MSG = "存在非法输入字符,请检查输入法是否正确";
 
 
-    public static  final String ALNUM_NAME_REGEXP = "^$|^(?!_)(?!.*?_$)[a-zA-Z0-9-._#\\u4e00-\\u9fa5]+$";
-    public static  final String ALNUM_NAME_MSG = "只能输入汉字、数字、字母、下划线,不能以下划线开头和结尾";
+    public static  final String NAME_REGEXP = "^$|^(?!_)(?!.*?_$)[a-zA-Z0-9-._#\\u4e00-\\u9fa5]+$";
+    public static  final String NAME_MSG = "只能输入汉字、数字、字母、下划线,不能以下划线开头和结尾";
 
     public static  final String ILLEGITMACY_REGEXP = "^$|^[A-Za-z0-9\\u4e00-\\u9fa5-_@#%￥*()=\\/.,;:\"\"?]+$";
     public static  final String ILLEGITMACY_MSG = "含有中英文特殊字符";

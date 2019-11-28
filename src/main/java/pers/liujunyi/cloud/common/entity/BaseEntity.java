@@ -18,7 +18,7 @@ import java.util.Date;
  * @author ljy
  */
 @Data
-@EntityListeners({AuditingEntityListener.class, LesseeAuditListener.class})
+@EntityListeners({AuditingEntityListener.class, TenementAuditListener.class})
 @NoArgsConstructor
 @AllArgsConstructor
 @MappedSuperclass
@@ -55,7 +55,7 @@ public class BaseEntity implements Serializable {
 
     /** 租户Id  */
     @Column(columnDefinition="bigint(20) DEFAULT NULL COMMENT '租户Id'")
-    private Long lessee;
+    private Long tenementId;
 
     @Column(columnDefinition="bigint(20) DEFAULT '1' COMMENT '乐观锁版本号'")
     private Long dataVersion;

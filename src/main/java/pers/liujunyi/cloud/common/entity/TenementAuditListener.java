@@ -10,15 +10,15 @@ import javax.persistence.PostUpdate;
  * @author ljy
  */
 
-public class LesseeAuditListener {
+public class TenementAuditListener {
 
     @PostPersist
     private void postPersist(BaseEntity entity) {
         //在数据库中存储新实体（在commit或期间flush）。
         // 设置租户ID
-        Long lesseeId = UserContext.currentLesseeId();
+        Long lesseeId = UserContext.currentTenementId();
         if (lesseeId != null) {
-            entity.setLessee(Long.valueOf(lesseeId));
+            entity.setTenementId(Long.valueOf(lesseeId));
         }
     }
 

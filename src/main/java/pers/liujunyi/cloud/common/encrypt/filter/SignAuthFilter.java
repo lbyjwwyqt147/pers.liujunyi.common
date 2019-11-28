@@ -59,18 +59,16 @@ public class SignAuthFilter extends OncePerRequestFilter {
 		try {
 			String decryptBody = AesEncryptUtils.aesDecrypt(sign, signObj.getSecretKey().trim());
 			Map<String, Object> signInfo = JsonUtils.getMapper().readValue(decryptBody, Map.class);
-			Long signTime = (Long) signInfo.get("signTime");
-			String secret = (String) signInfo.get("secret");
-			String appKey = (String) signInfo.get("appKey");
-			String appId = (String) signInfo.get("appId");
+			Long curSignTime = (Long) signInfo.get("signTime");
+			String curSecret = (String) signInfo.get("secret");
 			boolean validateParameter = (Boolean) signInfo.get("parameter");
-			if (!secret.equals(signObj.getSecretKey().trim()) || !appKey.equals(signObj.getAppKey().trim()) || !appId.equals(signObj.getAppId().trim()) ) {
+			if (!curSecret.equals(signObj.getSecretKey().trim())) {
 				log.info(" >> 非法请求: " + httpServletRequest.getRequestURI() + " 签名信息不正确");
 				ResultUtil.writeJavaScript(httpServletResponse, ErrorCodeEnum.SIGN_INVALID);
 				return;
 			}
 			// 签名时间和服务器时间相差10分钟以上则认为是过期请求，此时间可以配置
-			if ((System.currentTimeMillis() - signTime) > signObj.getSignExpireTime() * this.signExpireTime) {
+			if ((System.currentTimeMillis() - curSignTime) > signObj.getSignExpireTime() * this.signExpireTime) {
 				log.info(" >> 非法请求:" + httpServletRequest.getRequestURI() + " 请求已过期");
 				ResultUtil.writeJavaScript(httpServletResponse, ErrorCodeEnum.SIGN_TIME_OUT);
 				return;

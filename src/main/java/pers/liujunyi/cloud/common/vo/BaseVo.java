@@ -35,4 +35,7 @@ public class BaseVo implements Serializable {
 
     /** 版本号  */
     private Long dataVersion;
+
+    /** 租户ID */
+    private Long tenementId;
 }
