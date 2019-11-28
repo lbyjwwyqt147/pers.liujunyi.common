@@ -16,7 +16,7 @@ public class BaseRedisKeys {
     /** 租户数据源配置 */
     public static final String LESSEE_DATA_SOURCE = "tenement:dataSource";
     /** userID */
-    public static final String USER_ID = "user_id";
+    public static final String USER_ID = "user:ids";
     /** 用户详情 */
-    public static final String USER_INFO = "user_details";
+    public static final String USER_INFO = "user:particulars";
 }
