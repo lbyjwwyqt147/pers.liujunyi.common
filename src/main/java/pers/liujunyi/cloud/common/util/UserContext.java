@@ -48,7 +48,7 @@ public class UserContext {
 
 
     /**
-     * 获取当前租户ID
+     * 获取当前用户信息
      * @return
      */
     public static UserDetails currentUser() {

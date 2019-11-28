@@ -9,21 +9,21 @@ public class DataSourceContextHolder {
     /**
      * 线程独立
      */
-    private static  ThreadLocal<String> contextHolder = new ThreadLocal<String>();
+    private static final ThreadLocal<String> DATASOURCECONTEXT = new ThreadLocal<String>();
     /**
      * 默认数据源  dataSource
      */
-    public static final String DB_DEFAULT__MySQL = "dataSource";
+    public static final String DB_DEFAULT_MYSQL = "dataSource";
 
-    public static  String getDataBaseType() {
-        return contextHolder.get();
+    public static  String getCurrentDataSource() {
+        return DATASOURCECONTEXT.get();
     }
 
-    public static  void setDataBaseType(String dataBase) {
-        contextHolder.set(dataBase);
+    public static  void setCurrentDataSource(String dataBase) {
+        DATASOURCECONTEXT.set(dataBase);
     }
-    public static  void clearDataBaseType() {
-        contextHolder.remove();
+    public static  void clearCurrentDataSource() {
+        DATASOURCECONTEXT.remove();
     }
 
 }
