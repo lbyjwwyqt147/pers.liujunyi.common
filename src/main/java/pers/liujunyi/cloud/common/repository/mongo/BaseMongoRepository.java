@@ -1,6 +1,5 @@
 package pers.liujunyi.cloud.common.repository.mongo;
 
-import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.repository.NoRepositoryBean;
 
@@ -29,25 +28,11 @@ public interface BaseMongoRepository<T, PK extends Serializable> extends MongoRe
      List<T> findByIdIn(List<PK> ids);
 
     /**
-     * 查询租户下的所有数据
-     * @param id  租户id
-     * @return
-     */
-    List<T> findByLessee(PK id);
-
-    /**
-     * 查询租户下所有数据 并排序
-     * @param sort
-     * @return
-     */
-    List<T> findByLessee(PK id, Sort sort);
-
-    /**
      * 根据一组ID获取数据 并根据id 顺序排序
      * @param ids
      * @return
      */
-    List<T> findByIdInOrderByIdAsc(List<PK> ids);
+     List<T> findByIdInOrderByIdAsc(List<PK> ids);
 
     /**
      * 根据一组ID获取数据
@@ -56,7 +41,6 @@ public interface BaseMongoRepository<T, PK extends Serializable> extends MongoRe
      */
      List<T> findAllByIdIn(List<PK> ids);
 
-
     /**
      * 根据ID 批量删除
      * @param ids
@@ -64,10 +48,4 @@ public interface BaseMongoRepository<T, PK extends Serializable> extends MongoRe
      */
     long deleteByIdIn(List<PK> ids);
 
-    /**
-     * 根据租户ID 删除数据
-     * @param id
-     * @return
-     */
-    long deleteByLessee(PK id);
 }

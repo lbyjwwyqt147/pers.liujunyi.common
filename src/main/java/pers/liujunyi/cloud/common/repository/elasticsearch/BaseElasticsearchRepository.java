@@ -1,7 +1,6 @@
 package pers.liujunyi.cloud.common.repository.elasticsearch;
 
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 import org.springframework.data.repository.NoRepositoryBean;
 
@@ -30,19 +29,6 @@ public interface BaseElasticsearchRepository<T, PK extends Serializable> extends
      */
      List<T> findByIdIn(List<PK> ids, Pageable pageable);
 
-    /**
-     * 查询租户下的所有数据
-     * @param id  租户id
-     * @return
-     */
-    List<T> findByLessee(PK id, Pageable pageable);
-
-    /**
-     * 查询所有数据 并排序
-     * @param sort
-     * @return
-     */
-    List<T> findByLessee(PK id, Sort sort);
 
     /**
      * 根据一组ID获取数据 并根据id 顺序排序
@@ -66,10 +52,4 @@ public interface BaseElasticsearchRepository<T, PK extends Serializable> extends
      */
     long deleteByIdIn(List<PK> ids);
 
-    /**
-     * 根据租户ID 删除数据
-     * @param id
-     * @return
-     */
-    long deleteByLessee(PK id);
 }
