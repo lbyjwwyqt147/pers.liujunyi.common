@@ -51,26 +51,6 @@ public class BaseElasticsearchServiceImpl<T, PK extends Serializable> implements
     }
 
     @Override
-    public List<T> findAllByLessee(PK id) {
-        List<T> list = new LinkedList<>();
-        Iterable<T> iterable = this.baseElasticsearchRepository.findByLessee(id, this.allPageable);
-        if (iterable != null) {
-            list = StreamSupport.stream(iterable.spliterator(), false).collect(Collectors.toList());
-        }
-        return list;
-    }
-
-    @Override
-    public List<T> findAllByLessee(PK id, Sort sort) {
-        List<T> list = new LinkedList<>();
-        Iterable<T> iterable = this.baseElasticsearchRepository.findByLessee(id, sort);
-        if (iterable != null) {
-            list = StreamSupport.stream(iterable.spliterator(), false).collect(Collectors.toList());
-        }
-        return list;
-    }
-
-    @Override
     public List<T> findAll(Sort sort) {
         List<T> list = new LinkedList<>();
         Iterable<T> iterable = this.baseElasticsearchRepository.findAll(sort);
@@ -117,12 +97,6 @@ public class BaseElasticsearchServiceImpl<T, PK extends Serializable> implements
     @Override
     public void deleteInBatch(Iterable<T> var1) {
         this.baseElasticsearchRepository.deleteAll(var1);
-    }
-
-    @Override
-    public Boolean deleteByLessee(PK id) {
-        this.baseElasticsearchRepository.deleteByLessee(id);
-        return true;
     }
 
     @Override
