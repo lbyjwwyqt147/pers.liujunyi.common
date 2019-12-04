@@ -10,8 +10,10 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import pers.liujunyi.cloud.common.service.BaseMongoTemplateService;
+import pers.liujunyi.cloud.common.util.UtilConstant;
 
 import javax.annotation.Resource;
 import java.io.Serializable;
@@ -41,6 +43,7 @@ public class BaseMongoTemplateServiceImpl<T, PK extends Serializable> implements
     @Resource
     protected MongoTemplate mongoTemplate;
 
+    @Transactional(value = UtilConstant.MONGO_DB_MANAGER, rollbackFor = {RuntimeException.class, Exception.class})
     @Override
     public Boolean updateMongoData(Map<String, Object> queryParam, Map<String, Object> updateParam) {
         Query query = this.queryCondition(queryParam);
@@ -52,6 +55,7 @@ public class BaseMongoTemplateServiceImpl<T, PK extends Serializable> implements
         return false;
     }
 
+    @Transactional(value = UtilConstant.MONGO_DB_MANAGER, rollbackFor = {RuntimeException.class, Exception.class})
     @Override
     public Boolean updateMongoDataByIds(Map<String, Map<String, Object>> sourceMap) {
         AtomicBoolean success = new AtomicBoolean(false);
@@ -72,6 +76,7 @@ public class BaseMongoTemplateServiceImpl<T, PK extends Serializable> implements
         return success.get();
     }
 
+    @Transactional(value = UtilConstant.MONGO_DB_MANAGER, rollbackFor = {RuntimeException.class, Exception.class})
     @Override
     public Boolean updateMongoDataById(PK id, Map<String, Object> sourceMap) {
         AtomicBoolean success = new AtomicBoolean(false);
@@ -86,6 +91,7 @@ public class BaseMongoTemplateServiceImpl<T, PK extends Serializable> implements
         return success.get();
     }
 
+    @Transactional(value = UtilConstant.MONGO_DB_MANAGER, rollbackFor = {RuntimeException.class, Exception.class})
     @Override
     public Boolean deleteSingleMongoData(PK id) {
         DeleteResult deleteResult =  mongoTemplate.remove(new Query(Criteria.where("id").is(id)), tClazz);
@@ -95,6 +101,7 @@ public class BaseMongoTemplateServiceImpl<T, PK extends Serializable> implements
         return false;
     }
 
+    @Transactional(value = UtilConstant.MONGO_DB_MANAGER, rollbackFor = {RuntimeException.class, Exception.class})
     @Override
     public Boolean deleteBatchMongoData(List<PK> ids) {
         DeleteResult deleteResult =  mongoTemplate.remove(new Query(Criteria.where("id").in(ids)), tClazz);
@@ -104,6 +111,7 @@ public class BaseMongoTemplateServiceImpl<T, PK extends Serializable> implements
         return false;
     }
 
+    @Transactional(value = UtilConstant.MONGO_DB_MANAGER, rollbackFor = {RuntimeException.class, Exception.class})
     @Override
     public Boolean deleteByQueryMongoData(Map<String, Object> queryFilter) {
         Query query = this.queryCondition(queryFilter);

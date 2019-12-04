@@ -6,8 +6,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.transaction.annotation.Transactional;
 import pers.liujunyi.cloud.common.repository.mongo.BaseMongoRepository;
 import pers.liujunyi.cloud.common.service.BaseMongoService;
+import pers.liujunyi.cloud.common.util.UtilConstant;
 
 import javax.annotation.Resource;
 import java.io.Serializable;
@@ -44,6 +46,18 @@ public class BaseMongoServiceImpl<T, PK extends Serializable> implements BaseMon
         this.baseMongoRepository = baseMongoRepository;
     }
 
+    @Transactional(value = UtilConstant.MONGO_DB_MANAGER, rollbackFor = {RuntimeException.class, Exception.class})
+    @Override
+    public List<T> saveAll(Iterable<T> list) {
+        return baseMongoRepository.saveAll(list);
+    }
+
+    @Transactional(value = UtilConstant.MONGO_DB_MANAGER, rollbackFor = {RuntimeException.class, Exception.class})
+    @Override
+    public T save(T t) {
+        return baseMongoRepository.save(t);
+    }
+
     @Override
     public List<T> findAll() {
         return this.baseMongoRepository.findAll();
@@ -68,6 +82,7 @@ public class BaseMongoServiceImpl<T, PK extends Serializable> implements BaseMon
         return this.baseMongoRepository.existsById(id);
     }
 
+    @Transactional(value = UtilConstant.MONGO_DB_MANAGER, rollbackFor = {RuntimeException.class, Exception.class})
     @Override
     public Boolean deleteAllByIdIn(List<PK> ids){
         long count = this.baseMongoRepository.deleteByIdIn(ids);
@@ -77,17 +92,20 @@ public class BaseMongoServiceImpl<T, PK extends Serializable> implements BaseMon
         return false;
     }
 
+    @Transactional(value = UtilConstant.MONGO_DB_MANAGER, rollbackFor = {RuntimeException.class, Exception.class})
     @Override
     public Boolean deleteById(PK id) {
         this.baseMongoRepository.deleteById(id);
         return true;
     }
 
+    @Transactional(value = UtilConstant.MONGO_DB_MANAGER, rollbackFor = {RuntimeException.class, Exception.class})
     @Override
     public void delete(T t) {
         this.baseMongoRepository.delete(t);
     }
 
+    @Transactional(value = UtilConstant.MONGO_DB_MANAGER, rollbackFor = {RuntimeException.class, Exception.class})
     @Override
     public void deleteInBatch(Iterable<T> var1) {
         this.baseMongoRepository.deleteAll(var1);

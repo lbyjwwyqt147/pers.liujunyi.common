@@ -19,6 +19,20 @@ import java.util.List;
 public interface BaseMongoService<T, PK extends Serializable> {
 
     /**
+     * 批量保存
+     * @param list
+     * @return
+     */
+    List<T> saveAll(Iterable<T> list);
+
+    /**
+     * 保存
+     * @param t
+     * @return
+     */
+    T save(T t);
+
+    /**
      * 查询所有数据
      * @return
      */
@@ -92,5 +106,6 @@ public interface BaseMongoService<T, PK extends Serializable> {
      * @return
      */
     List<T> findAllByIdIn(List<PK> ids);
+
 
 }

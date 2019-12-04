@@ -52,7 +52,7 @@ public class RegexpUtils {
     public static  final String DIGITALALPHABETLINE_REGEXP = "^$|^\\w+$";
     public static  final String DIGITALALPHABETLINE_MSG = "只能数字、字母、下划线";
 
-    public static  final String HANZI_REGEXP = "^$|^[\\u4e00-\\u9fa5]{0,}$ ";
+    public static  final String HANZI_REGEXP = "^[\\u4e00-\\u9fa5]{0,}$";
     public static  final String HANZI_MSG = "只能输入汉字";
 
     public static  final String URL_REGEXP = "^$|^http://%28[/\\w-]+\\.)+[\\w-]+(/[\\w-./?%&=]*)?$";
