@@ -36,7 +36,7 @@ public interface BaseMongoTemplateService<T, PK extends Serializable>  {
      * @param sourceMap  需要修改的参数 和 数据 Map<String, Map<String, Object>>  key == id  value === 需改的数据项
      * @return
      */
-    Boolean updateMongoDataByIds(Map<String, Map<String, Object>> sourceMap);
+    Boolean updateMongoDataByIds(Map<Long, Map<String, Object>> sourceMap);
 
     /**
      * 根据ID修改数据

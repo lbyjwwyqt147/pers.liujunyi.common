@@ -3,6 +3,7 @@ package pers.liujunyi.cloud.common.service.impl;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -39,6 +40,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class BaseMongoTemplateServiceImpl<T, PK extends Serializable> implements BaseMongoTemplateService<T, PK> {
 
     protected Class <T> tClazz  = (Class <T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
+    @Value("${spring.data.mongodb.where-id-field}")
+    private String idField;
 
     @Resource
     protected MongoTemplate mongoTemplate;
@@ -48,7 +51,7 @@ public class BaseMongoTemplateServiceImpl<T, PK extends Serializable> implements
     public Boolean updateMongoData(Map<String, Object> queryParam, Map<String, Object> updateParam) {
         Query query = this.queryCondition(queryParam);
         Update update = this.updateData(updateParam);
-        UpdateResult updateResult = mongoTemplate.updateMulti(query, update, tClazz);
+        UpdateResult updateResult = this.mongoTemplate.updateMulti(query, update, this.tClazz, this.getDocumentAnnotation().collection());
         if (updateResult.getModifiedCount() > 0) {
             return true;
         }
@@ -57,17 +60,19 @@ public class BaseMongoTemplateServiceImpl<T, PK extends Serializable> implements
 
     @Transactional(value = UtilConstant.MONGO_DB_MANAGER, rollbackFor = {RuntimeException.class, Exception.class})
     @Override
-    public Boolean updateMongoDataByIds(Map<String, Map<String, Object>> sourceMap) {
+    public Boolean updateMongoDataByIds(Map<Long, Map<String, Object>> sourceMap) {
         AtomicBoolean success = new AtomicBoolean(false);
         if (!CollectionUtils.isEmpty(sourceMap)) {
-            Iterator<Map.Entry<String, Map<String, Object>>> entries = sourceMap.entrySet().iterator();
+            Iterator<Map.Entry<Long, Map<String, Object>>> entries = sourceMap.entrySet().iterator();
             while (entries.hasNext()) {
-                Map.Entry<String, Map<String, Object>> entry = entries.next();
-                String id = entry.getKey();
+                Map.Entry<Long, Map<String, Object>> entry = entries.next();
+                Long id = entry.getKey();
                 Map<String, Object> source = entry.getValue();
-                Query query = new Query(Criteria.where("id").is(id));
+                Query query = new Query(Criteria.where(idField.trim()).is(id));
+                List<T> list = this.mongoTemplate.find(query, this.tClazz, this.getDocumentAnnotation().collection());
+                log.info(list.size());
                 Update update = this.updateData(source);
-                UpdateResult updateResult = mongoTemplate.updateMulti(query, update, tClazz);
+                UpdateResult updateResult = this.mongoTemplate.updateFirst(query, update, this.tClazz,  this.getDocumentAnnotation().collection());
                 if (updateResult.getModifiedCount() > 0) {
                     success.set(true);
                 }
@@ -81,9 +86,9 @@ public class BaseMongoTemplateServiceImpl<T, PK extends Serializable> implements
     public Boolean updateMongoDataById(PK id, Map<String, Object> sourceMap) {
         AtomicBoolean success = new AtomicBoolean(false);
         if (!CollectionUtils.isEmpty(sourceMap)) {
-            Query query = new Query(Criteria.where("id").is(id));
+            Query query = new Query(Criteria.where(idField.trim()).is(id));
             Update update = this.updateData(sourceMap);
-            UpdateResult updateResult = mongoTemplate.updateMulti(query, update, tClazz);
+            UpdateResult updateResult = this.mongoTemplate.updateFirst(query, update, this.tClazz, this.getDocumentAnnotation().collection());
             if (updateResult.getModifiedCount() > 0) {
                 success.set(true);
             }
@@ -94,7 +99,7 @@ public class BaseMongoTemplateServiceImpl<T, PK extends Serializable> implements
     @Transactional(value = UtilConstant.MONGO_DB_MANAGER, rollbackFor = {RuntimeException.class, Exception.class})
     @Override
     public Boolean deleteSingleMongoData(PK id) {
-        DeleteResult deleteResult =  mongoTemplate.remove(new Query(Criteria.where("id").is(id)), tClazz);
+        DeleteResult deleteResult =  this.mongoTemplate.remove(new Query(Criteria.where(idField.trim()).is(id)), this.tClazz, this.getDocumentAnnotation().collection());
         if (deleteResult.getDeletedCount() > 0) {
             return true;
         }
@@ -104,7 +109,7 @@ public class BaseMongoTemplateServiceImpl<T, PK extends Serializable> implements
     @Transactional(value = UtilConstant.MONGO_DB_MANAGER, rollbackFor = {RuntimeException.class, Exception.class})
     @Override
     public Boolean deleteBatchMongoData(List<PK> ids) {
-        DeleteResult deleteResult =  mongoTemplate.remove(new Query(Criteria.where("id").in(ids)), tClazz);
+        DeleteResult deleteResult =  this.mongoTemplate.remove(new Query(Criteria.where(idField.trim()).in(ids)), this.tClazz, this.getDocumentAnnotation().collection());
         if (deleteResult.getDeletedCount() > 0) {
             return true;
         }
@@ -115,7 +120,7 @@ public class BaseMongoTemplateServiceImpl<T, PK extends Serializable> implements
     @Override
     public Boolean deleteByQueryMongoData(Map<String, Object> queryFilter) {
         Query query = this.queryCondition(queryFilter);
-        DeleteResult deleteResult = mongoTemplate.remove(query, tClazz);
+        DeleteResult deleteResult = this.mongoTemplate.remove(query, this.tClazz, this.getDocumentAnnotation().collection());
         if (deleteResult.getDeletedCount() > 0) {
             return true;
         }
@@ -127,7 +132,7 @@ public class BaseMongoTemplateServiceImpl<T, PK extends Serializable> implements
         if (pageable != null) {
             queryFilter.with(pageable);
         }
-        return mongoTemplate.find(queryFilter, tClazz);
+        return this.mongoTemplate.find(queryFilter, tClazz, this.getDocumentAnnotation().collection());
 
     }
 
@@ -143,6 +148,7 @@ public class BaseMongoTemplateServiceImpl<T, PK extends Serializable> implements
                 criteria.and(key).is(value);
             }
         } else {
+            criteria = new Criteria();
             int i = 0;
             while (entries.hasNext()) {
                 Map.Entry<String, Object> entry = entries.next();
@@ -160,7 +166,7 @@ public class BaseMongoTemplateServiceImpl<T, PK extends Serializable> implements
         if (sort != null) {
             query.with(sort);
         }
-        return mongoTemplate.find(query, tClazz);
+        return this.mongoTemplate.find(query, tClazz, this.getDocumentAnnotation().collection());
     }
 
     /**
