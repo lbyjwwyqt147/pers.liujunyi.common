@@ -69,8 +69,6 @@ public class BaseMongoTemplateServiceImpl<T, PK extends Serializable> implements
                 Long id = entry.getKey();
                 Map<String, Object> source = entry.getValue();
                 Query query = new Query(Criteria.where(idField.trim()).is(id));
-                List<T> list = this.mongoTemplate.find(query, this.tClazz, this.getDocumentAnnotation().collection());
-                log.info(list.size());
                 Update update = this.updateData(source);
                 UpdateResult updateResult = this.mongoTemplate.updateFirst(query, update, this.tClazz,  this.getDocumentAnnotation().collection());
                 if (updateResult.getModifiedCount() > 0) {
