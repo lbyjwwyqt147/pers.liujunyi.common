@@ -4,6 +4,7 @@ import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -43,6 +44,7 @@ public class BaseMongoTemplateServiceImpl<T, PK extends Serializable> implements
     @Value("${spring.data.mongodb.where-id-field}")
     private String idField;
 
+    @Lazy
     @Resource
     protected MongoTemplate mongoTemplate;
 

@@ -23,7 +23,7 @@ public interface BaseMongoService<T, PK extends Serializable> {
      * @param list
      * @return
      */
-    List<T> saveAll(Iterable<T> list);
+    List<T> saveAll(List<T> list);
 
     /**
      * 保存

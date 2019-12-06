@@ -6,6 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.transaction.annotation.Transactional;
 import pers.liujunyi.cloud.common.repository.mongo.BaseMongoRepository;
 import pers.liujunyi.cloud.common.service.BaseMongoService;
@@ -48,7 +49,7 @@ public class BaseMongoServiceImpl<T, PK extends Serializable> implements BaseMon
 
     @Transactional(value = UtilConstant.MONGO_DB_MANAGER, rollbackFor = {RuntimeException.class, Exception.class})
     @Override
-    public List<T> saveAll(Iterable<T> list) {
+    public List<T> saveAll(List<T> list) {
         return baseMongoRepository.saveAll(list);
     }
 
@@ -133,6 +134,19 @@ public class BaseMongoServiceImpl<T, PK extends Serializable> implements BaseMon
      */
     public Pageable getPageable(int pageSize) {
         return PageRequest.of(0, pageSize);
+    }
+
+    /**
+     * 创建MongoDb 集合
+     * @param t
+     */
+    protected void createCollection(T t) {
+        Document annotation = t.getClass().getAnnotation(Document.class);;
+        // 判断集合是否存在
+        boolean exists = this.mongoDbTemplate.collectionExists(annotation.collection());
+        if (!exists) {
+            this.mongoDbTemplate.createCollection(annotation.collection());
+        }
     }
 
 }
