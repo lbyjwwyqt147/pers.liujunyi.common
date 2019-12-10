@@ -54,6 +54,13 @@ public interface BaseMongoService<T, PK extends Serializable> {
     T getOne(PK var1);
 
     /**
+     * 根据ID获取数据
+     * @param var1
+     * @return
+     */
+    T findById(PK var1);
+
+    /**
      * 根据主键ID 检查数据是否存在
      * @param id
      * @return

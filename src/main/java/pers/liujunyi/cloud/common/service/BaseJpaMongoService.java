@@ -1,15 +1,14 @@
 package pers.liujunyi.cloud.common.service;
 
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
 
 /***
- * 文件名称: BaseElasticsearchService.java
- * 文件描述: 基础 Elasticsearch Service.
+ * 文件名称: BaseJpaMongoService.java
+ * 文件描述: 基础 Service.
  * 公 司:
  * 内容摘要:
  * 其他说明:
@@ -18,7 +17,15 @@ import java.util.List;
  * @version 1.0
  * @author ljy
  */
-public interface BaseElasticsearchService<T, PK extends Serializable> {
+public interface BaseJpaMongoService<T, PK extends Serializable> extends BaseMongoTemplateService<T, PK> {
+
+    /**
+     * 批量插入
+     * @param sql sql
+     * @param collection  参数数据
+     * @return
+     */
+    int insertBatchSql(String sql, Collection<T> collection);
 
     /**
      * 查询所有数据
@@ -47,7 +54,6 @@ public interface BaseElasticsearchService<T, PK extends Serializable> {
      */
     T findById(PK var1);
 
-
     /**
      * 根据主键ID 检查数据是否存在
      * @param id
@@ -70,6 +76,13 @@ public interface BaseElasticsearchService<T, PK extends Serializable> {
     Boolean  deleteById(PK id);
 
     /**
+     * 批量删除
+     * @param ids
+     * @return
+     */
+    Boolean  deleteByIds(List<PK> ids);
+
+    /**
      * 单条删除数据  （实体对象作为参数）
      * @param t
      */
@@ -81,20 +94,12 @@ public interface BaseElasticsearchService<T, PK extends Serializable> {
      */
     void deleteInBatch(Iterable<T> var1);
 
-
     /**
      * 根据一组ID获取数据
      * @param ids
      * @return
      */
     List<T> findByIdIn(List<PK> ids);
-
-    /**
-     * 根据一组ID获取数据 并根据id 顺序排序
-     * @param ids
-     * @return
-     */
-    List<T> findByIdInOrderByIdAsc(List<PK> ids);
 
     /**
      * 根据一组ID获取数据
@@ -104,11 +109,19 @@ public interface BaseElasticsearchService<T, PK extends Serializable> {
     List<T> findAllByIdIn(List<PK> ids);
 
     /**
-     * 多索引查询
-     * @param indexNames  多个索引名称
-     * @param pageable    分页参数
-     * @param queryFilter 过滤条件
+     * 根据一组ID获取数据 并根据id 顺序排序
+     * @param ids
      * @return
      */
-    List<String> prepareSearch(BoolQueryBuilder queryFilter, Pageable pageable, String... indexNames);
+    List<T> findByIdInOrderByIdAsc(List<PK> ids);
+
+    /**
+     * 同步数据到Mongo中
+     */
+    void syncDataMongoDb();
+
+    /**
+     * 同步数据到Mysql中
+     */
+    void syncDataMysql();
 }

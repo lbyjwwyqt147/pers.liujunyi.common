@@ -1,13 +1,14 @@
 package pers.liujunyi.cloud.common.service;
 
 import org.springframework.data.domain.Sort;
+import pers.liujunyi.cloud.common.repository.elasticsearch.BaseElasticsearchRepository;
 
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 
 /***
- * 文件名称: BaseService.java
+ * 文件名称: BaseJpaElasticsearchService.java
  * 文件描述: 基础 Service.
  * 公 司:
  * 内容摘要:
@@ -17,7 +18,7 @@ import java.util.List;
  * @version 1.0
  * @author ljy
  */
-public interface BaseService<T, PK extends Serializable> extends BaseMongoTemplateService<T, PK> {
+public interface BaseJpaElasticsearchService<T, PK extends Serializable> extends BaseElasticsearchTemplateService<T, PK> {
 
     /**
      * 批量插入
@@ -48,6 +49,13 @@ public interface BaseService<T, PK extends Serializable> extends BaseMongoTempla
     T getOne(PK var1);
 
     /**
+     * 根据ID获取数据
+     * @param var1
+     * @return
+     */
+    T findById(PK var1);
+
+    /**
      * 根据主键ID 检查数据是否存在
      * @param id
      * @return
@@ -67,6 +75,13 @@ public interface BaseService<T, PK extends Serializable> extends BaseMongoTempla
      * @return
      */
     Boolean  deleteById(PK id);
+
+    /**
+     * 批量删除
+     * @param ids
+     * @return
+     */
+    Boolean  deleteByIds(List<PK> ids);
 
     /**
      * 单条删除数据  （实体对象作为参数）
@@ -102,9 +117,9 @@ public interface BaseService<T, PK extends Serializable> extends BaseMongoTempla
     List<T> findByIdInOrderByIdAsc(List<PK> ids);
 
     /**
-     * 同步数据到Mongo中
+     * 同步数据到Elasticsearch中
      */
-    void syncDataMongoDb();
+    void syncDataElasticsearch(BaseElasticsearchRepository elasticsearchRepository);
 
     /**
      * 同步数据到Mysql中

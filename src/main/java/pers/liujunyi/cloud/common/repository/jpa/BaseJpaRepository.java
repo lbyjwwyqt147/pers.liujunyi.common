@@ -9,7 +9,7 @@ import java.io.Serializable;
 import java.util.List;
 
 /***
- * 文件名称: BaseRepository.java
+ * 文件名称: BaseJpaRepository.java
  * 文件描述: 基础 Repository.
  * 公 司:
  * 内容摘要:
@@ -20,7 +20,7 @@ import java.util.List;
  * @author ljy
  */
 @NoRepositoryBean
-public interface  BaseRepository<T, PK extends Serializable> extends JpaRepository<T, PK>, JpaSpecificationExecutor<T> {
+public interface BaseJpaRepository<T, PK extends Serializable> extends JpaRepository<T, PK>, JpaSpecificationExecutor<T> {
 
     /**
      * 根据一组ID获取数据

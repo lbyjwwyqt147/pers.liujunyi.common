@@ -6,14 +6,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSourceUtils;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-import pers.liujunyi.cloud.common.repository.jpa.BaseRepository;
-import pers.liujunyi.cloud.common.service.BaseService;
+import pers.liujunyi.cloud.common.repository.elasticsearch.BaseElasticsearchRepository;
+import pers.liujunyi.cloud.common.repository.jpa.BaseJpaRepository;
+import pers.liujunyi.cloud.common.service.BaseJpaElasticsearchService;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -21,7 +21,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 /***
- * 文件名称: BaseServiceImpl.java
+ * 文件名称: BaseJpaElasticsearchServiceImpl.java
  * 文件描述: 基础 Service impl
  * 公 司:
  * 内容摘要:
@@ -32,7 +32,7 @@ import java.util.List;
  * @author ljy
  */
 @Log4j2
-public class BaseServiceImpl<T, PK extends Serializable> extends BaseMongoTemplateServiceImpl<T, PK> implements BaseService<T, PK> {
+public class BaseJpaElasticsearchServiceImpl<T, PK extends Serializable> extends BaseElasticsearchTemplateServiceImpl<T, PK> implements BaseJpaElasticsearchService<T, PK> {
 
     /** 自定义分页数据  */
     protected  Pageable pageable;
@@ -42,12 +42,12 @@ public class BaseServiceImpl<T, PK extends Serializable> extends BaseMongoTempla
     @Value("${spring.encrypt.secretKey}")
     protected String secretKey;
 
-    protected BaseRepository<T, PK> baseRepository;
+    protected BaseJpaRepository<T, PK> baseJpaRepository;
     @Autowired
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
-    public BaseServiceImpl(final BaseRepository<T, PK> baseRepository) {
-        this.baseRepository = baseRepository;
+    public BaseJpaElasticsearchServiceImpl(final BaseJpaRepository<T, PK> baseJpaRepository) {
+        this.baseJpaRepository = baseJpaRepository;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -61,28 +61,33 @@ public class BaseServiceImpl<T, PK extends Serializable> extends BaseMongoTempla
 
     @Override
     public List<T> findAll() {
-        return this.baseRepository.findAll();
+        return this.baseJpaRepository.findAll();
     }
 
     @Override
     public List<T> findAll(Sort sort) {
-        return this.baseRepository.findAll(sort);
+        return this.baseJpaRepository.findAll(sort);
     }
 
     @Override
     public T getOne(PK var1) {
-        return this.baseRepository.getOne(var1);
+        return this.baseJpaRepository.getOne(var1);
+    }
+
+    @Override
+    public T findById(PK var1) {
+        return this.getOne(var1);
     }
 
     @Override
     public boolean existsById(PK id) {
-        return this.baseRepository.existsById(id);
+        return this.baseJpaRepository.existsById(id);
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public Boolean deleteAllByIdIn(List<PK> ids) {
-        long count = this.baseRepository.deleteByIdIn(ids);
+        long count = this.baseJpaRepository.deleteByIdIn(ids);
         if (count > 0) {
             return true;
         }
@@ -92,43 +97,50 @@ public class BaseServiceImpl<T, PK extends Serializable> extends BaseMongoTempla
     @Transactional(rollbackFor = Exception.class)
     @Override
     public Boolean deleteById(PK id) {
-        this.baseRepository.deleteById(id);
+        this.baseJpaRepository.deleteById(id);
         return true;
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
+    public Boolean deleteByIds(List<PK> ids) {
+        long count = this.baseJpaRepository.deleteByIdIn(ids);
+        return count > 0 ? true : false;
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
     public void delete(T t) {
-        this.baseRepository.delete(t);
+        this.baseJpaRepository.delete(t);
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void deleteInBatch(Iterable<T> var1) {
-        this.baseRepository.deleteInBatch(var1);
+        this.baseJpaRepository.deleteInBatch(var1);
     }
 
     @Override
     public List<T> findByIdIn(List<PK> ids) {
-        return this.baseRepository.findByIdIn(ids);
+        return this.baseJpaRepository.findByIdIn(ids);
     }
 
     @Override
     public List<T> findAllByIdIn(List<PK> ids) {
-        return this.baseRepository.findAllByIdIn(ids);
+        return this.baseJpaRepository.findAllByIdIn(ids);
     }
 
     @Override
     public List<T> findByIdInOrderByIdAsc(List<PK> ids) {
-        return this.baseRepository.findByIdInOrderByIdAsc(ids);
+        return this.baseJpaRepository.findByIdInOrderByIdAsc(ids);
     }
 
     @Override
-    public void syncDataMongoDb() {
+    public void syncDataElasticsearch(BaseElasticsearchRepository elasticsearchRepository) {
         Sort sort =  Sort.by(Sort.Direction.ASC, "id");
-        List<T> list = this.baseRepository.findAll(sort);
+        List<T> list = this.baseJpaRepository.findAll(sort);
         if (!CollectionUtils.isEmpty(list)) {
-            this.mongoTemplate.remove(new Query(), tClazz);
+            elasticsearchRepository.deleteAll();
             // 限制条数
             int pointsDataLimit = 1000;
             int size = list.size();
@@ -141,19 +153,20 @@ public class BaseServiceImpl<T, PK extends Serializable> extends BaseMongoTempla
                     List<T> partList = new LinkedList<>(list.subList(0, pointsDataLimit));
                     //剔除
                     list.subList(0, pointsDataLimit).clear();
-                    this.mongoTemplate.insertAll(partList);
+                    elasticsearchRepository.saveAll(partList);
                 }
                 //表示最后剩下的数据
                 if (!CollectionUtils.isEmpty(list)) {
-                    this.mongoTemplate.insertAll(list);
+                    elasticsearchRepository.saveAll(list);
                 }
             } else {
-                this.mongoTemplate.insertAll(list);
+                elasticsearchRepository.saveAll(list);
             }
         } else {
-            this.mongoTemplate.remove(new Query(), tClazz);
+            elasticsearchRepository.deleteAll();
         }
     }
+
 
     @Override
     public void syncDataMysql() {

@@ -46,7 +46,7 @@ public class BaseElasticsearchTemplateServiceImpl<T, PK extends Serializable> im
     private String esmapperBasePath;
 
     @Resource
-    private ElasticsearchTemplate elasticsearchTemplate;
+    protected ElasticsearchTemplate elasticsearchTemplate;
 
     @Override
     public Boolean updateSingleElasticsearchData(Long id, Map<String, Object> sourceMap) {

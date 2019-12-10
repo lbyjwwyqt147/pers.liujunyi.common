@@ -73,6 +73,11 @@ public class BaseElasticsearchServiceImpl<T, PK extends Serializable> implements
     }
 
     @Override
+    public T findById(PK var1) {
+        return this.getOne(var1);
+    }
+
+    @Override
     public boolean existsById(PK id) {
         return this.baseElasticsearchRepository.existsById(id);
     }
