@@ -130,6 +130,11 @@ public class BaseJpaServiceImpl<T, PK extends Serializable> implements BaseJpaSe
         return this.baseJpaRepository.findByIdInOrderByIdAsc(ids);
     }
 
+    @Override
+    public List<T> findByIdNotIn(List<PK> ids) {
+        return this.baseJpaRepository.findAllByIdIn(ids);
+    }
+
     /**
      * 返回分页数据
      * @param pageSize

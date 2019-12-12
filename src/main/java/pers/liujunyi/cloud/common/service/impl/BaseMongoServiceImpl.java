@@ -132,6 +132,11 @@ public class BaseMongoServiceImpl<T, PK extends Serializable> implements BaseMon
         return this.baseMongoRepository.findAllByIdIn(ids);
     }
 
+    @Override
+    public List<T> findByIdNotIn(List<PK> ids) {
+        return this.baseMongoRepository.findAllByIdIn(ids);
+    }
+
     /**
      * 返回分页数据
      * @param pageSize

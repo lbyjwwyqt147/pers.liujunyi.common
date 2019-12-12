@@ -41,6 +41,13 @@ public interface BaseJpaService<T, PK extends Serializable>  {
     List<T> findAll(Sort sort);
 
     /**
+     * 排除指定ID数据
+     * @param ids
+     * @return
+     */
+    List<T> findByIdNotIn(List<PK> ids);
+
+    /**
      * 根据主键ID 获取数据
      * @param var1
      * @return

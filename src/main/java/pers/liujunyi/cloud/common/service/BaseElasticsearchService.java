@@ -90,6 +90,13 @@ public interface BaseElasticsearchService<T, PK extends Serializable> {
     List<T> findByIdIn(List<PK> ids);
 
     /**
+     * 排除指定ID数据
+     * @param ids
+     * @return
+     */
+    List<T> findByIdNotIn(List<PK> ids);
+
+    /**
      * 根据一组ID获取数据 并根据id 顺序排序
      * @param ids
      * @return

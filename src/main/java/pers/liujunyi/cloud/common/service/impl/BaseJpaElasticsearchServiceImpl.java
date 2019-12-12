@@ -173,6 +173,12 @@ public class BaseJpaElasticsearchServiceImpl<T, PK extends Serializable> extends
 
     }
 
+
+    @Override
+    public List<T> findByIdNotIn(List<PK> ids) {
+        return this.baseJpaRepository.findAllByIdIn(ids);
+    }
+
     /**
      * 返回分页数据
      * @param pageSize

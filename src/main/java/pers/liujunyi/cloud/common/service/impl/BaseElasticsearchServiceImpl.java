@@ -113,6 +113,11 @@ public class BaseElasticsearchServiceImpl<T, PK extends Serializable> implements
     }
 
     @Override
+    public List<T> findByIdNotIn(List<PK> ids) {
+        return this.baseElasticsearchRepository.findAllByIdIn(ids);
+    }
+
+    @Override
     public List<T> findByIdInOrderByIdAsc(List<PK> ids) {
         return  this.baseElasticsearchRepository.findByIdInOrderByIdAsc(ids, this.getPageable(ids.size()));
     }

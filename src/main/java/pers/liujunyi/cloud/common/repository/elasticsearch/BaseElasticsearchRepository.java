@@ -44,6 +44,12 @@ public interface BaseElasticsearchRepository<T, PK extends Serializable> extends
      */
      List<T> findAllByIdIn(List<PK> ids);
 
+    /**
+     * 排除指定ID数据
+     * @param ids
+     * @return
+     */
+    List<T> findByIdNotIn(List<PK> ids);
 
     /**
      * 根据ID 批量删除

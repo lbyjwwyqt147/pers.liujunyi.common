@@ -83,6 +83,13 @@ public interface BaseJpaMongoService<T, PK extends Serializable> extends BaseMon
     Boolean  deleteByIds(List<PK> ids);
 
     /**
+     * 排除指定ID数据
+     * @param ids
+     * @return
+     */
+    List<T> findByIdNotIn(List<PK> ids);
+
+    /**
      * 单条删除数据  （实体对象作为参数）
      * @param t
      */

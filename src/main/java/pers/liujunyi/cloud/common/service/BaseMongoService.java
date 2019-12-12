@@ -114,5 +114,11 @@ public interface BaseMongoService<T, PK extends Serializable> {
      */
     List<T> findAllByIdIn(List<PK> ids);
 
+    /**
+     * 排除指定ID数据
+     * @param ids
+     * @return
+     */
+    List<T> findByIdNotIn(List<PK> ids);
 
 }
