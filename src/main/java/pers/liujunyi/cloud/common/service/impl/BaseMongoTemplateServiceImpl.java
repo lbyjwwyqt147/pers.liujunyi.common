@@ -4,6 +4,7 @@ import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -38,6 +39,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author ljy
  */
 @Log4j2
+@RefreshScope
 public class BaseMongoTemplateServiceImpl<T, PK extends Serializable> implements BaseMongoTemplateService<T, PK> {
 
     protected Class <T> tClazz  = (Class <T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];

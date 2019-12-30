@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import pers.liujunyi.cloud.common.vo.tenement.TenementVo;
@@ -20,6 +21,7 @@ import java.util.concurrent.ThreadPoolExecutor;
  */
 @Log4j2
 @Component
+@RefreshScope
 public class RemoteCloudUtil {
     private ThreadPoolExecutor threadPoolExecutor = ThreadPoolExecutorFactory.getThreadPoolExecutor();
 

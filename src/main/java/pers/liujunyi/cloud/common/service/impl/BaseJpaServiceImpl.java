@@ -3,6 +3,7 @@ package pers.liujunyi.cloud.common.service.impl;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -29,6 +30,7 @@ import java.util.List;
  * @author ljy
  */
 @Log4j2
+@RefreshScope
 public class BaseJpaServiceImpl<T, PK extends Serializable> implements BaseJpaService<T, PK> {
 
     /** 自定义分页数据  */

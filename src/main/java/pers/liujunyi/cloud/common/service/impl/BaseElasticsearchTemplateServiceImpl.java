@@ -14,6 +14,7 @@ import org.elasticsearch.client.Client;
 import org.frameworkset.elasticsearch.ElasticSearchHelper;
 import org.frameworkset.elasticsearch.client.ClientInterface;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 import org.springframework.util.CollectionUtils;
@@ -38,6 +39,7 @@ import java.util.Map;
  * @author ljy
  */
 @Log4j2
+@RefreshScope
 public class BaseElasticsearchTemplateServiceImpl<T, PK extends Serializable> implements BaseElasticsearchTemplateService<T, PK> {
 
     protected Class <T> tClazz  = (Class <T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];

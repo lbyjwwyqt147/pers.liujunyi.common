@@ -3,6 +3,7 @@ package pers.liujunyi.cloud.common.service.impl;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.search.SearchHits;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -25,6 +26,7 @@ import java.util.stream.StreamSupport;
 /**
  * @author ljy
  */
+@RefreshScope
 public class BaseElasticsearchServiceImpl<T, PK extends Serializable> implements BaseElasticsearchService<T, PK> {
 
     /** 自定义分页数据  */

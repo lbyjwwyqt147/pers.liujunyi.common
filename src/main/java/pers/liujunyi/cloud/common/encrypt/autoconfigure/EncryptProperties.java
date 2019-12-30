@@ -2,6 +2,7 @@ package pers.liujunyi.cloud.common.encrypt.autoconfigure;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 
 /***
  *	encrypt 属性信息
@@ -9,6 +10,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  */
 @Data
 @ConfigurationProperties(prefix = "spring.encrypt")
+@RefreshScope
 public class EncryptProperties {
 	/**
 	 * RSA 私钥
