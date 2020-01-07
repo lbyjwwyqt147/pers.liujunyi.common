@@ -162,4 +162,27 @@ public final class DateTimeUtils {
         DecimalFormat df = new DecimalFormat("######0.0");
         return df.format(year + month / 12);
     }
+
+    /**
+     * 将日期类型格式化为字符串
+     *
+     * @param toDate
+     * @return 2018-10-28 17:07:05
+     */
+    public static String dateFormatYmdhms(Date toDate){
+        SimpleDateFormat format = new SimpleDateFormat(YMDHMS);
+        return format.format(toDate);
+    }
+
+
+    /**
+     * 将日期类型格式化为字符串
+     *
+     * @param toDate
+     * @return 2017-03-02
+     */
+    public static String dateFormatYmd(Date toDate){
+        SimpleDateFormat format = new SimpleDateFormat(YMD);
+        return format.format(toDate);
+    }
 }
