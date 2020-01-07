@@ -121,6 +121,54 @@ public class RemoteCloudUtil {
     }
 
     /**
+     * 单条删除阿里云OSS服务器上文件数据
+     * @param fileId 文件id
+     * @return
+     */
+    public void deleteOssFileById(Long fileId) {
+        log.info(" 请求单条删除阿里云OSS服务器上文件数据 ..................... ");
+        threadPoolExecutor.execute(() -> {
+            for (int i = 0; i < RETRY; i++) {
+                String result = HttpClientUtils.httpDelete(cloudUrl.trim() + "v1/ignore/file/oss/d/" + fileId);
+                JSONObject jsonObject = JSONObject.parseObject(result);
+                boolean success = jsonObject.getBoolean("success");
+                if (success) {
+                    break;
+                }
+                try {
+                    Thread.sleep(SLEEP);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    /**
+     * 批量删除阿里云OSS服务器上文件数据
+     * @param fileId 文件id 多个文件用,隔开
+     * @return
+     */
+    public void deleteOssFileByIds(String fileId) {
+        log.info(" 请求批量删除阿里云OSS服务器上文件数据 ..................... ");
+        threadPoolExecutor.execute(() -> {
+            for (int i = 0; i < RETRY; i++) {
+                String result = HttpClientUtils.httpDelete(cloudUrl.trim() + "/v1/ignore/file/oss/d/b/" + fileId);
+                JSONObject jsonObject = JSONObject.parseObject(result);
+                boolean success = jsonObject.getBoolean("success");
+                if (success) {
+                    break;
+                }
+                try {
+                    Thread.sleep(SLEEP);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    /**
      * 根据租户ID 获取租户信息
      * @param tenementId
      * @return
