@@ -91,7 +91,7 @@ public class SignAuthFilter extends OncePerRequestFilter {
 					}
 				}
 			}
-			log.info(" >> 签名校验通过....  ");
+			log.info(" >> " + httpServletRequest.getRequestURI() + "  签名校验通过. ");
 		} catch (Exception e) {
 			log.info(" >> 非法请求:" + httpServletRequest.getRequestURI());
 			e.printStackTrace();
