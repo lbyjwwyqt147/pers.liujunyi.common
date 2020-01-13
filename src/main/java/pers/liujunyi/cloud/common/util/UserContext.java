@@ -24,6 +24,11 @@ public class UserContext {
         Object userId = request.getAttribute(BaseRedisKeys.USER_ID);
         if (userId != null) {
             return Long.valueOf(userId.toString());
+        } else {
+            String uid = request.getHeader(BaseRedisKeys.SUBSCRIBER);
+            if (StringUtils.isNotBlank(uid)) {
+                return Long.valueOf(uid);
+            }
         }
         return null;
     }
@@ -60,8 +65,6 @@ public class UserContext {
         }
         return userDetailsDto;
     }
-
-
 
 
 }

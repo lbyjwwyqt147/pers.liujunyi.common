@@ -13,6 +13,8 @@ public class BaseRedisKeys {
     public static final String USER_DETAILS_AUTHENTICATION = "user:details:authentication";
     /** 租户 */
     public static final String LESSEE = "tenement";
+    /** 用户ID */
+    public static final String SUBSCRIBER = "subscriber";
     /** 租户数据源配置 */
     public static final String LESSEE_DATA_SOURCE = "tenement:dataSource";
     /** userID */
