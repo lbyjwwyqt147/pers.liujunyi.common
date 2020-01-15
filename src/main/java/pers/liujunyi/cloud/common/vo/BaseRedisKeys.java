@@ -6,11 +6,11 @@ package pers.liujunyi.cloud.common.vo;
  */
 public class BaseRedisKeys {
     /** 用户登录toke redis key  */
-    public static final String USER_LOGIN_TOKNE = "user:login:token";
+    public static final String USER_LOGIN_TOKNE = "user:login";
     /** 用户 toke redis key  */
-    public static final String USER_DETAILS_TOKNE = "user:details:token";
+    public static final String USER_DETAILS_TOKNE = "user:details";
     /** 用户 authentication redis key  */
-    public static final String USER_DETAILS_AUTHENTICATION = "user:details:authentication";
+    public static final String USER_AUTHORITIES_TOKEN = "user:authorities";
     /** 租户 */
     public static final String LESSEE = "tenement";
     /** 用户ID */
