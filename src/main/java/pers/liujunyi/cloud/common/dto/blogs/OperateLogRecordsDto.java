@@ -37,10 +37,10 @@ public class OperateLogRecordsDto extends BaseDto {
     /** 应用名称 */
     private String applicationName;
 
-    /** 操作类型 */
+    /** 操作类型 1:新增  2:修改 3: 删除 */
     private Byte operateType;
 
-    /** 日志类型 */
+    /** 日志类型 0:正常请求日志  1:异常日志 3: 登录日志  4：登出日志 */
     private Byte logType;
 
     /** 操作的表名 */
