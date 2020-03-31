@@ -6,9 +6,9 @@ package pers.liujunyi.cloud.common.util;
 public abstract class OperateLogType {
 
     /** 新增 */
-    public final static Byte ADD = 1;
+    public final static byte ADD = 1;
     /** 修改 */
-    public final static Byte UPDATE = 2;
+    public final static byte UPDATE = 2;
     /** 删除 */
-    public final static Byte DELETE = 3;
+    public final static byte DELETE = 3;
 }
