@@ -28,6 +28,12 @@ public class OperateLogRecordsDto extends BaseDto {
     /** 操作人名称 */
     private String operateUserName;
 
+    /** 操作人登录帐号 */
+    private String operateUserAccount;
+
+    /** 用户IP 地址 */
+    private String ipAddress;
+
     /** 用户类别   0：超级管理员 1：普通管理员 2：内部职工 3：普通用户   */
     private Byte operateUserType;
 
