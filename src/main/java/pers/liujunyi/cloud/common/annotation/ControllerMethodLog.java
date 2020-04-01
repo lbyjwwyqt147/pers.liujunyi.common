@@ -16,7 +16,7 @@ import java.lang.annotation.*;
 @Target({ ElementType.METHOD, ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface MethodLog {
+public @interface ControllerMethodLog {
 
     /** 描述  */
     String desc() default "";
@@ -34,4 +34,8 @@ public @interface MethodLog {
     String entityBeanClass() default "";
     /** 是否为批量类型操作 */
     boolean paramIsArray() default false;
+    /** 查询详情的参数类型 例如： Long */
+    String parameterType() default "";
+    /** 需要的查询字段 例如：id */
+    String parameterKey() default "";
 }
