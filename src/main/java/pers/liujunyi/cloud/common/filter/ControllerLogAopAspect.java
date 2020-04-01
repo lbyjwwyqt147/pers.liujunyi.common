@@ -1,18 +1,32 @@
 package pers.liujunyi.cloud.common.filter;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.Signature;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Pointcut;
+import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import pers.liujunyi.cloud.common.annotation.ControllerMethodLog;
 import pers.liujunyi.cloud.common.dto.blogs.OperateLogRecordsDto;
+import pers.liujunyi.cloud.common.restful.ResultInfo;
+import pers.liujunyi.cloud.common.util.HttpClientUtils;
+import pers.liujunyi.cloud.common.util.UserUtils;
+import pers.liujunyi.cloud.common.vo.user.UserDetails;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Map;
 
 /***
  * 文件名称: ControllerLogAopAspect
@@ -25,8 +39,12 @@ import java.text.SimpleDateFormat;
  * @version 1.0
  * @author ljy
  */
+@Component
+@Log4j2
 public class ControllerLogAopAspect {
 
+    @Autowired
+    private UserUtils userUtils;
 
     /**
     * 配置接入点
@@ -42,34 +60,26 @@ public class ControllerLogAopAspect {
 
     /**
      * 定义一个切入点
-     * @param pjp
+     * @param joinPoint
      * @return
      * @throws Throwable
      */
     @SuppressWarnings({ "rawtypes", "unused" })
     @Around("controllerAspect()")
-    public Object around(ProceedingJoinPoint pjp) throws Throwable {
+    public Object around(ProceedingJoinPoint joinPoint) throws Throwable {
         //日志对象
-        OperateLogRecordsDto log = new OperateLogRecordsDto();
+        OperateLogRecordsDto logRecord = new OperateLogRecordsDto();
         //获取登录用户账户
         HttpServletRequest httpRequest = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-
-        //方法通知前获取时间,为什么要记录这个时间呢？当然是用来计算模块执行时间的
         //获取系统时间
-        String time = new SimpleDateFormat(FucdnStrConstant.YEAR_MONTH_DAY_HOUR_MINUTE_SECOND.getConstant()).format(new Date());
-        log.setStartTime(time);
-
-        //获取系统ip,这里用的是我自己的工具类,可自行网上查询获取ip方法
-        //String ip = GetLocalIp.localIp();
-        //log.setIP(ip);
-
-        // 拦截的实体类，就是当前正在执行的controller
-        Object target = pjp.getTarget();
+        logRecord.setResponseStartTime(new Date());
+        logRecord.setIpAddress(HttpClientUtils.getIpAddress(httpRequest));
+        // 拦截当前正在执行的controller
+        Object target = joinPoint.getTarget();
         // 拦截的方法名称。当前正在执行的方法
-        String methodName = pjp.getSignature().getName();
+        String methodName = joinPoint.getSignature().getName();
         // 拦截的方法参数
-        Object[] args = pjp.getArgs();
-        //String params = Arrays.toString(pjp.getArgs());
+        Object[] args = joinPoint.getArgs();
         JSONArray operateParamArray = new JSONArray();
         for (int i = 0; i < args.length; i++) {
             Object paramsObj = args[i];
@@ -92,9 +102,9 @@ public class ControllerLogAopAspect {
             }
         }
         //设置请求参数
-        log.setOperateParams(operateParamArray.toJSONString());
+        logRecord.setParameters(operateParamArray.toJSONString());
         // 拦截的放参数类型
-        Signature sig = pjp.getSignature();
+        Signature sig = joinPoint.getSignature();
         MethodSignature msig = null;
         if (!(sig instanceof MethodSignature)) {
             throw new IllegalArgumentException("该注解只能用于方法");
@@ -108,40 +118,38 @@ public class ControllerLogAopAspect {
         try {
             method = target.getClass().getMethod(methodName, parameterTypes);
         } catch (NoSuchMethodException e1) {
-            LOGGER.error("ControllerLogAopAspect around error",e1);
+            log.error("ControllerLogAopAspect around error",e1);
         } catch (SecurityException e1) {
-            LOGGER.error("ControllerLogAopAspect around error",e1);
+            log.error("ControllerLogAopAspect around error",e1);
         }
         if (null != method) {
             // 判断是否包含自定义的注解，说明一下这里的SystemLog就是我自己自定义的注解
-            if (method.isAnnotationPresent(SystemControllerLog.class)) {
+            if (method.isAnnotationPresent(ControllerMethodLog.class)) {
 
                 //此处需要对用户进行区分：1为admin user 2为customer user
                 // get session
                 HttpSession httpSession = httpRequest.getSession(true);
-                // 从session获取登录用户
-                AdminUserVO adminUserVO = (AdminUserVO) httpSession
-                        .getAttribute(FucdnStrConstant.SESSION_KEY_ADMIN.getConstant());
-                long adminUserId = adminUserVO.getAdminUserId();
-                log.setUserId(String.valueOf(adminUserId));
+                //获取登录用户
+                UserDetails user = this.userUtils.getCurrentUserDetail();
+                long adminUserId = user.getUserId();
+                logRecord.setOperateUserId(adminUserId);
+                ControllerMethodLog systemLog = method.getAnnotation(ControllerMethodLog.class);
 
-                SystemControllerLog systemlog = method.getAnnotation(SystemControllerLog.class);
-
-                log.setModule(systemlog.module());
-                log.setMethod(systemlog.methods());
+                logRecord.setOperateModule(systemLog.operModule());
+                logRecord.setOperateMethod(method.getName());
                 //请求查询操作前数据的spring bean
-                String serviceClass = systemlog.serviceClass();
+                String serviceClass = systemLog.serviceClass();
                 //请求查询数据的方法
-                String queryMethod = systemlog.queryMethod();
+                String queryMethod = systemLog.findDataMethod();
                 //判断是否需要进行操作前的对象参数查询
-                if(StringUtils.isNotBlank(systemlog.parameterKey())
-                        &&StringUtils.isNotBlank(systemlog.parameterType())
-                        &&StringUtils.isNotBlank(systemlog.queryMethod())
-                        &&StringUtils.isNotBlank(systemlog.serviceClass())){
-                    boolean isArrayResult = systemlog.paramIsArray();
+                if(StringUtils.isNotBlank(systemLog.parameterKey())
+                        &&StringUtils.isNotBlank(systemLog.parameterType())
+                        &&StringUtils.isNotBlank(systemLog.findDataMethod())
+                        &&StringUtils.isNotBlank(systemLog.serviceClass())){
+                    boolean isArrayResult = systemLog.paramIsArray();
                     //参数类型
-                    String paramType = systemlog.parameterType();
-                    String key = systemlog.parameterKey();
+                    String paramType = systemLog.parameterType();
+                    String key = systemLog.parameterKey();
 
                     if(isArrayResult){//批量操作
                         //JSONArray jsonarray = (JSONArray) object.get(key);
@@ -183,12 +191,11 @@ public class ControllerLogAopAspect {
 
                 try {
                     //执行页面请求模块方法，并返回
-                    object = pjp.proceed();
+                    object = joinPoint.proceed();
                     //获取系统时间
-                    String endTime = new SimpleDateFormat(FucdnStrConstant.YEAR_MONTH_DAY_HOUR_MINUTE_SECOND.getConstant()).format(new Date());
-                    log.setEndTime(endTime);
+                    logRecord.setResponseEndTime(new Date());
                     //将object 转化为controller封装返回的实体类：RequestResult
-                    RequestResult requestResult = (RequestResult) object;
+                    ResultInfo requestResult = (ResultInfo) object;
                     if(requestResult.isResult()){
                         //操作流程成功
                         if(StringUtils.isNotBlank(requestResult.getErrMsg())){

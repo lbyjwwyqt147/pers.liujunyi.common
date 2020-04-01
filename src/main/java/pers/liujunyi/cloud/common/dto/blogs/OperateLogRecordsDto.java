@@ -64,14 +64,14 @@ public class OperateLogRecordsDto extends BaseDto {
     /** 参数 */
     private String parameters;
 
-    /** 开始执行时间 */
-    private Date startOperTime;
+    /** 响应执行时间 */
+    private Date responseStartTime;
 
-    /** 执行结束时间 */
-    private Date endOperTime;
+    /** 响应结束时间 */
+    private Date responseEndTime;
 
-    /** 过程耗时时间 */
-    private Long executionTime;
+    /** 消耗时间(秒) */
+    private Long expendTime;
 
     /** 操作结果 */
     private String resultMessage;
