@@ -80,6 +80,55 @@ public class ControllerLogAopAspect {
     @SuppressWarnings({ "rawtypes", "unused" })
     @Around("controllerAspect()")
     public Object around(ProceedingJoinPoint joinPoint) throws Throwable {
+        // 拦截参数
+        Signature sig = joinPoint.getSignature();
+        // 拦截当前正在执行的controller
+        Object target = joinPoint.getTarget();
+        // 拦截的方法名称。当前正在执行的方法
+        String methodName = sig.getName();
+        MethodSignature msig = null;
+        if (!(sig instanceof MethodSignature)) {
+            throw new IllegalArgumentException("该注解只能用于方法");
+        }
+        msig = (MethodSignature) sig;
+
+        Class[] parameterTypes = msig.getMethod().getParameterTypes();
+        Object object = null;
+        // 获得被拦截的方法
+        Method method = null;
+        try {
+            method = target.getClass().getMethod(methodName, parameterTypes);
+        } catch (NoSuchMethodException e1) {
+            log.error("ControllerLogAopAspect around error",e1);
+        } catch (SecurityException e1) {
+            log.error("ControllerLogAopAspect around error",e1);
+        }
+        if (null != method) {
+            // 判断是否包含自定义的注解，ControllerMethodLog是自定义的注解
+            if (method.isAnnotationPresent(ControllerMethodLog.class)) {
+                // 获取方法上自定义日志注解数据
+                ControllerMethodLog systemLog = method.getAnnotation(ControllerMethodLog.class);
+                if (systemLog.operType() == OperateLogType.UPDATE) {
+                    //判断是否需要进行操作前的对象参数查询
+                    if (StringUtils.isNotBlank(systemLog.parameterKey())
+                            && StringUtils.isNotBlank(systemLog.parameterType())
+                            && StringUtils.isNotBlank(systemLog.findDataMethod())
+                            && StringUtils.isNotBlank(systemLog.serviceClass())) {
+                        // 参数是否是一组数据
+                        boolean isArrayResult = systemLog.paramIsArray();
+                        if (isArrayResult) {
+                            // 批量更新
+                        } else {
+                            // 单个更新
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+    private Object singleLog(ProceedingJoinPoint joinPoint) throws Throwable {
         //日志对象
         OperateLogRecordsDto logRecord = new OperateLogRecordsDto();
         String logId = UUID.randomUUID().toString().replaceAll("-", "");
@@ -227,9 +276,9 @@ public class ControllerLogAopAspect {
                     ResultInfo requestResult = (ResultInfo) object;
                     logRecord.setResultMessage(JSON.toJSONString(requestResult));
                     if(requestResult.getSuccess()){
-                      logRecord.setOperateStatus((byte) 0);
+                        logRecord.setOperateStatus((byte) 0);
                     }else{
-                      logRecord.setOperateStatus((byte) 1);
+                        logRecord.setOperateStatus((byte) 1);
                     }
                 } catch (Throwable e) {
                     logRecord.setResultMessage(e.getMessage());
