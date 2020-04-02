@@ -22,6 +22,9 @@ import java.util.Date;
 public class OperateLogRecordsDto extends BaseDto {
 
     private static final long serialVersionUID = -1994799462808121477L;
+    /** 操作日志id */
+    private String logId;
+
     /** 操作人id */
     private Long operateUserId;
 
@@ -76,7 +79,10 @@ public class OperateLogRecordsDto extends BaseDto {
     /** 操作结果 */
     private String resultMessage;
 
-    /** 操作状态 */
+    /** 操作状态 0: 成功  1： 失败 */
     private Byte operateStatus;
+
+    /** 变更数据项  */
+    private String changeDataItem;
 
 }

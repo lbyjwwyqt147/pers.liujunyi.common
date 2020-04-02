@@ -3,30 +3,38 @@ package pers.liujunyi.cloud.common.filter;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.TypeReference;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.Signature;
 import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ReflectionUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import pers.liujunyi.cloud.common.annotation.ControllerMethodLog;
+import pers.liujunyi.cloud.common.dto.blogs.ChangeRecordLogDto;
 import pers.liujunyi.cloud.common.dto.blogs.OperateLogRecordsDto;
 import pers.liujunyi.cloud.common.restful.ResultInfo;
-import pers.liujunyi.cloud.common.util.HttpClientUtils;
-import pers.liujunyi.cloud.common.util.UserUtils;
+import pers.liujunyi.cloud.common.task.LogAsyncTask;
+import pers.liujunyi.cloud.common.util.*;
 import pers.liujunyi.cloud.common.vo.user.UserDetails;
 
+import javax.persistence.Table;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.lang.reflect.Method;
-import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /***
  * 文件名称: ControllerLogAopAspect
@@ -39,12 +47,17 @@ import java.util.Map;
  * @version 1.0
  * @author ljy
  */
+@Aspect
 @Component
 @Log4j2
 public class ControllerLogAopAspect {
 
     @Autowired
+    private LogAsyncTask logAsyncTask;
+    @Autowired
     private UserUtils userUtils;
+    @Value("(${spring.application.name})")
+    private String applicationName;
 
     /**
     * 配置接入点
@@ -69,6 +82,8 @@ public class ControllerLogAopAspect {
     public Object around(ProceedingJoinPoint joinPoint) throws Throwable {
         //日志对象
         OperateLogRecordsDto logRecord = new OperateLogRecordsDto();
+        String logId = UUID.randomUUID().toString().replaceAll("-", "");
+        logRecord.setLogId(logId);
         //获取登录用户账户
         HttpServletRequest httpRequest = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
         //获取系统时间
@@ -97,7 +112,7 @@ public class ControllerLogAopAspect {
                 //get请求，以map类型传参
                 //1.将object的map类型转为jsonobject类型
                 Map<String, Object> map = (Map<String, Object>) paramsObj;
-                JSONObject json =new JSONObject(map);
+                JSONObject json = new JSONObject(map);
                 operateParamArray.add(json);
             }
         }
@@ -123,72 +138,86 @@ public class ControllerLogAopAspect {
             log.error("ControllerLogAopAspect around error",e1);
         }
         if (null != method) {
-            // 判断是否包含自定义的注解，说明一下这里的SystemLog就是我自己自定义的注解
+            // 判断是否包含自定义的注解，ControllerMethodLog是自定义的注解
             if (method.isAnnotationPresent(ControllerMethodLog.class)) {
-
-                //此处需要对用户进行区分：1为admin user 2为customer user
                 // get session
                 HttpSession httpSession = httpRequest.getSession(true);
                 //获取登录用户
                 UserDetails user = this.userUtils.getCurrentUserDetail();
                 long adminUserId = user.getUserId();
                 logRecord.setOperateUserId(adminUserId);
+                logRecord.setOperateUserName(user.getUserName());
+                logRecord.setOperateUserAccount(user.getUserAccounts());
+                logRecord.setOperateUserNumber(user.getUserNumber());
+                logRecord.setOperateUserType(user.getUserCategory());
+                logRecord.setApplicationName(applicationName);
+                // 获取方法上自定义日志注解数据
                 ControllerMethodLog systemLog = method.getAnnotation(ControllerMethodLog.class);
-
                 logRecord.setOperateModule(systemLog.operModule());
                 logRecord.setOperateMethod(method.getName());
+                logRecord.setOperateType(systemLog.operType());
+                logRecord.setLogType(systemLog.logType());
                 //请求查询操作前数据的spring bean
                 String serviceClass = systemLog.serviceClass();
                 //请求查询数据的方法
                 String queryMethod = systemLog.findDataMethod();
-                //判断是否需要进行操作前的对象参数查询
-                if(StringUtils.isNotBlank(systemLog.parameterKey())
-                        &&StringUtils.isNotBlank(systemLog.parameterType())
-                        &&StringUtils.isNotBlank(systemLog.findDataMethod())
-                        &&StringUtils.isNotBlank(systemLog.serviceClass())){
-                    boolean isArrayResult = systemLog.paramIsArray();
-                    //参数类型
-                    String paramType = systemLog.parameterType();
-                    String key = systemLog.parameterKey();
-
-                    if(isArrayResult){//批量操作
-                        //JSONArray jsonarray = (JSONArray) object.get(key);
-                        //从请求的参数中解析出查询key对应的value值
-                        String value = "";
-                        JSONArray beforeParamArray = new JSONArray();
-                        for (int i = 0; i < operateParamArray.size(); i++) {
-                            JSONObject params =  operateParamArray.getJSONObject(i);
-                            JSONArray paramArray = (JSONArray) params.get(key);
-                            if (paramArray != null) {
-                                for (int j = 0; j < paramArray.size(); j++) {
-                                    String paramId =  paramArray.getString(j);
-                                    //在此处判断spring bean查询的方法参数类型
-                                    Object data = getOperateBeforeData(paramType, serviceClass, queryMethod, paramId);
-                                    JSONObject json = (JSONObject) JSON.toJSON(data);
-                                    beforeParamArray.add(json);
+                String tableName = null;
+                if (systemLog.operType() == OperateLogType.UPDATE) {
+                    //判断是否需要进行操作前的对象参数查询
+                    if(StringUtils.isNotBlank(systemLog.parameterKey())
+                            &&StringUtils.isNotBlank(systemLog.parameterType())
+                            &&StringUtils.isNotBlank(systemLog.findDataMethod())
+                            &&StringUtils.isNotBlank(systemLog.serviceClass())){
+                        // 参数是否是一组数据
+                        boolean isArrayResult = systemLog.paramIsArray();
+                        //参数类型
+                        String paramType = systemLog.parameterType();
+                        String key = systemLog.parameterKey();
+                        String paramValue = null;
+                        //批量操作
+                        if(isArrayResult){
+                            key = "ids";
+                            paramType = "List<Long>";
+                            String value = "";
+                            JSONArray beforeParamArray = new JSONArray();
+                            for (int i = 0; i < operateParamArray.size(); i++) {
+                                JSONObject params =  operateParamArray.getJSONObject(i);
+                                JSONArray paramArray = (JSONArray) params.get(key);
+                                if (paramArray != null) {
+                                    for (int j = 0; j < paramArray.size(); j++) {
+                                        paramValue =  paramArray.getString(j);
+                                        //在此处判断spring bean查询;的方法参数类型
+                                        Object objData = getOperateBeforeData(paramType, serviceClass, queryMethod, paramValue);
+                                        // 获取查询数据对象上的注解信息
+                                        Table tableAnnotation = objData.getClass().getAnnotation(Table.class);
+                                        if (StringUtils.isBlank(tableName)) {
+                                            tableName = tableAnnotation.catalog();
+                                        }
+                                        //JSONObject json = (JSONObject) JSON.toJSON(data);
+                                        //beforeParamArray.add(json);
+                                    }
                                 }
                             }
-                        }
-                        log.setBeforeParams(beforeParamArray.toJSONString());
-
-                    }else{//单量操作
-
-                        //从请求的参数中解析出查询key对应的value值
-                        String value = "";
-                        for (int i = 0; i < operateParamArray.size(); i++) {
-                            JSONObject params =  operateParamArray.getJSONObject(i);
-                            value = params.getString(key);
-                            if(StringUtils.isNotBlank(value)){
-                                break;
+                        } else {
+                            // 单量操作
+                            for (int i = 0; i < operateParamArray.size(); i++) {
+                                JSONObject params =  operateParamArray.getJSONObject(i);
+                                paramValue = params.getString(key);
+                                if(StringUtils.isNotBlank(paramValue)){
+                                    break;
+                                }
+                            }
+                            //查询根据参数历史数据
+                            Object objData = getOperateBeforeData(paramType, serviceClass, queryMethod, paramValue);
+                            // 获取查询数据对象上的注解信息
+                            Table tableAnnotation = objData.getClass().getAnnotation(Table.class);
+                            if (StringUtils.isBlank(tableName)) {
+                                tableName = tableAnnotation.catalog();
                             }
                         }
-                        //在此处获取操作前的spring bean的查询方法
-                        Object data = getOperateBeforeData(paramType, serviceClass, queryMethod, value);
-                        JSONObject beforeParam = (JSONObject) JSON.toJSON(data);
-                        log.setBeforeParams(beforeParam.toJSONString());
                     }
                 }
-
+                logRecord.setTableName(tableName);
                 try {
                     //执行页面请求模块方法，并返回
                     object = joinPoint.proceed();
@@ -196,34 +225,26 @@ public class ControllerLogAopAspect {
                     logRecord.setResponseEndTime(new Date());
                     //将object 转化为controller封装返回的实体类：RequestResult
                     ResultInfo requestResult = (ResultInfo) object;
-                    if(requestResult.isResult()){
-                        //操作流程成功
-                        if(StringUtils.isNotBlank(requestResult.getErrMsg())){
-                            log.setResultMsg(requestResult.getErrMsg());
-                        }else if(requestResult.getData() instanceof String){
-                            log.setResultMsg((String) requestResult.getData());
-                        }else{
-                            log.setResultMsg("执行成功");
-                        }
+                    logRecord.setResultMessage(JSON.toJSONString(requestResult));
+                    if(requestResult.getSuccess()){
+                      logRecord.setOperateStatus((byte) 0);
                     }else{
-                        log.setResultMsg("失败");
+                      logRecord.setOperateStatus((byte) 1);
                     }
-                    //保存进数据库
-                    logservice.saveLog(log);
                 } catch (Throwable e) {
-                    String endTime = new SimpleDateFormat(FucdnStrConstant.YEAR_MONTH_DAY_HOUR_MINUTE_SECOND.getConstant()).format(new Date());
-                    log.setEndTime(endTime);
-
-                    log.setResultMsg(e.getMessage());
-                    logservice.saveLog(log);
+                    logRecord.setResultMessage(e.getMessage());
+                    logRecord.setLogType((byte)1);
+                    logRecord.setOperateStatus((byte) 1);
                 }
+                //保存进数据库
+                logAsyncTask.pushLog(logRecord);
             } else {
                 //没有包含注解
-                object = pjp.proceed();
+                object = joinPoint.proceed();
             }
         } else {
             //不需要拦截直接执行
-            object = pjp.proceed();
+            object = joinPoint.proceed();
         }
         return object;
     }
@@ -241,34 +262,67 @@ public class ControllerLogAopAspect {
      * @see [相关类/方法](可选)
      * @since [产品/模块版本](可选)
      */
-    public Object getOperateBeforeData(String paramType,String serviceClass,String queryMethod,String value){
+    public Object getOperateBeforeData(String paramType,String serviceClass,String queryMethod, String value){
         Object obj = new Object();
-        //在此处解析请求的参数类型，根据id查询数据，id类型有四种：int，Integer,long,Long
-        if(paramType.equals("int")){
+        Method  mh = ReflectionUtils.findMethod(ApplicationContextUtils.getBean(serviceClass).getClass(), queryMethod,Long.class );
+        //在此处解析请求的参数类型，根据id查询数据，id类型有：int，Integer,long,Long, List<Long>
+        if (paramType.equals("int")) {
             int id = Integer.parseInt(value);
-            Method  mh = ReflectionUtils.findMethod(SpringContextUtil.getBean(serviceClass).getClass(), queryMethod,Long.class );
-            //用spring bean获取操作前的参数,此处需要注意：传入的id类型与bean里面的参数类型需要保持一致
-            obj = ReflectionUtils.invokeMethod(mh,  SpringContextUtil.getBean(serviceClass),id);
-
-        }else if(paramType.equals("Integer")){
+            //用spring bean获取操作前的参数,传入的id类型与bean里面的参数类型需要保持一致
+            obj = ReflectionUtils.invokeMethod(mh,  ApplicationContextUtils.getBean(serviceClass),id);
+        } else if (paramType.equals("Integer")) {
             Integer id = Integer.valueOf(value);
-            Method  mh = ReflectionUtils.findMethod(SpringContextUtil.getBean(serviceClass).getClass(), queryMethod,Long.class );
-            //用spring bean获取操作前的参数,此处需要注意：传入的id类型与bean里面的参数类型需要保持一致
-            obj = ReflectionUtils.invokeMethod(mh,  SpringContextUtil.getBean(serviceClass),id);
-
-        }else if(paramType.equals("long")){
+            obj = ReflectionUtils.invokeMethod(mh,  ApplicationContextUtils.getBean(serviceClass),id);
+        } else if (paramType.equals("long")) {
             long id = Long.parseLong(value);
-            Method  mh = ReflectionUtils.findMethod(SpringContextUtil.getBean(serviceClass).getClass(), queryMethod,Long.class );
-            //用spring bean获取操作前的参数,此处需要注意：传入的id类型与bean里面的参数类型需要保持一致
-            obj = ReflectionUtils.invokeMethod(mh,  SpringContextUtil.getBean(serviceClass),id);
-
-        }else if(paramType.equals("Long")){
+            obj = ReflectionUtils.invokeMethod(mh,  ApplicationContextUtils.getBean(serviceClass),id);
+        } else if (paramType.equals("Long")) {
             Long id = Long.valueOf(value);
-            Method  mh = ReflectionUtils.findMethod(SpringContextUtil.getBean(serviceClass).getClass(), queryMethod,Long.class );
-            //用spring bean获取操作前的参数,此处需要注意：传入的id类型与bean里面的参数类型需要保持一致
-            obj = ReflectionUtils.invokeMethod(mh,  SpringContextUtil.getBean(serviceClass),id);
+            obj = ReflectionUtils.invokeMethod(mh,  ApplicationContextUtils.getBean(serviceClass),id);
+        } else if (paramType.equals("List<Long>")) {
+            List<Long> ids = SystemUtils.idToLong(value);
+            obj = ReflectionUtils.invokeMethod(mh,  ApplicationContextUtils.getBean(serviceClass), ids);
         }
         return obj;
     }
 
+    /**
+     * 构建变更记录
+     * @param beforeObject  修改之前数据
+     * @param afterObject   修改之后数据
+     * @param logId  操作日志记录ID
+     * @return
+     */
+    private List<ChangeRecordLogDto> buildChangeRecordLogList(String logId, Object beforeObject, Object afterObject) {
+        List<ChangeRecordLogDto> recordLogList = new CopyOnWriteArrayList<>();
+        //获取字段描述
+        Map<String, String> fieldMap = CustomerFieldParser.getAllDesc(beforeObject);
+        if (fieldMap.size() > 0) {
+            // 修改之前数据对象
+            Map<String, Object> beforeObjectMap = JSONObject.parseObject(JSON.toJSONString(beforeObject), new TypeReference<Map<String, Object>>(){});
+            // 修改之后数据对象
+            Map<String, Object> afterObjectMap = JSONObject.parseObject(JSON.toJSONString(afterObject), new TypeReference<Map<String, Object>>(){});
+            for (Map.Entry<String, Object> entry : beforeObjectMap.entrySet()) {
+                String key = entry.getKey();
+                String beforeValue = entry.getValue() != null ? String.valueOf(entry.getValue()) : "";
+                // 判断字段是否需要记录日志
+                if (fieldMap.containsKey(key)) {
+                    String afterValue = afterObjectMap.get(key)!= null ? String.valueOf(afterObjectMap.get(key)) : "";
+                    ChangeRecordLogDto recordLog = new ChangeRecordLogDto();
+                    recordLog.setLogId(logId);
+                    recordLog.setFieldName(ChangeCharUtil.camelToUnderline(key, 1));
+                    recordLog.setFieldDescription(fieldMap.get(key));
+                    recordLog.setBeforeValue(beforeValue);
+                    recordLog.setAfterValue(afterObjectMap.get(key) != null ? String.valueOf(afterObjectMap.get(key)) : "");
+                    if (afterValue.equals(beforeValue)) {
+                        recordLog.setChangeStatus((byte) 0);
+                    } else {
+                        recordLog.setChangeStatus((byte) 1);
+                    }
+                    recordLogList.add(recordLog);
+                }
+            }
+        }
+        return recordLogList;
+    }
 }

@@ -35,7 +35,7 @@ public @interface ControllerMethodLog {
     /** 是否为批量类型操作 */
     boolean paramIsArray() default false;
     /** 查询详情的参数类型 例如： Long */
-    String parameterType() default "";
+    String parameterType() default "Long";
     /** 需要的查询字段 例如：id */
-    String parameterKey() default "";
+    String parameterKey() default "id";
 }
