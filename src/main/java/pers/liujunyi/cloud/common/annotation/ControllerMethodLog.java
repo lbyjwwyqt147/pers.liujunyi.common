@@ -27,11 +27,11 @@ public @interface ControllerMethodLog {
     /** 日志类型 0:正常请求日志  1:异常日志 3: 登录日志  4：登出日志 */
     byte logType() default 0;
     /** service bean 名称*/
-    String serviceClass() default "";
+    Class serviceClass();
+    /** 业务实体类 名称*/
+    Class entityBeanClass();
     /** 查询数据的方法名称 */
     String findDataMethod() default "findById";
-    /** 业务实体类 名称*/
-    String entityBeanClass() default "";
     /** 是否为批量类型操作 */
     boolean paramIsArray() default false;
     /** 查询详情的参数类型 例如： Long */

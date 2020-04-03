@@ -73,8 +73,11 @@ public class OperateLogRecordsDto extends BaseDto {
     /** 响应结束时间 */
     private Date responseEndTime;
 
-    /** 消耗时间(秒) */
+    /** 消耗时间(ms) */
     private Long expendTime;
+
+    /** 异常信息 */
+    private String errorMessage;
 
     /** 操作结果 */
     private String resultMessage;

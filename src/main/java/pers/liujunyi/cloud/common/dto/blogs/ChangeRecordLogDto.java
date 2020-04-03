@@ -19,6 +19,7 @@ import pers.liujunyi.cloud.common.dto.BaseDto;
 public class ChangeRecordLogDto  extends BaseDto {
 
 
+    private static final long serialVersionUID = 7057562003650188372L;
     /** 操作日志id */
     private String logId;
 

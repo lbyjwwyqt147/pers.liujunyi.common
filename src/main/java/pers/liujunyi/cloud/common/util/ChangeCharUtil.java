@@ -26,9 +26,11 @@ public class ChangeCharUtil {
                 sb.append(UNDERLINE);
             }
             if (charType == 2) {
-                sb.append(Character.toUpperCase(c));  //统一都转大写
+                //统一都转大写
+                sb.append(Character.toUpperCase(c));
             } else {
-                sb.append(Character.toLowerCase(c));  //统一都转小写
+                //统一都转小写
+                sb.append(Character.toLowerCase(c));
             }
 
 
