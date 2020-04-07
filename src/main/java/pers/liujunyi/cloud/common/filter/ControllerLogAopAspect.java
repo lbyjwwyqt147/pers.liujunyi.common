@@ -93,32 +93,36 @@ public class ControllerLogAopAspect {
         try {
             method = target.getClass().getMethod(methodName, parameterTypes);
         } catch (NoSuchMethodException e1) {
-            log.error("ControllerLogAopAspect around error",e1);
+            log.error("ControllerLogAopAspect around error", e1);
         } catch (SecurityException e1) {
-            log.error("ControllerLogAopAspect around error",e1);
+            log.error("ControllerLogAopAspect around error", e1);
         }
         if (null != method) {
             // 判断是否包含自定义的注解，ControllerMethodLog是自定义的注解
             if (method.isAnnotationPresent(ControllerMethodLog.class)) {
                 // 获取方法上自定义日志注解数据
                 ControllerMethodLog systemLog = method.getAnnotation(ControllerMethodLog.class);
-                if (systemLog.operType() == OperateLogType.UPDATE) {
-                    //判断是否需要进行操作前的对象参数查询
-                    if (StringUtils.isNotBlank(systemLog.parameterKey())
-                            && StringUtils.isNotBlank(systemLog.parameterType())
-                            && StringUtils.isNotBlank(systemLog.findDataMethod())) {
-                        // 参数是否是一组数据
-                        boolean isArrayResult = systemLog.paramIsArray();
-                        if (isArrayResult) {
-                            // 批量更新
-
-                        } else {
-                            // 单个更新
-                            object = this.singlePushLog(joinPoint, httpRequest, methodName, systemLog);
-                        }
+                //判断是否需要进行操作前的对象参数查询
+                if (StringUtils.isNotBlank(systemLog.parameterKey())
+                        && StringUtils.isNotBlank(systemLog.parameterType())
+                        && StringUtils.isNotBlank(systemLog.findDataMethod())) {
+                    // 参数是否是一组数据
+                    boolean isArrayResult = systemLog.paramIsArray();
+                    if (isArrayResult) {
+                        // 批量更新
+                        object = this.batchPushLog(joinPoint, httpRequest, methodName, systemLog);
+                    } else {
+                        // 单个更新
+                        object = this.singlePushLog(joinPoint, httpRequest, methodName, systemLog);
                     }
                 }
+            } else {
+                //没有包含注解
+                object = joinPoint.proceed();
             }
+        } else {
+            //不需要拦截直接执行
+            object = joinPoint.proceed();
         }
         return object;
     }
@@ -157,9 +161,11 @@ public class ControllerLogAopAspect {
         Object afterObject = null;
         boolean update = false;
         if (systemLog.operType() == OperateLogType.UPDATE || StringUtils.isNotBlank(id)) {
-            update = true;
-            //查询修改之前的数据
-            beforeObject = getOperateBeforeData(systemLog.parameterType(), serviceClass, queryMethod, id);
+            if ( systemLog.operType() != OperateLogType.DELETE) {
+                update = true;
+                //查询修改之前的数据
+                beforeObject = this.getOperateBeforeData(systemLog.parameterType(), serviceClass, queryMethod, id);
+            }
         }
         try {
             //执行页面请求模块方法，并返回
@@ -176,7 +182,7 @@ public class ControllerLogAopAspect {
             }
             if (update) {
                 //查询修改之前的数据
-                afterObject = getOperateBeforeData(systemLog.parameterType(), serviceClass, queryMethod, id);
+                afterObject = this.getOperateBeforeData(systemLog.parameterType(), serviceClass, queryMethod, id);
                 // 变更数据日志
                 List<ChangeRecordLogDto> changeRecordList = this.buildChangeRecordLogList(logRecord.getLogId(), beforeObject, afterObject);
                 logRecord.setChangeDataItem(JSON.toJSONString(changeRecordList));
@@ -206,7 +212,7 @@ public class ControllerLogAopAspect {
         Object object = null;
         List<OperateLogRecordsDto> logRecordList = new CopyOnWriteArrayList<>();
         //日志对象
-        OperateLogRecordsDto logRecord =this.logRecordsData(joinPoint, httpRequest, methodName, systemLog);
+        OperateLogRecordsDto logRecord = this.logRecordsData(joinPoint, httpRequest, methodName, systemLog);
 
         String ids = null;
         //获取方法所有参数
@@ -229,10 +235,10 @@ public class ControllerLogAopAspect {
         // 修改之后的数据
         Object afterObject = null;
         boolean update = false;
-        if (systemLog.operType() == OperateLogType.UPDATE || StringUtils.isNotBlank(ids)) {
+        if (systemLog.operType() == OperateLogType.UPDATE && StringUtils.isNotBlank(ids)) {
             update = true;
             //查询修改之前的数据
-            beforeObject = getOperateBeforeData(parameterType, serviceClass, queryMethod, ids);
+            beforeObject = this.getOperateBeforeData(parameterType, serviceClass, queryMethod, ids);
         }
         try {
             //执行页面请求模块方法，并返回
@@ -249,24 +255,41 @@ public class ControllerLogAopAspect {
             }
             if (update) {
                 //查询修改之前的数据
-                afterObject = getOperateBeforeData(parameterType, serviceClass, queryMethod, ids);
+                afterObject = this.getOperateBeforeData(parameterType, serviceClass, queryMethod, ids);
                 List<Object> beforeObjectList = (List<Object>) beforeObject;
                 List<Object> afterObjectList = (List<Object>) afterObject;
-
-
-                // 变更数据日志
-                List<ChangeRecordLogDto> changeRecordList = this.buildChangeRecordLogList(logRecord.getLogId(), beforeObject, afterObject);
-                logRecord.setChangeDataItem(JSON.toJSONString(changeRecordList));
+                for (Object beforeObj : beforeObjectList) {
+                    JSONObject beforeJsonObj = (JSONObject) JSON.toJSON(beforeObj);
+                    for (Object afterObj : afterObjectList) {
+                        JSONObject afterJsonObj = (JSONObject) JSON.toJSON(afterObj);
+                        if (beforeJsonObj.getLongValue("id") == afterJsonObj.getLongValue("id")) {
+                            OperateLogRecordsDto logRecordsDto = DozerBeanMapperUtil.copyProperties(logRecord, OperateLogRecordsDto.class);
+                            String logId = UUID.randomUUID().toString().replaceAll("-", "");
+                            logRecordsDto.setLogId(logId);
+                            // 变更数据日志
+                            List<ChangeRecordLogDto> changeRecordList = this.buildChangeRecordLogList(logId, beforeJsonObj, afterJsonObj);
+                            logRecordsDto.setChangeDataItem(JSON.toJSONString(changeRecordList));
+                            logRecordsDto.setExpendTime(logRecord.getResponseEndTime().getTime() - logRecord.getResponseStartTime().getTime());
+                            logRecordList.add(logRecordsDto);
+                        }
+                    }
+                }
             }
         } catch (Throwable e) {
             logRecord.setErrorMessage(e.getMessage());
             logRecord.setResultMessage(JSON.toJSONString(object));
             logRecord.setLogType((byte)1);
             logRecord.setOperateStatus((byte) 1);
+            update = false;
         }
-        logRecord.setExpendTime(logRecord.getResponseEndTime().getTime() - logRecord.getResponseStartTime().getTime());
-        //保存进数据库
-        logAsyncTask.pushLog(logRecord);
+        if (!update) {
+            logRecord.setExpendTime(logRecord.getResponseEndTime().getTime() - logRecord.getResponseStartTime().getTime());
+            logRecordList.add(logRecord);
+        }
+        for (OperateLogRecordsDto logRecordsDto : logRecordList) {
+            //保存进数据库
+            logAsyncTask.pushLog(logRecordsDto);
+        }
         return object;
     }
 
@@ -286,6 +309,7 @@ public class ControllerLogAopAspect {
         //获取系统时间
         logRecord.setResponseStartTime(new Date());
         logRecord.setIpAddress(HttpClientUtils.getIpAddress(httpRequest));
+        logRecord.setParameters(JSON.toJSONString(httpRequest.getParameterNames()));
         //获取登录用户
         UserDetails user = this.userUtils.getCurrentUserDetail();
         long adminUserId = user.getUserId();
