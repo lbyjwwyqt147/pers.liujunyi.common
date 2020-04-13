@@ -1,13 +1,14 @@
 package pers.liujunyi.cloud.common.util;
 
-import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.ReflectionUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import pers.liujunyi.cloud.common.vo.BaseRedisKeys;
 import pers.liujunyi.cloud.common.vo.user.UserDetails;
 
 import javax.servlet.http.HttpServletRequest;
+import java.lang.reflect.Method;
 
 /***
  *
@@ -57,13 +58,9 @@ public class UserContext {
      * @return
      */
     public static UserDetails currentUser() {
-        HttpServletRequest request = ((ServletRequestAttributes) (RequestContextHolder.currentRequestAttributes())).getRequest();
-        Object user = request.getAttribute(BaseRedisKeys.USER_INFO);
-        UserDetails userDetailsDto = new UserDetails();
-        if (user != null) {
-            userDetailsDto = JSONObject.parseObject(user.toString(), UserDetails.class);
-        }
-        return userDetailsDto;
+        Method mh = ReflectionUtils.findMethod(ApplicationContextUtils.getBean(UserUtils.class).getClass(), "getCurrentUserDetail");
+        Object obj = ReflectionUtils.invokeMethod(mh,  ApplicationContextUtils.getBean(UserUtils.class));
+        return (UserDetails) obj;
     }
 
 
