@@ -52,6 +52,19 @@ public class UserContext {
         return null;
     }
 
+    /**
+     * 获取当前用户token
+     * @return
+     */
+    public static String currentUserToken() {
+        HttpServletRequest request = ((ServletRequestAttributes) (RequestContextHolder.currentRequestAttributes())).getRequest();
+        String token = request.getHeader("Authorization");
+        if (token != null) {
+            return token;
+        } else {
+            return TokenLocalContext.getToken();
+        }
+    }
 
     /**
      * 获取当前用户信息

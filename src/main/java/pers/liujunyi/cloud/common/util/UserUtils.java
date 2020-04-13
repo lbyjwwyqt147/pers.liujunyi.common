@@ -102,7 +102,7 @@ public class UserUtils {
      * @return
      */
     public UserDetails getCurrentUserDetail(){
-        UserDetails userDetail = this.getUserByToken(TokenLocalContext.getToken());
+        UserDetails userDetail = this.getUserByToken(UserContext.currentUserToken());
         if (userDetail == null) {
             userDetail = this.getUserById(UserContext.currentUserId());
             if (userDetail == null) {
