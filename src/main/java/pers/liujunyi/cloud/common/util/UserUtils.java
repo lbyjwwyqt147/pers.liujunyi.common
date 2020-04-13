@@ -1,11 +1,13 @@
 package pers.liujunyi.cloud.common.util;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import pers.liujunyi.cloud.common.redis.RedisTemplateUtils;
-import pers.liujunyi.cloud.common.vo.BaseRedisKeys;
+import org.springframework.web.client.RestTemplate;
+import pers.liujunyi.cloud.common.restful.ResultInfo;
 import pers.liujunyi.cloud.common.vo.user.UserDetails;
 
 /***
@@ -21,25 +23,66 @@ import pers.liujunyi.cloud.common.vo.user.UserDetails;
 @Component
 public class UserUtils {
 
+    @Value("${data.user.client}")
+    private String userClient;
+
     @Autowired
-    private RedisTemplateUtils redisTemplateUtils;
+    private RestTemplate restTemplate;
+
+    /**
+     * 获取当前登录用户信息
+     * @param token
+     * @param userId
+     * @return
+     */
+    public UserDetails getCurrentUser(String token, Long userId) {
+        UserDetails userDetails = null;
+        userDetails = this.getUserByToken(token);
+        if (userDetails == null && userId != null) {
+            userDetails = this.getUserById(userId);
+            if (userDetails == null) {
+                userDetails = new UserDetails();
+                userDetails.setUserId(0L);
+                userDetails.setLessee(0L);
+            }
+        }
+        return userDetails;
+    }
 
     /**
      * 根据token 获取用户信息
      * @param token
      * @return
      */
-    public UserDetails getUser(String token){
+    public UserDetails getUserByToken(String token){
         if (StringUtils.isNotBlank(token)) {
-            String userKey =  BaseRedisKeys.USER_LOGIN_TOKNE;
-            Object object = redisTemplateUtils.hget(userKey, token);
-            if (object != null && !object.toString().trim().equals("")){
-                UserDetails userDetail = JSON.parseObject(object.toString(), UserDetails.class);
-                return userDetail;
+            String requestUrl = userClient + "/ignore/accounts/token?token=" + token;
+            String result = restTemplate.getForObject(requestUrl, String.class);
+            ResultInfo resultInfo = JSONObject.parseObject(result, ResultInfo.class);
+            if (resultInfo.getSuccess()) {
+                return JSONObject.parseObject(JSON.toJSONString(resultInfo.getData()), UserDetails.class);
             }
         }
         return null;
     }
+
+    /**
+     * 根据id 获取用户信息
+     * @param userId
+     * @return
+     */
+    public UserDetails getUserById(Long userId){
+        if (userId != null) {
+            String requestUrl = userClient + "/ignore/accounts/id?id=" + userId;
+            String result = restTemplate.getForObject(requestUrl, String.class);
+            ResultInfo resultInfo = JSONObject.parseObject(result, ResultInfo.class);
+            if (resultInfo.getSuccess()) {
+                return JSONObject.parseObject(JSON.toJSONString(resultInfo.getData()), UserDetails.class);
+            }
+        }
+        return null;
+    }
+
 
     /**
      * 根据token　获取用户id
@@ -47,7 +90,7 @@ public class UserUtils {
      * @return
      */
     public Long getUserId(String token) {
-        UserDetails userDetails = this.getUser(token);
+        UserDetails userDetails = this.getUserByToken(token);
         if (userDetails != null) {
             return userDetails.getUserId();
         }
@@ -59,11 +102,14 @@ public class UserUtils {
      * @return
      */
     public UserDetails getCurrentUserDetail(){
-        UserDetails userDetail = this.getUser(TokenLocalContext.getToken());
+        UserDetails userDetail = this.getUserByToken(TokenLocalContext.getToken());
         if (userDetail == null) {
-            userDetail = new UserDetails();
-            userDetail.setUserId(1L);
-            userDetail.setLessee(1L);
+            userDetail = this.getUserById(UserContext.currentUserId());
+            if (userDetail == null) {
+                userDetail = new UserDetails();
+                userDetail.setUserId(0L);
+                userDetail.setLessee(0L);
+            }
         }
         return userDetail;
     }

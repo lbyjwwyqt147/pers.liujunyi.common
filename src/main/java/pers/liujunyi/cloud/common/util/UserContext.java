@@ -25,7 +25,7 @@ public class UserContext {
         if (userId != null) {
             return Long.valueOf(userId.toString());
         } else {
-            String uid = request.getHeader(BaseRedisKeys.SUBSCRIBER);
+            String uid = request.getHeader(BaseRedisKeys.USER_CUR_ID);
             if (StringUtils.isNotBlank(uid)) {
                 return Long.valueOf(uid);
             }

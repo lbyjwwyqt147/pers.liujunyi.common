@@ -4,7 +4,7 @@ package pers.liujunyi.cloud.common.util;
  * 常量信息
  * @author ljy
  */
-public class UtilConstant {
+public class BaseConstant {
     /** 禁用状态 */
     public static final Byte DISABLE_STATUS = 1;
     /** 启用状态 */
