@@ -2,6 +2,7 @@ package pers.liujunyi.cloud.common.encrypt.filter;
 
 import lombok.extern.log4j.Log4j2;
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.StringUtils;
@@ -33,6 +34,8 @@ import java.util.Set;
  *
  */
 @Log4j2
+@Order(-9999)
+//@Component
 public class SignAuthFilter extends OncePerRequestFilter {
 
 	/** sign 过期时间 */

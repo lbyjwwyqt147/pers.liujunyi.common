@@ -158,4 +158,17 @@ public class ClassUtil {
         }
     }
 
+
+    /**
+     * 判断 对象是否为基本数据类型
+     * @param clz
+     * @return
+     */
+    public static boolean isWrapClass(Class clz) {
+        try {
+            return ((Class) clz.getField("TYPE").get(null)).isPrimitive();
+        } catch (Exception e) {
+            return false;
+        }
+    }
 }

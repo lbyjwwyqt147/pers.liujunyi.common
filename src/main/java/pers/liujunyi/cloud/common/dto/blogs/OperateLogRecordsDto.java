@@ -40,6 +40,9 @@ public class OperateLogRecordsDto extends BaseDto {
     /** 用户IP 地址 */
     private String ipAddress;
 
+    /** 接口地址 */
+    private String urlAddress;
+
     /** 用户类别   0：超级管理员 1：普通管理员 2：内部职工 3：普通用户   */
     private Byte operateUserType;
 
@@ -57,6 +60,9 @@ public class OperateLogRecordsDto extends BaseDto {
 
     /** 操作的表名 */
     private String tableName;
+
+    /** 操作方法名路径 */
+    private String methodPath;
 
     /** 操作方法名 */
     private String operateMethod;
@@ -87,5 +93,8 @@ public class OperateLogRecordsDto extends BaseDto {
 
     /** 变更数据项  */
     private String changeDataItem;
+
+    /** header 信息 */
+    private String headerNames;
 
 }

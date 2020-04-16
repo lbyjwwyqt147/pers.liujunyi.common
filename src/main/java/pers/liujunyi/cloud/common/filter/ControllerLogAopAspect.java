@@ -11,6 +11,7 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.hibernate.annotations.Table;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -25,8 +26,9 @@ import pers.liujunyi.cloud.common.task.LogAsyncTask;
 import pers.liujunyi.cloud.common.util.*;
 import pers.liujunyi.cloud.common.vo.user.UserDetails;
 
-import javax.persistence.Table;
 import javax.servlet.http.HttpServletRequest;
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -51,7 +53,7 @@ public class ControllerLogAopAspect {
     private LogAsyncTask logAsyncTask;
     @Autowired
     private UserUtils userUtils;
-    @Value("(${spring.application.name})")
+    @Value("${spring.application.name}")
     private String applicationName;
 
     /**
@@ -61,9 +63,9 @@ public class ControllerLogAopAspect {
     * @Date: 2020/4/1  13:46
     * @Author:
     **/
-    @Pointcut("execution(* pers.liujunyi.cloud..controller.*.*(..))")
+    @Pointcut("execution(* pers.liujunyi.cloud.*.controller..*.*(..))")
     private void controllerAspect(){
-        System.out.println("point cut start");
+        log.info("point cut start .....");
     }
 
     /**
@@ -100,6 +102,29 @@ public class ControllerLogAopAspect {
         if (null != method) {
             // 判断是否包含自定义的注解，ControllerMethodLog是自定义的注解
             if (method.isAnnotationPresent(ControllerMethodLog.class)) {
+                // 拦截的方法参数
+                Object[] args = joinPoint.getArgs();
+                Map<String, Object> operateParam = new HashMap<>();
+                for (int i = 0; i < args.length; i++) {
+                    Object paramsObj = args[i];
+                    if (paramsObj != null) {
+                        try {
+                            // 判断参数类型是否为基本数据类型与包装类
+                            if(ClassUtil.isWrapClass(paramsObj.getClass())){
+                                operateParam = JSONObject.parseObject(JSON.toJSONString(paramsObj), Map.class);
+                            } else if(paramsObj instanceof Map){
+                                //get请求，以map类型传参
+                                operateParam = (Map<String, Object>) paramsObj;
+                            } else {
+                                operateParam = JSONObject.parseObject(JSON.toJSONString(paramsObj), Map.class);
+                            }
+                        } catch (Exception e) {
+                            break;
+                        }
+                    }
+                }
+                // 获取所有参数的map形式
+                operateParam.putAll(httpRequest.getParameterMap());
                 // 获取方法上自定义日志注解数据
                 ControllerMethodLog systemLog = method.getAnnotation(ControllerMethodLog.class);
                 //判断是否需要进行操作前的对象参数查询
@@ -110,10 +135,10 @@ public class ControllerLogAopAspect {
                     boolean isArrayResult = systemLog.paramIsArray();
                     if (isArrayResult) {
                         // 批量更新
-                        object = this.batchPushLog(joinPoint, httpRequest, methodName, systemLog);
+                        object = this.batchPushLog(joinPoint, httpRequest, methodName, systemLog, target, operateParam);
                     } else {
                         // 单个更新
-                        object = this.singlePushLog(joinPoint, httpRequest, methodName, systemLog);
+                        object = this.singlePushLog(joinPoint, httpRequest, methodName, systemLog, target, operateParam);
                     }
                 }
             } else {
@@ -137,23 +162,18 @@ public class ControllerLogAopAspect {
      * @return
      * @throws Throwable
      */
-    private Object singlePushLog(ProceedingJoinPoint joinPoint, HttpServletRequest httpRequest, String methodName, ControllerMethodLog systemLog) throws Throwable {
+    private Object singlePushLog(ProceedingJoinPoint joinPoint, HttpServletRequest httpRequest, String methodName, ControllerMethodLog systemLog, Object target, Map<String, Object> operateParam) throws Throwable {
         Object object = null;
         //日志对象
-        OperateLogRecordsDto logRecord = this.logRecordsData(joinPoint, httpRequest, methodName, systemLog);
+        OperateLogRecordsDto logRecord = this.logRecordsData(joinPoint, httpRequest, methodName, systemLog, target, operateParam);
         //请求查询操作前数据的spring bean
         String serviceClass = systemLog.serviceClass().getName();
         //请求查询数据的方法
         String queryMethod = systemLog.findDataMethod();
+        // 获取id参数值
         String id = null;
-        //获取方法所有参数
-        Enumeration<String> enu = httpRequest.getParameterNames();
-        while(enu.hasMoreElements()){
-            String paramKey = enu.nextElement();
-            if (paramKey.equals(systemLog.parameterKey())) {
-                id =  httpRequest.getParameter(paramKey);
-                break;
-            }
+        if (operateParam.containsKey(systemLog.parameterKey())){
+            id = String.valueOf(operateParam.get(systemLog.parameterKey()));
         }
         // 修改之前的数据
         Object beforeObject = null;
@@ -208,23 +228,16 @@ public class ControllerLogAopAspect {
      * @return
      * @throws Throwable
      */
-    private Object batchPushLog(ProceedingJoinPoint joinPoint, HttpServletRequest httpRequest, String methodName, ControllerMethodLog systemLog) throws Throwable {
+    private Object batchPushLog(ProceedingJoinPoint joinPoint, HttpServletRequest httpRequest, String methodName, ControllerMethodLog systemLog, Object target, Map<String, Object> operateParam) throws Throwable {
         Object object = null;
         List<OperateLogRecordsDto> logRecordList = new CopyOnWriteArrayList<>();
         //日志对象
-        OperateLogRecordsDto logRecord = this.logRecordsData(joinPoint, httpRequest, methodName, systemLog);
-
+        OperateLogRecordsDto logRecord = this.logRecordsData(joinPoint, httpRequest, methodName, systemLog, target, operateParam);
         String ids = null;
-        //获取方法所有参数
-        Enumeration<String> enu = httpRequest.getParameterNames();
         String paramName =  systemLog.parameterKey() != null && systemLog.parameterKey().equals("id") ? "ids" : systemLog.parameterKey();
         String parameterType = systemLog.parameterType() != null && systemLog.parameterType().equals("Long") ? "List<Long>" : systemLog.parameterType();
-        while(enu.hasMoreElements()){
-            String paramKey = enu.nextElement();
-            if (paramKey.equals(paramName)) {
-                ids =  httpRequest.getParameter(paramKey);
-                break;
-            }
+        if (operateParam.containsKey(paramName)){
+            ids = String.valueOf(operateParam.get(paramName));
         }
         //请求查询操作前数据的spring bean
         String serviceClass = systemLog.serviceClass().getName();
@@ -299,9 +312,10 @@ public class ControllerLogAopAspect {
      * @param httpRequest
      * @param methodName
      * @param systemLog
+     * @param target
      * @return
      */
-    private OperateLogRecordsDto logRecordsData(ProceedingJoinPoint joinPoint, HttpServletRequest httpRequest, String methodName, ControllerMethodLog systemLog) {
+    private OperateLogRecordsDto logRecordsData(ProceedingJoinPoint joinPoint, HttpServletRequest httpRequest, String methodName, ControllerMethodLog systemLog, Object target, Map<String, Object> operateParam) {
         //日志对象
         OperateLogRecordsDto logRecord = new OperateLogRecordsDto();
         String logId = UUID.randomUUID().toString().replaceAll("-", "");
@@ -309,7 +323,17 @@ public class ControllerLogAopAspect {
         //获取系统时间
         logRecord.setResponseStartTime(new Date());
         logRecord.setIpAddress(HttpClientUtils.getIpAddress(httpRequest));
-        logRecord.setParameters(JSON.toJSONString(httpRequest.getParameterNames()));
+        logRecord.setUrlAddress(httpRequest.getRequestURI());
+        logRecord.setParameters(JSON.toJSONString(operateParam));
+        //获取Header所有参数
+        Map<String,String> headers = new HashMap<>();
+        headers.put("Authorization",httpRequest.getHeader("Authorization"));
+        headers.put("sign",httpRequest.getHeader("sign"));
+        headers.put("tenement",httpRequest.getHeader("tenement"));
+        headers.put("userId",httpRequest.getHeader("userId"));
+        headers.put("contentType",httpRequest.getHeader("content-type"));
+        headers.put("host",httpRequest.getHeader("host"));
+        logRecord.setHeaderNames(JSON.toJSONString(headers));
         //获取登录用户
         UserDetails user = this.userUtils.getCurrentUserDetail();
         long adminUserId = user.getUserId();
@@ -320,15 +344,16 @@ public class ControllerLogAopAspect {
         logRecord.setOperateUserType(user.getUserCategory());
         logRecord.setApplicationName(applicationName);
         logRecord.setOperateModule(systemLog.operModule());
+        logRecord.setMethodPath(target.getClass().getName());
         logRecord.setOperateMethod(methodName);
         logRecord.setOperateType(systemLog.operType());
         logRecord.setLogType(systemLog.logType());
         // 表名称
         String tableName = null;
         // 获取实体对象上的注解信息
-        Table tableAnnotation = systemLog.entityBeanClass().getClass().getAnnotation(Table.class);
+        Table tableAnnotation = (Table) systemLog.entityBeanClass().getAnnotation(Table.class);
         if (StringUtils.isBlank(tableName)) {
-            tableName = tableAnnotation.catalog();
+            tableName = tableAnnotation.appliesTo();
         }
         logRecord.setTableName(tableName);
         return logRecord;
@@ -410,4 +435,42 @@ public class ControllerLogAopAspect {
         }
         return recordLogList;
     }
+
+    public static String ReadAsChars(HttpServletRequest request)
+    {
+
+        BufferedReader br = null;
+        StringBuilder sb = new StringBuilder("");
+        try
+        {
+            br = request.getReader();
+            String str;
+            while ((str = br.readLine()) != null)
+            {
+                sb.append(str);
+            }
+            br.close();
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+        finally
+        {
+            if (null != br)
+            {
+                try
+                {
+                    br.close();
+                }
+                catch (IOException e)
+                {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return sb.toString();
+    }
+
+
 }

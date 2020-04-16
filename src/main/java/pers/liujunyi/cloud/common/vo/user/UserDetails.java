@@ -18,7 +18,6 @@ public class UserDetails implements Serializable {
     /** 用户id  */
     private Long userId;
     /** 用户帐号 */
-    @JsonIgnore
     private String userAccounts;
     /** 用户编号  */
     private String userNumber;
