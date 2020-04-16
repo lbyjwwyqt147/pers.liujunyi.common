@@ -1,12 +1,21 @@
 package pers.liujunyi.cloud.common.filter;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
+import pers.liujunyi.cloud.common.util.HttpClientUtils;
 
-import javax.servlet.*;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /***
  * 文件名称: Base
@@ -19,29 +28,48 @@ import java.io.IOException;
  * @version 1.0
  * @author ljy
  */
-@Order(value = -999999)
+@Order(value = -99999999)
 @Component
 @Log4j2
-public class HttpServletRequestReplacedFilter implements Filter{
+public class HttpServletRequestReplacedFilter extends OncePerRequestFilter {
+
+
 
     @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-        //Do nothing
-    }
-
-    @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        ServletRequest requestWrapper = null;
-        log.info(" ==================================== 8888888888888888 ");
-        if(request instanceof HttpServletRequest) {
-            requestWrapper = new BodyReaderHttpServletRequestWrapper((HttpServletRequest) request);
+    protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
+                                    FilterChain filterChain) throws ServletException, IOException {
+        String servletPath = httpServletRequest.getRequestURI();
+        BodyReaderHttpServletRequestWrapper requestWrapper = null;
+        if(httpServletRequest instanceof HttpServletRequest) {
+            requestWrapper = new BodyReaderHttpServletRequestWrapper(httpServletRequest);
+        }
+        if (!servletPath.equals("/heath")) {
+            // 获取url携带的参数信息
+            Map<String, Object> params = HttpClientUtils.getAllRequestParam(httpServletRequest);
+            // 获取 body 参数信息
+            String bodyParams = new String(requestWrapper.getBody(), "utf-8");
+            if (StringUtils.isNotBlank(bodyParams)) {
+                if (params == null) {
+                    params = JSONObject.parseObject(bodyParams, Map.class);
+                } else {
+                    params.putAll(JSONObject.parseObject(bodyParams, Map.class));
+                }
+            }
+            //获取Header所有参数
+            Map<String, String> headers = new HashMap<>();
+            headers.put("Authorization", httpServletRequest.getHeader("Authorization"));
+            headers.put("sign", httpServletRequest.getHeader("sign"));
+            headers.put("tenement", httpServletRequest.getHeader("tenement"));
+            headers.put("userId", httpServletRequest.getHeader("userId"));
+            headers.put("contentType", httpServletRequest.getHeader("content-type"));
+            headers.put("host", httpServletRequest.getHeader("host"));
+            log.info("当前访问的URL地址：" + servletPath + " params：" + JSON.toJSONString(params) + " headers：" + JSON.toJSONString(headers));
         }
         if(null == requestWrapper) {
-            chain.doFilter(request, response);
+            filterChain.doFilter(httpServletRequest, httpServletResponse);
         } else {
-            chain.doFilter(requestWrapper, response);
+            filterChain.doFilter(requestWrapper, httpServletResponse);
         }
-
     }
 
     @Override

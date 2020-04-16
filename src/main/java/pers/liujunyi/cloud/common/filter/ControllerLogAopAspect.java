@@ -55,7 +55,8 @@ public class ControllerLogAopAspect {
     private UserUtils userUtils;
     @Value("${spring.application.name}")
     private String applicationName;
-
+    @Value("${data.logs.client}")
+    private String logServer;
     /**
     * 配置接入点
     * @Description: 指定controller的类进行切面　　@Pointcut("execution(* pers.liujunyi.cloud..controller.*(..))")
@@ -215,7 +216,7 @@ public class ControllerLogAopAspect {
         }
         logRecord.setExpendTime(logRecord.getResponseEndTime().getTime() - logRecord.getResponseStartTime().getTime());
         //保存进数据库
-        logAsyncTask.pushLog(logRecord);
+        logAsyncTask.pushLog(logServer, logRecord);
         return object;
     }
 
@@ -301,7 +302,7 @@ public class ControllerLogAopAspect {
         }
         for (OperateLogRecordsDto logRecordsDto : logRecordList) {
             //保存进数据库
-            logAsyncTask.pushLog(logRecordsDto);
+            logAsyncTask.pushLog(logServer, logRecordsDto);
         }
         return object;
     }
