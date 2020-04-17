@@ -191,8 +191,6 @@ public class ControllerLogAopAspect {
         try {
             //执行页面请求模块方法，并返回
             object = joinPoint.proceed();
-            //获取系统时间
-            logRecord.setResponseEndTime(new Date());
             //将object 转化为controller封装返回的实体类：RequestResult
             ResultInfo requestResult = (ResultInfo) object;
             logRecord.setResultMessage(JSON.toJSONString(requestResult));
@@ -208,12 +206,14 @@ public class ControllerLogAopAspect {
                 List<ChangeRecordLogDto> changeRecordList = this.buildChangeRecordLogList(logRecord.getLogId(), beforeObject, afterObject);
                 logRecord.setChangeDataItem(JSON.toJSONString(changeRecordList));
             }
-        } catch (Throwable e) {
+        } catch (Exception e) {
             logRecord.setErrorMessage(e.getMessage());
             logRecord.setResultMessage(JSON.toJSONString(object));
             logRecord.setLogType((byte)1);
             logRecord.setOperateStatus((byte) 1);
         }
+        //获取系统时间
+        logRecord.setResponseEndTime(new Date());
         logRecord.setExpendTime(logRecord.getResponseEndTime().getTime() - logRecord.getResponseStartTime().getTime());
         //保存进数据库
         logAsyncTask.pushLog(logServer, logRecord);
@@ -257,8 +257,7 @@ public class ControllerLogAopAspect {
         try {
             //执行页面请求模块方法，并返回
             object = joinPoint.proceed();
-            //获取系统时间
-            logRecord.setResponseEndTime(new Date());
+            Date endTime = new Date();
             //将object 转化为controller封装返回的实体类：RequestResult
             ResultInfo requestResult = (ResultInfo) object;
             logRecord.setResultMessage(JSON.toJSONString(requestResult));
@@ -278,26 +277,30 @@ public class ControllerLogAopAspect {
                         JSONObject afterJsonObj = (JSONObject) JSON.toJSON(afterObj);
                         if (beforeJsonObj.getLongValue("id") == afterJsonObj.getLongValue("id")) {
                             OperateLogRecordsDto logRecordsDto = DozerBeanMapperUtil.copyProperties(logRecord, OperateLogRecordsDto.class);
+                            logRecordsDto.setResponseEndTime(endTime);
                             String logId = UUID.randomUUID().toString().replaceAll("-", "");
                             logRecordsDto.setLogId(logId);
                             // 变更数据日志
                             List<ChangeRecordLogDto> changeRecordList = this.buildChangeRecordLogList(logId, beforeJsonObj, afterJsonObj);
                             logRecordsDto.setChangeDataItem(JSON.toJSONString(changeRecordList));
-                            logRecordsDto.setExpendTime(logRecord.getResponseEndTime().getTime() - logRecord.getResponseStartTime().getTime());
+                            logRecordsDto.setExpendTime(logRecord.getResponseEndTime().getTime() - logRecordsDto.getResponseStartTime().getTime());
                             logRecordList.add(logRecordsDto);
                         }
                     }
                 }
             }
-        } catch (Throwable e) {
+            //获取系统时间
+            logRecord.setResponseEndTime(endTime);
+        } catch (Exception e) {
             logRecord.setErrorMessage(e.getMessage());
             logRecord.setResultMessage(JSON.toJSONString(object));
             logRecord.setLogType((byte)1);
             logRecord.setOperateStatus((byte) 1);
             update = false;
         }
+
         if (!update) {
-            logRecord.setExpendTime(logRecord.getResponseEndTime().getTime() - logRecord.getResponseStartTime().getTime());
+            logRecord.setExpendTime(logRecord.getResponseEndTime().getTime() - (logRecord.getResponseStartTime() == null ?  System.currentTimeMillis() : logRecord.getResponseStartTime().getTime()));
             logRecordList.add(logRecord);
         }
         for (OperateLogRecordsDto logRecordsDto : logRecordList) {
@@ -314,7 +317,7 @@ public class ControllerLogAopAspect {
      * @param methodName
      * @param systemLog
      * @param target
-     * @return
+     * @returnoperateUserNumber
      */
     private OperateLogRecordsDto logRecordsData(ProceedingJoinPoint joinPoint, HttpServletRequest httpRequest, String methodName, ControllerMethodLog systemLog, Object target, Map<String, Object> operateParam) {
         //日志对象
@@ -339,6 +342,7 @@ public class ControllerLogAopAspect {
         UserDetails user = this.userUtils.getCurrentUserDetail();
         long adminUserId = user.getUserId();
         logRecord.setOperateUserId(adminUserId);
+        logRecord.setDescription(systemLog.desc());
         logRecord.setOperateUserName(user.getUserName());
         logRecord.setOperateUserAccount(user.getUserAccounts());
         logRecord.setOperateUserNumber(user.getUserNumber());

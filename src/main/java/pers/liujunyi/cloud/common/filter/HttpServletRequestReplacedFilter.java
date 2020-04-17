@@ -4,10 +4,13 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import pers.liujunyi.cloud.common.encrypt.AesEncryptUtils;
 import pers.liujunyi.cloud.common.util.HttpClientUtils;
+import pers.liujunyi.cloud.common.util.JsonUtils;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -33,7 +36,8 @@ import java.util.Map;
 @Log4j2
 public class HttpServletRequestReplacedFilter extends OncePerRequestFilter {
 
-
+    @Value("${spring.encrypt.secretKey}")
+    private  String secretKey;
 
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
@@ -43,7 +47,7 @@ public class HttpServletRequestReplacedFilter extends OncePerRequestFilter {
         if(httpServletRequest instanceof HttpServletRequest) {
             requestWrapper = new BodyReaderHttpServletRequestWrapper(httpServletRequest);
         }
-        if (!servletPath.equals("/heath")) {
+        if (!servletPath.equals("/heath") && !servletPath.equals("/") && !servletPath.equals("/oauth/token")) {
             // 获取url携带的参数信息
             Map<String, Object> params = HttpClientUtils.getAllRequestParam(httpServletRequest);
             // 获取 body 参数信息
@@ -52,7 +56,12 @@ public class HttpServletRequestReplacedFilter extends OncePerRequestFilter {
                 if (params == null) {
                     params = JSONObject.parseObject(bodyParams, Map.class);
                 } else {
-                    params.putAll(JSONObject.parseObject(bodyParams, Map.class));
+                    try {
+                        params.putAll(JSONObject.parseObject(bodyParams, Map.class));
+                    } catch (Exception e) {
+                        String decryptBody = AesEncryptUtils.aesDecrypt(bodyParams, secretKey.trim());
+                        params.putAll(JsonUtils.getMapper().readValue(decryptBody, Map.class));
+                    }
                 }
             }
             //获取Header所有参数
@@ -63,7 +72,7 @@ public class HttpServletRequestReplacedFilter extends OncePerRequestFilter {
             headers.put("userId", httpServletRequest.getHeader("userId"));
             headers.put("contentType", httpServletRequest.getHeader("content-type"));
             headers.put("host", httpServletRequest.getHeader("host"));
-            log.info("当前访问的URL地址：" + servletPath + " params：" + JSON.toJSONString(params) + " headers：" + JSON.toJSONString(headers));
+            log.info("当前访问的URL地址：【" + servletPath + "】 params：" + JSON.toJSONString(params) + " headers：" + JSON.toJSONString(headers));
         }
         if(null == requestWrapper) {
             filterChain.doFilter(httpServletRequest, httpServletResponse);

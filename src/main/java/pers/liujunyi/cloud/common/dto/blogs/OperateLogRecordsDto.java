@@ -49,6 +49,9 @@ public class OperateLogRecordsDto extends BaseDto {
     /** 操作模块 */
     private String operateModule;
 
+    /** 说明 */
+    private String description;
+
     /** 应用名称 */
     private String applicationName;
 
@@ -66,9 +69,6 @@ public class OperateLogRecordsDto extends BaseDto {
 
     /** 操作方法名 */
     private String operateMethod;
-
-    /** 说明 */
-    private String explain;
 
     /** 参数 */
     private String parameters;

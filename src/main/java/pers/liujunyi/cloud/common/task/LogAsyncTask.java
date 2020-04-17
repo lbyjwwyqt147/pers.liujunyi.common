@@ -2,7 +2,12 @@ package pers.liujunyi.cloud.common.task;
 
 import com.alibaba.fastjson.JSON;
 import lombok.extern.log4j.Log4j2;
+import org.frameworkset.util.StandardCharsets;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -29,7 +34,14 @@ public class LogAsyncTask {
 
     @Async
    public void pushLog(String url, OperateLogRecordsDto logRecords) {
-        this.restTemplate.postForObject(url + "ignore/logs/records/s", JSON.toJSONString(logRecords), ResultInfo.class );
+        // 设置restemplate编码为utf-8
+        restTemplate.getMessageConverters().set(1,new StringHttpMessageConverter(StandardCharsets.UTF_8));
+        MediaType type = MediaType.parseMediaType("application/json;charset=UTF-8");
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(type);
+        headers.add("Accept", MediaType.APPLICATION_JSON.toString());
+        HttpEntity<String> entity = new HttpEntity<>(JSON.toJSONString(logRecords));
+        this.restTemplate.postForObject(url + "ignore/logs/records/s", entity, ResultInfo.class );
     }
 
 
