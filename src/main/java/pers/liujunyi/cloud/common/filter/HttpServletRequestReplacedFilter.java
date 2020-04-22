@@ -5,12 +5,12 @@ import com.alibaba.fastjson.JSONObject;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import pers.liujunyi.cloud.common.encrypt.AesEncryptUtils;
 import pers.liujunyi.cloud.common.util.HttpClientUtils;
 import pers.liujunyi.cloud.common.util.JsonUtils;
+import pers.liujunyi.cloud.common.util.SystemUtils;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -31,7 +31,6 @@ import java.util.Map;
  * @version 1.0
  * @author ljy
  */
-@Order(value = -99999999)
 @Component
 @Log4j2
 public class HttpServletRequestReplacedFilter extends OncePerRequestFilter {
@@ -50,18 +49,20 @@ public class HttpServletRequestReplacedFilter extends OncePerRequestFilter {
         if (!servletPath.equals("/heath") && !servletPath.equals("/") && !servletPath.equals("/oauth/token")) {
             // 获取url携带的参数信息
             Map<String, Object> params = HttpClientUtils.getAllRequestParam(httpServletRequest);
+            log.info("Method = " + httpServletRequest.getMethod());
             // 获取 body 参数信息
-            String bodyParams = new String(requestWrapper.getBody(), "utf-8");
+            String bodyParams = new String(requestWrapper.getBody(), "ISO-8859-1");
             if (StringUtils.isNotBlank(bodyParams)) {
-                if (params == null) {
-                    params = JSONObject.parseObject(bodyParams, Map.class);
+                if (params == null ) {
+                    params = new HashMap<>();
+                }
+                if (JsonUtils.isjson(bodyParams)) {
+                    params.putAll(JSONObject.parseObject(bodyParams, Map.class));
+                } else if (SystemUtils.isBase64(bodyParams)) {
+                    String decryptBody = AesEncryptUtils.aesDecrypt(bodyParams, secretKey.trim());
+                    params.putAll(JsonUtils.getMapper().readValue(decryptBody, Map.class));
                 } else {
-                    try {
-                        params.putAll(JSONObject.parseObject(bodyParams, Map.class));
-                    } catch (Exception e) {
-                        String decryptBody = AesEncryptUtils.aesDecrypt(bodyParams, secretKey.trim());
-                        params.putAll(JsonUtils.getMapper().readValue(decryptBody, Map.class));
-                    }
+                    params.putAll(HttpClientUtils.paramToMap(bodyParams));
                 }
             }
             //获取Header所有参数

@@ -173,6 +173,29 @@ public final class HttpClientUtils {
     }
 
     /**
+     * url 参数转Map
+     * orderNum=xxx&url=http://www.baidu.com?orderNum=11111
+     * @param paramStr
+     * @return
+     */
+    public static Map<String, Object> paramToMap(String paramStr) {
+        String[] params = paramStr.split("&");
+        Map<String, Object> resMap = new HashMap<>();
+        for (int i = 0; i < params.length; i++) {
+            String[] param = params[i].split("=");
+            if (param.length >= 2) {
+                String key = param[0];
+                Object value = param[1];
+                for (int j = 2; j < param.length; j++) {
+                    value += "=" + param[j];
+                }
+                resMap.put(key, value);
+            }
+        }
+        return resMap;
+    }
+
+    /**
      * map拼接URL参数
      * @param params
      * @return

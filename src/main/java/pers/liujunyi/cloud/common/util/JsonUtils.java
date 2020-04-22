@@ -1,5 +1,6 @@
 package pers.liujunyi.cloud.common.util;
 
+import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.StringWriter;
@@ -99,4 +100,19 @@ public class JsonUtils {
 	public static ObjectMapper getMapper() {
 		return mapper;
 	}
+
+	/**
+	 * 判断是否是json格式数据
+	 * @param string
+	 * @return
+	 */
+	public static boolean isjson(String string){
+		try {
+			JSONObject.parseObject(string);
+			return  true;
+		} catch (Exception e) {
+			return false;
+		}
+	}
+
 }

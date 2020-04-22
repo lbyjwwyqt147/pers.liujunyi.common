@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 /***
  * 工具类
@@ -69,4 +70,15 @@ public final class SystemUtils {
         }
         return matchers;
     }
+
+    /**
+     * 判断是否是base64编码的字符串
+     * @param str
+     * @return
+     */
+    public static boolean isBase64(String str) {
+        String base64Pattern = "^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{4}|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)$";
+        return Pattern.matches(base64Pattern, str);
+    }
+
 }
