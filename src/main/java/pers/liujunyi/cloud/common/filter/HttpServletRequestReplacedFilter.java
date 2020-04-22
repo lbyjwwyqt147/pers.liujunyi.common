@@ -49,7 +49,6 @@ public class HttpServletRequestReplacedFilter extends OncePerRequestFilter {
         if (!servletPath.equals("/heath") && !servletPath.equals("/") && !servletPath.equals("/oauth/token")) {
             // 获取url携带的参数信息
             Map<String, Object> params = HttpClientUtils.getAllRequestParam(httpServletRequest);
-            log.info("Method = " + httpServletRequest.getMethod());
             // 获取 body 参数信息
             String bodyParams = new String(requestWrapper.getBody(), "ISO-8859-1");
             if (StringUtils.isNotBlank(bodyParams)) {
@@ -73,7 +72,7 @@ public class HttpServletRequestReplacedFilter extends OncePerRequestFilter {
             headers.put("userId", httpServletRequest.getHeader("userId"));
             headers.put("contentType", httpServletRequest.getHeader("content-type"));
             headers.put("host", httpServletRequest.getHeader("host"));
-            log.info("当前访问的URL地址：【" + servletPath + "】 params：" + JSON.toJSONString(params) + " headers：" + JSON.toJSONString(headers));
+            log.info("当前访问的URL地址：【" + servletPath + "】 Method：" + httpServletRequest.getMethod() + " Params：" + JSON.toJSONString(params) + " Headers：" + JSON.toJSONString(headers));
         }
         if(null == requestWrapper) {
             filterChain.doFilter(httpServletRequest, httpServletResponse);
