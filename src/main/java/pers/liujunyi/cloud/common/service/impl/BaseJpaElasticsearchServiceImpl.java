@@ -80,6 +80,11 @@ public class BaseJpaElasticsearchServiceImpl<T, PK extends Serializable> extends
     }
 
     @Override
+    public T findFirstById(Long var1) {
+        return this.baseJpaRepository.findFirstById(var1);
+    }
+
+    @Override
     public boolean existsById(PK id) {
         return this.baseJpaRepository.existsById(id);
     }

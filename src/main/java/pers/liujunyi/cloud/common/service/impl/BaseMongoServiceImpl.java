@@ -84,6 +84,11 @@ public class BaseMongoServiceImpl<T, PK extends Serializable> implements BaseMon
     }
 
     @Override
+    public T findFirstById(Long var1) {
+        return this.baseMongoRepository.findFirstById(var1);
+    }
+
+    @Override
     public boolean existsById(PK id) {
         return this.baseMongoRepository.existsById(id);
     }

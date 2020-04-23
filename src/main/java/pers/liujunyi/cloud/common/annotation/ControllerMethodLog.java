@@ -31,7 +31,7 @@ public @interface ControllerMethodLog {
     /** 业务实体类 名称*/
     Class entityBeanClass();
     /** 查询数据的方法名称 */
-    String findDataMethod() default "findById";
+    String findDataMethod() default "findFirstById";
     /** 是否为批量类型操作 */
     boolean paramIsArray() default false;
     /** 查询详情的参数类型 例如： Long */

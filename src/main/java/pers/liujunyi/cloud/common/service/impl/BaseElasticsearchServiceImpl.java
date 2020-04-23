@@ -78,6 +78,11 @@ public class BaseElasticsearchServiceImpl<T, PK extends Serializable> implements
     }
 
     @Override
+    public T findFirstById(Long var1) {
+        return this.baseElasticsearchRepository.findFirstById(var1);
+    }
+
+    @Override
     public boolean existsById(PK id) {
         return this.baseElasticsearchRepository.existsById(id);
     }

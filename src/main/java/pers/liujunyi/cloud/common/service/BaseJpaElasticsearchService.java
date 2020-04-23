@@ -56,6 +56,13 @@ public interface BaseJpaElasticsearchService<T, PK extends Serializable> extends
     T findById(PK var1);
 
     /**
+     * 根据ID获取数据
+     * @param var1
+     * @return
+     */
+    T findFirstById(Long var1);
+
+    /**
      * 根据主键ID 检查数据是否存在
      * @param id
      * @return

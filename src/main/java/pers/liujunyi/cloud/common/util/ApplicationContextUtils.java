@@ -23,12 +23,11 @@ public class ApplicationContextUtils {
 
     /**
      * 通过name获取 Bean.
-     * @param name
+     * @param name 参数传入要获取的实例的类名 首字母小写，这是默认的
      * @return
      */
     public static Object getBean(String name){
         return applicationContext.getBean(name);
-
     }
 
     /**

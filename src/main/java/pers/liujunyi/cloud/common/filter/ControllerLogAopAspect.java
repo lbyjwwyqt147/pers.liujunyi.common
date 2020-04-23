@@ -1,6 +1,7 @@
 package pers.liujunyi.cloud.common.filter;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import lombok.extern.log4j.Log4j2;
@@ -168,13 +169,14 @@ public class ControllerLogAopAspect {
         //日志对象
         OperateLogRecordsDto logRecord = this.logRecordsData(joinPoint, httpRequest, methodName, systemLog, target, operateParam);
         //请求查询操作前数据的spring bean
-        String serviceClass = systemLog.serviceClass().getName();
+        Class serviceClass = systemLog.serviceClass();
         //请求查询数据的方法
         String queryMethod = systemLog.findDataMethod();
         // 获取id参数值
         String id = null;
         if (operateParam.containsKey(systemLog.parameterKey())){
-            id = String.valueOf(operateParam.get(systemLog.parameterKey()));
+            String[] tmpParam = (String[]) operateParam.get(systemLog.parameterKey());
+            id = tmpParam[0];
         }
         // 修改之前的数据
         Object beforeObject = null;
@@ -203,7 +205,7 @@ public class ControllerLogAopAspect {
                 //查询修改之前的数据
                 afterObject = this.getOperateBeforeData(systemLog.parameterType(), serviceClass, queryMethod, id);
                 // 变更数据日志
-                List<ChangeRecordLogDto> changeRecordList = this.buildChangeRecordLogList(logRecord.getLogId(), beforeObject, afterObject);
+                List<ChangeRecordLogDto> changeRecordList = this.buildChangeRecordLogList(logRecord.getLogId(), systemLog.entityBeanClass(), beforeObject, afterObject);
                 logRecord.setChangeDataItem(JSON.toJSONString(changeRecordList));
             }
         } catch (Exception e) {
@@ -238,10 +240,17 @@ public class ControllerLogAopAspect {
         String paramName =  systemLog.parameterKey() != null && systemLog.parameterKey().equals("id") ? "ids" : systemLog.parameterKey();
         String parameterType = systemLog.parameterType() != null && systemLog.parameterType().equals("Long") ? "List<Long>" : systemLog.parameterType();
         if (operateParam.containsKey(paramName)){
-            ids = String.valueOf(operateParam.get(paramName));
+            List<Long> idsTemp = null;
+            try {
+                String[] tmpParam = (String[]) operateParam.get(paramName);
+                idsTemp = JSONArray.parseArray(tmpParam[0], Long.class);
+            } catch (Exception e) {
+                idsTemp = SystemUtils.idToLong(ids);
+            }
+            ids = StringUtils.join(idsTemp, ",");
         }
         //请求查询操作前数据的spring bean
-        String serviceClass = systemLog.serviceClass().getName();
+        Class serviceClass = systemLog.serviceClass();
         //请求查询数据的方法
         String queryMethod = systemLog.findDataMethod();
         // 修改之前的数据
@@ -281,9 +290,9 @@ public class ControllerLogAopAspect {
                             String logId = UUID.randomUUID().toString().replaceAll("-", "");
                             logRecordsDto.setLogId(logId);
                             // 变更数据日志
-                            List<ChangeRecordLogDto> changeRecordList = this.buildChangeRecordLogList(logId, beforeJsonObj, afterJsonObj);
+                            List<ChangeRecordLogDto> changeRecordList = this.buildChangeRecordLogList(logId, systemLog.entityBeanClass(), beforeJsonObj, afterJsonObj);
                             logRecordsDto.setChangeDataItem(JSON.toJSONString(changeRecordList));
-                            logRecordsDto.setExpendTime(logRecord.getResponseEndTime().getTime() - logRecordsDto.getResponseStartTime().getTime());
+                            logRecordsDto.setExpendTime(logRecordsDto.getResponseEndTime().getTime() - logRecordsDto.getResponseStartTime().getTime());
                             logRecordList.add(logRecordsDto);
                         }
                     }
@@ -300,7 +309,7 @@ public class ControllerLogAopAspect {
         }
 
         if (!update) {
-            logRecord.setExpendTime(logRecord.getResponseEndTime().getTime() - (logRecord.getResponseStartTime() == null ?  System.currentTimeMillis() : logRecord.getResponseStartTime().getTime()));
+            logRecord.setExpendTime( (logRecord.getResponseEndTime() == null ?  System.currentTimeMillis() : logRecord.getResponseEndTime().getTime()) - logRecord.getResponseStartTime().getTime());
             logRecordList.add(logRecord);
         }
         for (OperateLogRecordsDto logRecordsDto : logRecordList) {
@@ -347,19 +356,18 @@ public class ControllerLogAopAspect {
         logRecord.setOperateUserAccount(user.getUserAccounts());
         logRecord.setOperateUserNumber(user.getUserNumber());
         logRecord.setOperateUserType(user.getUserCategory());
+        logRecord.setTenementId(user.getLessee());
         logRecord.setApplicationName(applicationName);
         logRecord.setOperateModule(systemLog.operModule());
         logRecord.setMethodPath(target.getClass().getName());
         logRecord.setOperateMethod(methodName);
         logRecord.setOperateType(systemLog.operType());
         logRecord.setLogType(systemLog.logType());
-        // 表名称
-        String tableName = null;
         // 获取实体对象上的注解信息
         Table tableAnnotation = (Table) systemLog.entityBeanClass().getAnnotation(Table.class);
-        if (StringUtils.isBlank(tableName)) {
-            tableName = tableAnnotation.appliesTo();
-        }
+        // 表名称
+        String tableName = tableAnnotation.appliesTo();
+
         logRecord.setTableName(tableName);
         return logRecord;
     }
@@ -377,9 +385,9 @@ public class ControllerLogAopAspect {
      * @see [相关类/方法](可选)
      * @since [产品/模块版本](可选)
      */
-    public Object getOperateBeforeData(String paramType,String serviceClass,String queryMethod, String value){
+    public Object getOperateBeforeData(String paramType, Class serviceClass, String queryMethod, String value){
         Object obj = new Object();
-        Method  mh = ReflectionUtils.findMethod(ApplicationContextUtils.getBean(serviceClass).getClass(), queryMethod,Long.class );
+         Method  mh = ReflectionUtils.findMethod(ApplicationContextUtils.getBean(serviceClass).getClass(), queryMethod, Long.class );
         //在此处解析请求的参数类型，根据id查询数据，id类型有：int，Integer,long,Long, List<Long>
         if (paramType.equals("int")) {
             int id = Integer.parseInt(value);
@@ -395,6 +403,7 @@ public class ControllerLogAopAspect {
             Long id = Long.valueOf(value);
             obj = ReflectionUtils.invokeMethod(mh,  ApplicationContextUtils.getBean(serviceClass),id);
         } else if (paramType.equals("List<Long>")) {
+            mh = ReflectionUtils.findMethod(ApplicationContextUtils.getBean(serviceClass).getClass(), queryMethod, List.class );
             List<Long> ids = SystemUtils.idToLong(value);
             obj = ReflectionUtils.invokeMethod(mh,  ApplicationContextUtils.getBean(serviceClass), ids);
         }
@@ -408,10 +417,11 @@ public class ControllerLogAopAspect {
      * @param logId  操作日志记录ID
      * @return
      */
-    private List<ChangeRecordLogDto> buildChangeRecordLogList(String logId, Object beforeObject, Object afterObject) {
+    private List<ChangeRecordLogDto> buildChangeRecordLogList(String logId, Class entityClass, Object beforeObject, Object afterObject) {
         List<ChangeRecordLogDto> recordLogList = new CopyOnWriteArrayList<>();
         //获取字段描述
-        Map<String, String> fieldMap = CustomerFieldParser.getAllDesc(beforeObject);
+        Map<String, String> fieldMap = CustomerFieldParser.getAllDesc(entityClass.getName());
+        Long tenment = UserContext.currentTenementId();
         if (fieldMap.size() > 0) {
             // 修改之前数据对象
             Map<String, Object> beforeObjectMap = JSONObject.parseObject(JSON.toJSONString(beforeObject), new TypeReference<Map<String, Object>>(){});
@@ -425,10 +435,11 @@ public class ControllerLogAopAspect {
                     String afterValue = afterObjectMap.get(key)!= null ? String.valueOf(afterObjectMap.get(key)) : "";
                     ChangeRecordLogDto recordLog = new ChangeRecordLogDto();
                     recordLog.setLogId(logId);
+                    recordLog.setTenementId(tenment);
                     recordLog.setFieldName(ChangeCharUtil.camelToUnderline(key, 1));
                     recordLog.setFieldDescription(fieldMap.get(key));
                     recordLog.setBeforeValue(beforeValue);
-                    recordLog.setAfterValue(afterObjectMap.get(key) != null ? String.valueOf(afterObjectMap.get(key)) : "");
+                    recordLog.setAfterValue(afterValue);
                     if (afterValue.equals(beforeValue)) {
                         recordLog.setChangeStatus((byte) 0);
                     } else {

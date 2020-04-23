@@ -55,4 +55,10 @@ public interface BaseMongoRepository<T, PK extends Serializable> extends MongoRe
      */
     long deleteByIdIn(List<PK> ids);
 
+    /**
+     * 根据ID获取数据
+     * @param id
+     * @return
+     */
+    T findFirstById(Long id);
 }

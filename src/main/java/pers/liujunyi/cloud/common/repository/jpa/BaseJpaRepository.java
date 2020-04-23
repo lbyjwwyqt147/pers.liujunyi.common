@@ -58,4 +58,10 @@ public interface BaseJpaRepository<T, PK extends Serializable> extends JpaReposi
     @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
     long deleteByIdIn(List<PK> ids);
 
+    /**
+     * 根据ID获取数据
+     * @param id
+     * @return
+     */
+    T findFirstById(Long id);
 }

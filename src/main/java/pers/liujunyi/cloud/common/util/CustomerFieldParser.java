@@ -41,6 +41,7 @@ public class CustomerFieldParser {
                     }
                 }
             }
+            field.setAccessible(false);
         } catch (SecurityException e) {
             log.error(e.getMessage());
             e.printStackTrace();
@@ -68,6 +69,7 @@ public class CustomerFieldParser {
                         break;
                     }
                 }
+                field.setAccessible(false);
             }
         } catch (SecurityException e) {
             log.error(e.getMessage());
@@ -133,6 +135,7 @@ public class CustomerFieldParser {
             if (desc != null && !desc.isEmpty()) {
                 result.put(field.getName(), getDesc(field));
             }
+            field.setAccessible(false);
         }
         return result;
     }

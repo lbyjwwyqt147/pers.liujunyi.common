@@ -27,7 +27,7 @@ public class ApplicationContextProvider implements ApplicationContextAware {
     /**
      * 上下文对象实例
      */
-    private ApplicationContext applicationContext;
+    private  ApplicationContext applicationContext;
 
     /**
      * 实现该接口用来初始化应用程序上下文
@@ -49,7 +49,10 @@ public class ApplicationContextProvider implements ApplicationContextAware {
      * 获取applicationContext
      * @return
      */
-    public ApplicationContext getApplicationContext() {
+    public  ApplicationContext getApplicationContext() {
         return applicationContext;
     }
+
+
+
 }

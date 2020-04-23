@@ -79,6 +79,11 @@ public class BaseJpaMongoServiceImpl<T, PK extends Serializable> extends BaseMon
     }
 
     @Override
+    public T findFirstById(Long var1) {
+        return this.baseJpaRepository.findFirstById(var1);
+    }
+
+    @Override
     public boolean existsById(PK id) {
         return this.baseJpaRepository.existsById(id);
     }

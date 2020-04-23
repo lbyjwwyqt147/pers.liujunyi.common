@@ -58,4 +58,10 @@ public interface BaseElasticsearchRepository<T, PK extends Serializable> extends
      */
     long deleteByIdIn(List<PK> ids);
 
+    /**
+     * 根据ID获取数据
+     * @param id
+     * @return
+     */
+    T findFirstById(Long id);
 }
