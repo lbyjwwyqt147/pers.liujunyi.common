@@ -27,6 +27,7 @@
         <lang3.version>3.9</lang3.version>
         <collections4.version>4.4</collections4.version>
         <fastjson.version>1.2.67</fastjson.version>
+        <mongo-java.version>3.12.3</mongo-java.version>
         <httpclient.version>4.5.12</httpclient.version>
         <commons-codec.version>1.14</commons-codec.version>
         <elasticsearch-rest.version>6.0.6</elasticsearch-rest.version>
@@ -87,7 +88,21 @@
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-starter-logging</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>org.mongodb</groupId>
+                    <artifactId>mongodb-driver</artifactId>
+                </exclusion>
             </exclusions>
+        </dependency>
+        <!-- JTA 保障mysql和mongo 事物回滚 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jta-atomikos</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongo-java-driver</artifactId>
+            <version>${mongo-java.version}</version>
         </dependency>
         <!-- elasticsearch 依赖包  开始 -->
         <dependency>

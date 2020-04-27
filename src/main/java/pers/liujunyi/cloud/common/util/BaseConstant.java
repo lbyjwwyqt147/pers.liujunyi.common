@@ -13,6 +13,7 @@ public class BaseConstant {
     public static final String RESOURCE_ID = "resource_id";
     /** Mongo 事物 */
     public static final String MONGO_DB_MANAGER = "mongoTransactionManager";
+    public static final String TRANSACTION_MANAGER = "transactionManager";
 
     /**
      * 数据状态值
