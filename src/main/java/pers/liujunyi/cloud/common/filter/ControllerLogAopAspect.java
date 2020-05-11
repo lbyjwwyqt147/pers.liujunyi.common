@@ -65,7 +65,7 @@ public class ControllerLogAopAspect {
     * @Date: 2020/4/1  13:46
     * @Author:
     **/
-    @Pointcut("execution(* pers.liujunyi.cloud.*.controller..*.*(..))")
+    @Pointcut("execution(* pers.liujunyi.cloud.*.controller..*.*(..)) || execution(* pers.liujunyi.cloud.*.*.controller..*.*(..))")
     private void controllerAspect(){
         log.info("point cut start .....");
     }
@@ -92,6 +92,7 @@ public class ControllerLogAopAspect {
         }
         msig = (MethodSignature) sig;
         Class[] parameterTypes = msig.getMethod().getParameterTypes();
+        long startTime = System.currentTimeMillis();
         // 获得被拦截的方法
         Method method = null;
         try {
@@ -150,6 +151,12 @@ public class ControllerLogAopAspect {
         } else {
             //不需要拦截直接执行
             object = joinPoint.proceed();
+        }
+        String requestUrl = httpRequest.getRequestURI();
+        if (!requestUrl.equals("/heath") && !requestUrl.equals("/")) {
+            long timeLag = System.currentTimeMillis() - startTime;
+            long seconds = (timeLag % (1000 * 60)) / 1000;
+            log.info(" >>>> 访问的URL地址：【" + requestUrl + "】 响应总共耗时: " + timeLag + "(ms) = "  + seconds + "(s)");
         }
         return object;
     }

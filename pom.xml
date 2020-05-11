@@ -88,21 +88,12 @@
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-starter-logging</artifactId>
                 </exclusion>
-                <exclusion>
-                    <groupId>org.mongodb</groupId>
-                    <artifactId>mongodb-driver</artifactId>
-                </exclusion>
             </exclusions>
         </dependency>
         <!-- JTA 保障mysql和mongo 事物回滚 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-jta-atomikos</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.mongodb</groupId>
-            <artifactId>mongo-java-driver</artifactId>
-            <version>${mongo-java.version}</version>
         </dependency>
         <!-- elasticsearch 依赖包  开始 -->
         <dependency>

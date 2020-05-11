@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.transaction.annotation.Transactional;
+import pers.liujunyi.cloud.common.util.BaseConstant;
 
 import java.io.Serializable;
 import java.util.List;
@@ -55,7 +56,7 @@ public interface BaseJpaRepository<T, PK extends Serializable> extends JpaReposi
      * @param ids
      * @return
      */
-    @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
+    @Transactional(value = BaseConstant.TRANSACTION_MANAGER, rollbackFor = {RuntimeException.class, Exception.class})
     long deleteByIdIn(List<PK> ids);
 
     /**
