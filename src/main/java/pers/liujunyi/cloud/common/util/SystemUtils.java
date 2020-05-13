@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /***
  * 工具类
@@ -69,6 +70,16 @@ public final class SystemUtils {
             matchers[i] = tempAntMatchers[i].trim();
         }
         return matchers;
+    }
+
+    /**
+     * 不需要保护的资源
+     * @param excludeAntMatchers
+     * @return
+     */
+    public static String[] antMatchers(List<String> excludeAntMatchers) {
+        List<String> collect =  excludeAntMatchers.stream().map(String::trim).collect(Collectors.toList());
+        return collect.toArray(new String[collect.size()]);
     }
 
     /**

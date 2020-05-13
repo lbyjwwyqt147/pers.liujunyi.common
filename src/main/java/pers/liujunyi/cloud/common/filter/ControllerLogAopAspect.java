@@ -153,7 +153,7 @@ public class ControllerLogAopAspect {
             object = joinPoint.proceed();
         }
         String requestUrl = httpRequest.getRequestURI();
-        if (!requestUrl.equals("/heath") && !requestUrl.equals("/")) {
+        if (!requestUrl.equals(BaseConstant.HEALTH) && !requestUrl.equals("/")) {
             long timeLag = System.currentTimeMillis() - startTime;
             long seconds = (timeLag % (1000 * 60)) / 1000;
             log.info(" >>>> 访问的URL地址：【" + requestUrl + "】 响应总共耗时: " + timeLag + "(ms) = "  + seconds + "(s)");

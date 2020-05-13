@@ -14,6 +14,8 @@ public class BaseConstant {
     /** Mongo 事物 */
     public static final String MONGO_DB_MANAGER = "mongoTransactionManager";
     public static final String TRANSACTION_MANAGER = "transactionManager";
+    public static final String HEALTH = "/heath";
+    public static final String OAUTH_AUTHORIZE = "/oauth/authorize";
 
     /**
      * 数据状态值

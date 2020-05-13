@@ -47,14 +47,15 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(value = Exception.class)
     @ResponseBody
     public ResultInfo handlerException(Exception e) {
+        log.error("【系统异常】： ", e);
         if (e instanceof DescribeException){
             DescribeException myException = (DescribeException) e;
             return ResultUtil.error(ErrorCodeEnum.ERROR.getCode(), myException.getMessage());
+        } else if (e.getMessage().indexOf("User must be authenticated with Spring Security before authorization can be completed") > -1) {
+            return ResultUtil.error(ErrorCodeEnum.TOKEN_INVALID.getCode(), ErrorCodeEnum.TOKEN_INVALID.getMessage());
         }
-        log.error("【系统异常】： ", e);
         return ResultUtil.error();
     }
-
 
     /**
      * 参数绑定 异常处理

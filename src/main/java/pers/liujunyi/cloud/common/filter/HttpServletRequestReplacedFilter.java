@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import pers.liujunyi.cloud.common.encrypt.AesEncryptUtils;
+import pers.liujunyi.cloud.common.util.BaseConstant;
 import pers.liujunyi.cloud.common.util.HttpClientUtils;
 import pers.liujunyi.cloud.common.util.JsonUtils;
 import pers.liujunyi.cloud.common.util.SystemUtils;
@@ -46,7 +47,7 @@ public class HttpServletRequestReplacedFilter extends OncePerRequestFilter {
         if(httpServletRequest instanceof HttpServletRequest) {
             requestWrapper = new BodyReaderHttpServletRequestWrapper(httpServletRequest);
         }
-        if (!servletPath.equals("/heath") && !servletPath.equals("/") && !servletPath.equals("/oauth/token")) {
+        if (!servletPath.equals(BaseConstant.HEALTH) && !servletPath.equals("/") && !servletPath.equals("/oauth/token")) {
             // 获取url携带的参数信息
             Map<String, Object> params = HttpClientUtils.getAllRequestParam(httpServletRequest);
             // 获取 body 参数信息
