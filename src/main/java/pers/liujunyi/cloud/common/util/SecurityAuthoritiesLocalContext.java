@@ -4,18 +4,18 @@ package pers.liujunyi.cloud.common.util;
  * 存储当前用户角色权限
  * @author ljy
  */
-public final class SecurityLocalContext {
+public final class SecurityAuthoritiesLocalContext {
 
-    private SecurityLocalContext() {}
+    private SecurityAuthoritiesLocalContext() {}
 
     private static final ThreadLocal<String[]> AUTHORITIES = new ThreadLocal<>();
 
     /**
      * 设置Authorities
-     * @param token
+     * @param authorities
      */
-    public static  void setAuthorities(String[] token){
-        AUTHORITIES.set(token);
+    public static  void setAuthorities(String[] authorities){
+        AUTHORITIES.set(authorities);
     }
 
     /**
@@ -23,9 +23,9 @@ public final class SecurityLocalContext {
      * @return
      */
     public static  String[] getAuthorities(){
-        String[] token = AUTHORITIES.get();
-        //LOCAL_TOKEN.remove();
-        return token;
+        String[] authorities = AUTHORITIES.get();
+        //AUTHORITIES.remove();
+        return authorities;
     }
 
     /**
