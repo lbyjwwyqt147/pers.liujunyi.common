@@ -14,8 +14,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import pers.liujunyi.cloud.common.restful.ResultInfo;
 import pers.liujunyi.cloud.common.restful.ResultUtil;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.ValidationException;
@@ -29,8 +27,6 @@ import java.util.Set;
 @Log4j2
 public class GlobalExceptionHandler {
 
-    private HttpServletResponse response;
-    private HttpServletRequest request;
 
     /**
      * 判断错误是否是已定义的已知错误，不是则由未知错误代替，同时记录在log中

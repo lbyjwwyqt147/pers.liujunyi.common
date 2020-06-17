@@ -8,10 +8,7 @@ import com.mongodb.MongoException;
 import com.mongodb.TransactionOptions;
 import com.mongodb.client.ClientSession;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.data.mongodb.MongoDatabaseUtils;
-import org.springframework.data.mongodb.MongoDbFactory;
-import org.springframework.data.mongodb.MongoTransactionManager;
-import org.springframework.data.mongodb.SessionSynchronization;
+import org.springframework.data.mongodb.*;
 import org.springframework.lang.Nullable;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionException;
@@ -95,7 +92,7 @@ public class JtaTransactionImp implements UserTransaction, Serializable, Referen
 
     private Object getMongoTransaction() throws TransactionException {
 
-        MongoDbFactory mongoDbFactory = mongoTransactionManager.getDbFactory();
+        MongoDatabaseFactory mongoDbFactory = mongoTransactionManager.getDbFactory();
 
         MongoResourceHolder resourceHolder = (MongoResourceHolder) TransactionSynchronizationManager
 
@@ -131,7 +128,7 @@ public class JtaTransactionImp implements UserTransaction, Serializable, Referen
 
     private MongoResourceHolder newResourceHolder(TransactionDefinition definition) {
 
-        MongoDbFactory dbFactory = mongoTransactionManager.getDbFactory();
+        MongoDatabaseFactory dbFactory = mongoTransactionManager.getDbFactory();
 
         Class mongoDatabaseUtilsClazz = MongoDatabaseUtils.class;
 
@@ -141,7 +138,7 @@ public class JtaTransactionImp implements UserTransaction, Serializable, Referen
 
             Method doGetSession = mongoDatabaseUtilsClazz.getDeclaredMethod(
 
-                    "doGetSession", MongoDbFactory.class, SessionSynchronization.class);
+                    "doGetSession", MongoDatabaseFactory.class, SessionSynchronization.class);
 
             doGetSession.setAccessible(true);
 
@@ -583,7 +580,7 @@ public class JtaTransactionImp implements UserTransaction, Serializable, Referen
         private @Nullable
         ClientSession session;
 
-        private MongoDbFactory dbFactory;
+        private MongoDatabaseFactory dbFactory;
 
         /**
 
@@ -593,11 +590,11 @@ public class JtaTransactionImp implements UserTransaction, Serializable, Referen
 
          * @param session the associated {@link ClientSession}. Can be {@literal null}.
 
-         * @param dbFactory the associated {@link MongoDbFactory}. must not be {@literal null}.
+         * @param dbFactory the associated {@link MongoDatabaseFactory}. must not be {@literal null}.
 
          */
 
-        MongoResourceHolder(@Nullable ClientSession session, MongoDbFactory dbFactory) {
+        MongoResourceHolder(@Nullable ClientSession session, MongoDatabaseFactory dbFactory) {
 
             this.session = session;
 
@@ -648,7 +645,7 @@ public class JtaTransactionImp implements UserTransaction, Serializable, Referen
 
          */
 
-        public MongoDbFactory getDbFactory() {
+        public MongoDatabaseFactory getDbFactory() {
 
             return dbFactory;
 

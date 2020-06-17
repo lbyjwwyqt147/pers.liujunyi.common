@@ -1,24 +1,19 @@
 package pers.liujunyi.cloud.common.service.impl;
 
 import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.search.SearchHits;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
-import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
-import org.springframework.data.elasticsearch.core.query.SearchQuery;
+import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import pers.liujunyi.cloud.common.repository.elasticsearch.BaseElasticsearchRepository;
 import pers.liujunyi.cloud.common.service.BaseElasticsearchService;
 
 import javax.annotation.Resource;
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -35,7 +30,7 @@ public class BaseElasticsearchServiceImpl<T, PK extends Serializable> implements
     @Value("${spring.encrypt.secretKey}")
     protected String secretKey;
     @Resource
-    private ElasticsearchTemplate elasticsearchTemplate;
+    private ElasticsearchRestTemplate elasticsearchRestTemplate;
 
     protected BaseElasticsearchRepository<T, PK> baseElasticsearchRepository;
 
@@ -134,13 +129,13 @@ public class BaseElasticsearchServiceImpl<T, PK extends Serializable> implements
 
     @Override
     public List<String> prepareSearch(BoolQueryBuilder queryFilter, Pageable pageable, String...indexNames) {
-        SearchQuery searchQuery = new NativeSearchQueryBuilder()
-                .withIndices(indexNames)
+        /*NativeSearchQuery searchQuery = new NativeSearchQueryBuilder()
+               // .withIndices(indexNames)
                 .withQuery(queryFilter)
                 .withPageable(pageable)
                 .build();
-        List<String> queryList = elasticsearchTemplate.query(searchQuery, response -> {
-            SearchHits hits = response.getHits();
+        List<String> queryList = elasticsearchRestTemplate.queryForPage(searchQuery, response -> {
+            SearchHits hits = response.get();
             List<String> list = new CopyOnWriteArrayList<>();
             Arrays.stream(hits.getHits()).forEach(h -> {
                 String source = h.getSourceAsString();
@@ -148,7 +143,8 @@ public class BaseElasticsearchServiceImpl<T, PK extends Serializable> implements
             });
             return list;
         });
-        return queryList;
+        return queryList;*/
+        return null;
     }
 
     /**

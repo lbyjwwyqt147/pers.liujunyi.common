@@ -3,26 +3,23 @@ package pers.liujunyi.cloud.common.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.lang3.StringUtils;
-import org.elasticsearch.action.bulk.BulkItemResponse;
-import org.elasticsearch.action.bulk.BulkRequestBuilder;
-import org.elasticsearch.action.bulk.BulkResponse;
-import org.elasticsearch.action.delete.DeleteRequestBuilder;
-import org.elasticsearch.action.index.IndexRequestBuilder;
-import org.elasticsearch.action.update.UpdateRequestBuilder;
-import org.elasticsearch.client.Client;
+import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.update.UpdateRequest;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.frameworkset.elasticsearch.ElasticSearchHelper;
 import org.frameworkset.elasticsearch.client.ClientInterface;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.elasticsearch.annotations.Document;
-import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
+import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.util.CollectionUtils;
 import pers.liujunyi.cloud.common.service.BaseElasticsearchTemplateService;
 
 import javax.annotation.Resource;
 import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -46,7 +43,9 @@ public class BaseElasticsearchTemplateServiceImpl<T, PK extends Serializable> im
     private String esmapperBasePath;
 
     @Resource
-    protected ElasticsearchTemplate elasticsearchTemplate;
+    private ElasticsearchRestTemplate elasticsearchRestTemplate;
+    @Autowired
+    private RestHighLevelClient restHighLevelClient;
 
     @Override
     public Boolean updateSingleElasticsearchData(Long id, Map<String, Object> sourceMap) {
@@ -54,12 +53,28 @@ public class BaseElasticsearchTemplateServiceImpl<T, PK extends Serializable> im
         if (!CollectionUtils.isEmpty(sourceMap)) {
             Document annotation = this.getDocumentAnnotation();
             String indexName = annotation.indexName().trim();
-            String type = annotation.type().trim();
+            IndexRequest indexRequest = new IndexRequest(indexName);
+            indexRequest.id(id.toString());
+            indexRequest.source(sourceMap, XContentType.JSON);
+          //  UpdateQuery query = new  UpdateQuery();
+            UpdateRequest updateRequest = new UpdateRequest();
+            updateRequest.id(id.toString());
+            updateRequest.doc(indexRequest);
             StringBuffer msg = new StringBuffer();
-            msg.append("indexName:").append(indexName).append(" type:").append(type);
+            msg.append("indexName:").append(indexName);
             log.info(" 开始 更新 Elasticsearch   " + msg.toString() +"   里面的字段数据 ........... ");
-            Client elasticsearchClient = this.elasticsearchTemplate.getClient();
-            UpdateRequestBuilder updateRequestBuilder = elasticsearchClient.prepareUpdate(annotation.indexName(), annotation.type(), String.valueOf(id));
+
+            try {
+              org.elasticsearch.action.update.UpdateResponse updateResponse = restHighLevelClient.update(updateRequest, RequestOptions.DEFAULT);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
+
+           /* String type = annotation.type().trim();
+
+            RestClient elasticsearchClient = this.highLevelClient.getLowLevelClient();
+            UpdateResponse updateRequestBuilder = elasticsearchClient.prepareUpdate(annotation.indexName(), annotation.type(), String.valueOf(id));
             updateRequestBuilder.setDoc(sourceMap);
             if (updateRequestBuilder.execute().actionGet() != null) {
                 success = true;
@@ -71,7 +86,7 @@ public class BaseElasticsearchTemplateServiceImpl<T, PK extends Serializable> im
                     e.printStackTrace();
                 }
                 log.info("  更新 Elasticsearch " + msg.toString() + " 里面的字段数据 失败! ");
-            }
+            }*/
         }
 
         return success;
@@ -80,13 +95,13 @@ public class BaseElasticsearchTemplateServiceImpl<T, PK extends Serializable> im
     @Override
     public void updateBatchElasticsearchData(Map<String, Map<String, Object>> sourceMap) {
         if (!CollectionUtils.isEmpty(sourceMap)) {
-            Document annotation = this.getDocumentAnnotation();
+            /*Document annotation = this.getDocumentAnnotation();
             String indexName = annotation.indexName().trim();
             String type = annotation.type().trim();
             StringBuffer msg = new StringBuffer();
             msg.append("indexName:").append(indexName).append(" type:").append(type);
             log.info(" 开始 更新 Elasticsearch   " + msg.toString() +"   里面的字段数据 ........... ");
-            Client elasticsearchClient = this.elasticsearchTemplate.getClient();
+            Client elasticsearchClient = this.elasticsearchRestTemplate.getClient();
             BulkRequestBuilder bulkRequest = elasticsearchClient.prepareBulk();
             Iterator<Map.Entry<String, Map<String, Object>>> entries = sourceMap.entrySet().iterator();
             while (entries.hasNext()) {
@@ -109,7 +124,7 @@ public class BaseElasticsearchTemplateServiceImpl<T, PK extends Serializable> im
                     e.printStackTrace();
                 }
                 log.info(" 更新 Elasticsearch " + msg.toString() + " 里面的字段数据 全部执行成功！");
-            }
+            }*/
         }
     }
 
@@ -140,13 +155,13 @@ public class BaseElasticsearchTemplateServiceImpl<T, PK extends Serializable> im
     @Override
     public void saveBatchElasticsearchIndexBeanData(Map<String, T> source) {
         if (!CollectionUtils.isEmpty(source)) {
-            Document annotation = this.getDocumentAnnotation();
+            /*Document annotation = this.getDocumentAnnotation();
             String indexName = annotation.indexName().trim();
             String type = annotation.type().trim();
             StringBuffer msg = new StringBuffer();
             msg.append("indexName:").append(indexName).append(" type:").append(type);
             log.info(" 开始 添加 Elasticsearch   " + msg.toString() +"   数据 ........... ");
-            Client elasticsearchClient = this.elasticsearchTemplate.getClient();
+            Client elasticsearchClient = this.elasticsearchRestTemplate.getClient();
             BulkRequestBuilder bulkRequest = elasticsearchClient.prepareBulk();
             Iterator<Map.Entry<String, T>> entries = source.entrySet().iterator();
             while (entries.hasNext()) {
@@ -169,7 +184,7 @@ public class BaseElasticsearchTemplateServiceImpl<T, PK extends Serializable> im
                     e.printStackTrace();
                 }
                 log.info(" 添加 Elasticsearch " + msg.toString() + " 数据 全部执行成功！");
-            }
+            }*/
         }
     }
 
@@ -182,13 +197,13 @@ public class BaseElasticsearchTemplateServiceImpl<T, PK extends Serializable> im
     public Boolean deleteSingleElasticsearchIndex(Long id) {
         boolean success = false;
         if (id != null) {
-            Document annotation = this.getDocumentAnnotation();
+            /*Document annotation = this.getDocumentAnnotation();
             String indexName = annotation.indexName().trim();
             String type = annotation.type().trim();
             StringBuffer msg = new StringBuffer();
             msg.append("indexName:").append(indexName).append(" type:").append(type).append(" index:").append(id);
             log.info(" 开始 删除 Elasticsearch   " + msg.toString() +"   数据 ........... ");
-            Client elasticsearchClient = this.elasticsearchTemplate.getClient();
+            Client elasticsearchClient = this.elasticsearchRestTemplate.getClient();
             DeleteRequestBuilder deleteRequestBuilder  = elasticsearchClient.prepareDelete(annotation.indexName(), annotation.type(), String.valueOf(id));
             if (deleteRequestBuilder.execute().actionGet() != null) {
                 success = true;
@@ -200,7 +215,7 @@ public class BaseElasticsearchTemplateServiceImpl<T, PK extends Serializable> im
                     e.printStackTrace();
                 }
                 log.info("  删除 Elasticsearch " + msg.toString() + " 数据 失败! ");
-            }
+            }*/
         }
         return success;
     }
@@ -208,7 +223,7 @@ public class BaseElasticsearchTemplateServiceImpl<T, PK extends Serializable> im
     @Override
     public void deleteBatchElasticsearchIndex(List<Long> ids) {
         if (!CollectionUtils.isEmpty(ids)) {
-            Document annotation = this.getDocumentAnnotation();
+         /*   Document annotation = this.getDocumentAnnotation();
             String indexName = annotation.indexName().trim();
             String type = annotation.type().trim();
             StringBuffer msg = new StringBuffer();
@@ -233,7 +248,7 @@ public class BaseElasticsearchTemplateServiceImpl<T, PK extends Serializable> im
                     e.printStackTrace();
                 }
                 log.info(" 删除 Elasticsearch " + msg.toString() + " 数据 全部执行成功！");
-            }
+            }*/
         }
     }
 
@@ -259,7 +274,7 @@ public class BaseElasticsearchTemplateServiceImpl<T, PK extends Serializable> im
     private Boolean saveElasticsearchIndexData(Long id, Object object) {
         boolean success = false;
         if (object != null) {
-            Document annotation = this.getDocumentAnnotation();
+           /* Document annotation = this.getDocumentAnnotation();
             String indexName = annotation.indexName().trim();
             String type = annotation.type().trim();
             StringBuffer msg = new StringBuffer();
@@ -278,7 +293,7 @@ public class BaseElasticsearchTemplateServiceImpl<T, PK extends Serializable> im
                     e.printStackTrace();
                 }
                 log.info("  添加 Elasticsearch " + msg.toString() + " 数据 失败! ");
-            }
+            }*/
         }
         return success;
     }

@@ -12,7 +12,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
-import org.springframework.data.elasticsearch.core.query.SearchQuery;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import pers.liujunyi.cloud.common.query.jpa.annotation.AggregationType;
 import pers.liujunyi.cloud.common.query.jpa.annotation.QueryCondition;
 
@@ -91,7 +91,7 @@ public abstract class BaseEsQuery implements Serializable {
      * @param pageable 分页
      * @return
      */
-    public SearchQuery toSpecPageable(Pageable pageable) {
+    public NativeSearchQuery toSpecPageable(Pageable pageable) {
         return this.toSpec(pageable, null,null);
     }
 
@@ -100,7 +100,7 @@ public abstract class BaseEsQuery implements Serializable {
      * @param sortBuilder 排序
      * @return
      */
-    public SearchQuery toSpecSortPageable(SortBuilder sortBuilder) {
+    public NativeSearchQuery toSpecSortPageable(SortBuilder sortBuilder) {
         return this.toSpec(this.toPageable(), sortBuilder, null);
     }
 
@@ -111,7 +111,7 @@ public abstract class BaseEsQuery implements Serializable {
      * @param type  聚合函数类型
      * @return
      */
-    public SearchQuery toAggregationBuilders(String fieldName, AggregationType type) {
+    public NativeSearchQuery toAggregationBuilders(String fieldName, AggregationType type) {
         return this.toSpec(null, null, aggregationBuilders(fieldName, type));
     }
 
@@ -150,7 +150,7 @@ public abstract class BaseEsQuery implements Serializable {
      * @param aggregationBuilder 包含聚合函数查询
      * @return SearchQuery
      */
-    private SearchQuery toSpec(Pageable pageable, SortBuilder sortBuilder, AbstractAggregationBuilder aggregationBuilder) {
+    private NativeSearchQuery toSpec(Pageable pageable, SortBuilder sortBuilder, AbstractAggregationBuilder aggregationBuilder) {
         BaseEsQuery outerThis = this;
         Class clazz = outerThis.getClass();
         //获取查询类Query的所有字段,包括父类字段
@@ -279,7 +279,7 @@ public abstract class BaseEsQuery implements Serializable {
                 continue;
             }
         }
-        SearchQuery searchQuery  = null;
+        NativeSearchQuery searchQuery  = null;
         if (pageable == null && aggregationBuilder == null && sortBuilder == null) {
             searchQuery =  new NativeSearchQueryBuilder().withQuery(queryFilter).build();
         } else if (pageable != null && sortBuilder == null){
