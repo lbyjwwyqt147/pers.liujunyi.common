@@ -67,4 +67,7 @@ public class BaseEntity implements Serializable {
     @Column(columnDefinition="bigint(20) DEFAULT '1' COMMENT '乐观锁版本号'")
     private Long dataVersion;
 
+    @CustomerField(isLog = false)
+    @Column(columnDefinition="tinyint(4) DEFAULT '0' COMMENT '删除标记 0:未删除  1：已删除 '")
+    private Byte delFlag;
 }
